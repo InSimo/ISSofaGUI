@@ -56,9 +56,6 @@
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/gui/ColourPickingVisitor.h>
 
-// define this if you want video and OBJ capture to be only done once per N iteration
-//#define CAPTURE_PERIOD 5
-
 namespace sofa
 {
 
@@ -596,6 +593,7 @@ void QtViewer::DrawLogo()
     glLoadIdentity();
     glOrtho(-0.5, _W, -0.5, _H, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
     glLoadIdentity();
 
     if (texLogo)
@@ -621,6 +619,7 @@ void QtViewer::DrawLogo()
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
 }
 
 
@@ -655,6 +654,10 @@ void QtViewer::drawColourPicking(ColourPickingVisitor::ColourCode code)
 // -------------------------------------------------------------------
 void QtViewer::DisplayOBJs()
 {
+
+    if (_background == 0)
+        DrawLogo();
+
     if (!groot)
         return;
     Enable<GL_LIGHTING> light;
@@ -762,13 +765,93 @@ void QtViewer::DrawScene(void)
         return;
     }
 
-    calcProjection();
+    int width = _W;
+    int height = _H;
+    bool stereo = _stereoEnabled;
+    bool twopass = stereo;
+    StereoMode smode = _stereoMode;
+    bool stencil = false;
+    bool viewport = false;
+    sofa::core::visual::VisualParams::Viewport vpleft, vpright;
+    if(stereo)
+    {
+        if (smode == STEREO_AUTO)
+        {
+            // auto-detect stereo mode
+            static int prevsmode = STEREO_AUTO;
+            if ((_W <= 1280 && _H == 1470) || (_W <= 1920 && _H == 2205))
+            {
+                // standard HDMI 1.4 stereo frame packing format
+                smode = STEREO_FRAME_PACKING;
+                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Frame Packing" << std::endl;
+            }
+            else if (_W >= 2 * _H)
+            {
+                smode = STEREO_SIDE_BY_SIDE;
+                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Side by Side" << std::endl;
+            }
+            else if (_H > _W)
+            {
+                smode = STEREO_TOP_BOTTOM;
+                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Top Bottom" << std::endl;
+            }
+            else
+            {
+                smode = STEREO_INTERLACED;
+                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Interlaced" << std::endl;
+                //smode = STEREO_SYDE_BY_SIDE_HALF;
+                //if (smode != prevsmode) std::cout << "AUTO Stereo mode: Side by Side Half" << std::endl;
+            }
+            prevsmode = smode;
+        }
+        switch (smode)
+        {
+        case STEREO_INTERLACED:
+        {
+            stencil = true;
+            glEnable(GL_STENCIL_TEST);
+            MakeStencilMask();
+            break;
+        }
+        case STEREO_SIDE_BY_SIDE:
+        case STEREO_SIDE_BY_SIDE_HALF:
+        {
+            width /= 2;
+            viewport = true;
+            vpleft = sofa::helper::make_array(0,0,width,height);
+            vpright = sofa::helper::make_array(_W-width,0,width,height);
+            if (smode == STEREO_SIDE_BY_SIDE_HALF)
+                width = _W; // keep the original ratio for camera
+            break;
+        }
+        case STEREO_FRAME_PACKING:
+        case STEREO_TOP_BOTTOM:
+        case STEREO_TOP_BOTTOM_HALF:
+        {
+            if (smode == STEREO_FRAME_PACKING && _H == 1470) // 720p format
+                height = 720;
+            else if (smode == STEREO_FRAME_PACKING && _H == 2205) // 1080p format
+                height = 1080;
+            else // other resolutions
+                height /= 2;
+            viewport = true;
+            vpleft = sofa::helper::make_array(0,0,width,height);
+            vpright = sofa::helper::make_array(0,_H-height,width,height);
+            if (smode == STEREO_TOP_BOTTOM_HALF)
+                height = _H; // keep the original ratio for camera
+            break;
+        }
+        case STEREO_AUTO:
+        case STEREO_NONE:
+        default:
+            twopass = false;
+            break;
+        }
+    }
 
-    if (_background == 0)
-        DrawLogo();
+    calcProjection(width, height);
 
     glLoadIdentity();
-
 
     GLdouble mat[16];
 
@@ -779,85 +862,78 @@ void QtViewer::DrawScene(void)
     vparams->setModelViewMatrix(lastModelviewMatrix);
     vparams->setProjectionMatrix(lastProjectionMatrix);
 
-    //for(int i=0 ; i<16 ;i++)
-    //	std::cout << lastModelviewMatrix[i] << " ";
-//
-//	std::cout << std::endl;
-
-    //Vec position() const { return inverseCoordinatesOf(Vec(0.0,0.0,0.0)); };
-
-    //std::cout << "P " << currentCamera->getPosition() << std::endl;
-
-
-    if(currentCamera)
+    if (stereo)
     {
-        //	std::cout << currentCamera->getPosition() << " " << currentCamera->getOrientation() << std::endl;
-        //	std::cout << currentCamera->getZNear() << " " << currentCamera->getZFar() << std::endl;
+        //1st pass
+        if (viewport)
+        {
+            sofa::core::visual::VisualParams::Viewport vp = vpleft;
+            vparams->viewport() = vp;
+            glViewport(vp[0], vp[1], vp[2], vp[3]);
+            glScissor(vp[0], vp[1], vp[2], vp[3]);
+            glEnable(GL_SCISSOR_TEST);
+        }
+        if (stencil)
+        {
+            glStencilFunc(GL_EQUAL, 0x1, 0x1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        double distance = currentCamera ? currentCamera->getDistance() : 10*_stereoShift;
+        double angle = atan2(_stereoShift,distance)*180.0/M_PI;
+        glTranslated(0,0,-distance);
+        glRotated(-angle,0,1,0);
+        glTranslated(0,0,distance);
+        glMultMatrixd(mat);
     }
 
     if (_renderingMode == GL_RENDER)
     {
-        //STEREO MODE
-        if(_stereoEnabled)
-        {
-            //calcProjection();
-
-            //window()->showNormal();
-            glEnable(GL_STENCIL_TEST);
-            MakeStencilMask();
-
-            //1st pass
-            glStencilFunc(GL_EQUAL, 0x1, 0x1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            DisplayOBJs();
-
-            //2nd pass
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            //glLoadIdentity();
-            //translate slighty the camera
-            vparams->sceneTransform().translation[0] += _stereoShift;
-            vparams->sceneTransform().Apply();
-            glStencilFunc(GL_NOTEQUAL, 0x1, 0x1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            DisplayOBJs();
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-            glDisable(GL_STENCIL_TEST);
-
-            vparams->sceneTransform().translation[0] -= _stereoShift;
-        }
-        else
-        {
-            //SPLIT MODE
-            if (_binocularModeEnabled)
-            {
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glViewport(0, 0, _W/2, _H);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                DisplayOBJs();
-
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glViewport(_W/2, 0, _W, _H);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                DisplayOBJs();
-            }
-            //NORMAL MODE
-            else
-            {
-                //calcProjection(0,0, _W, _H);
-                //window()->showNormal();
-                DisplayOBJs();
-            }
-        }
-
-        DisplayMenu(); // always needs to be the last object being drawn
+        DisplayOBJs();
     }
 
+    if (stereo)
+    {
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+    //2nd pass
+    if (twopass)
+    {
+        if (viewport)
+        {
+            sofa::core::visual::VisualParams::Viewport vp = vpright;
+            vparams->viewport() = vp;
+            glViewport(vp[0], vp[1], vp[2], vp[3]);
+            glScissor(vp[0], vp[1], vp[2], vp[3]);
+            glEnable(GL_SCISSOR_TEST);
+        }
+        if (stencil)
+        {
+            glStencilFunc(GL_NOTEQUAL, 0x1, 0x1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
+
+        if (_renderingMode == GL_RENDER)
+        {
+            DisplayOBJs();
+        }
+
+        if (viewport)
+        {
+            vparams->viewport() = sofa::helper::make_array(0,0,_W,_H);
+            glViewport(0, 0, _W, _H);
+            glScissor(0, 0, _W, _H);
+            glDisable(GL_SCISSOR_TEST);
+        }
+        if (stencil)
+        {
+            glDisable(GL_STENCIL_TEST);
+        }
+    }
+    DisplayMenu(); // always needs to be the last object being drawn
 }
 
 
@@ -875,7 +951,7 @@ void QtViewer::resizeGL(int width, int height)
 
     // 	std::cout << "GL window: " <<width<<"x"<<height <<std::endl;
 
-    calcProjection();
+    calcProjection(width, height);
     this->resize(width, height);
     emit( resizeW(_W));
     emit( resizeH(_H));
@@ -884,10 +960,10 @@ void QtViewer::resizeGL(int width, int height)
 // ---------------------------------------------------------
 // --- Reshape of the window, reset the projection
 // ---------------------------------------------------------
-void QtViewer::calcProjection()
+void QtViewer::calcProjection(int width, int height)
 {
-    int width = _W;
-    int height = _H;
+    if (!width) width = _W;
+    if (!height) height = _H;
     double xNear, yNear, xOrtho, yOrtho;
     double xFactor = 1.0, yFactor = 1.0;
     double offset;
@@ -997,15 +1073,8 @@ void QtViewer::paintGL()
     // draw the scene
     DrawScene();
 
-    if (_video)
-    {
-#ifdef CAPTURE_PERIOD
-        static int counter = 0;
-        if ((counter++ % CAPTURE_PERIOD)==0)
-#endif
-        }
-
-    SofaViewer::captureEvent();
+    if(!captureTimer.isActive())
+        SofaViewer::captureEvent();
 
     if (_waitForRender)
         _waitForRender = false;
@@ -1144,7 +1213,6 @@ void QtViewer::keyPressEvent(QKeyEvent * e)
         default:
         {
             SofaViewer::keyPressEvent(e);
-            e->ignore();
         }
         update();
         }
@@ -1489,23 +1557,6 @@ void QtViewer::resetView()
     if (!sceneFileName.empty())
     {
         std::string viewFileName = sceneFileName + "." + VIEW_FILE_EXTENSION;
-        /*std::ifstream in(viewFileName.c_str());
-          if (!in.fail())
-          {
-          in >> position[0];
-          in >> position[1];
-          in >> position[2];
-          in >> orientation[0];
-          in >> orientation[1];
-          in >> orientation[2];
-          in >> orientation[3];
-          orientation.normalize();
-
-          in.close();
-          fileRead = true;
-
-          setView(position, orientation);
-          }*/
         fileRead = currentCamera->importParametersFromFile(viewFileName);
     }
 
@@ -1548,21 +1599,6 @@ void QtViewer::saveView()
     if (!sceneFileName.empty())
     {
         std::string viewFileName = sceneFileName + "." + VIEW_FILE_EXTENSION;
-        /*std::ofstream out(viewFileName.c_str());
-          if (!out.fail())
-          {
-          const Vec3d& camPosition = currentCamera->getPosition();
-          const Quat& camOrientation = currentCamera->getOrientation();
-
-          out << camPosition[0] << " "
-          << camPosition[1] << " "
-          << camPosition[2] << "\n";
-          out << camOrientation[0] << " "
-          << camOrientation[1] << " "
-          << camOrientation[2] << " "
-          << camOrientation[3] << "\n";
-          out.close();
-          }*/
         if(currentCamera->exportParametersInFile(viewFileName))
             std::cout << "View parameters saved in " << viewFileName << std::endl;
         else
@@ -1593,7 +1629,6 @@ QString QtViewer::helpString()
 <li><b>B</b>: TO CHANGE THE BACKGROUND<br></li>\
 <li><b>C</b>: TO SWITCH INTERACTION MODE: press the KEY C.<br>\
 Allow or not the navigation with the mouse.<br></li>\
-<li><b>Ctrl + L</b>: TO DRAW SHADOWS<br></li>\
 <li><b>O</b>: TO EXPORT TO .OBJ<br>\
 The generated files scene-time.obj and scene-time.mtl are saved in the running project directory<br></li>\
 <li><b>P</b>: TO SAVE A SEQUENCE OF OBJ<br>\

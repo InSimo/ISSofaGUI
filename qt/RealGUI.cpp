@@ -257,8 +257,20 @@ Node* RealGUI::currentSimulation()
 
 RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& options )
     : viewerName ( viewername ),
+#ifdef SOFA_GUI_INTERACTION
+      interactionButton( NULL ),
+#endif
       viewer ( NULL ),
       simulationGraph(NULL),
+      mCreateViewersOpt(false),
+      m_dumpState(false),
+      m_dumpStateStream(NULL),
+      m_exportGnuplot(false),
+      _animationOBJ(false),
+      _animationOBJcounter(0),
+      m_displayComputationTime(false),
+      m_fullScreen(false),
+
       currentTab ( NULL ),
 #ifndef SOFA_GUI_QT_NO_RECORDER
       recorder(NULL),
@@ -270,9 +282,21 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
       timerStep(NULL),
       backgroundImage(NULL),
       left_stack(NULL),
+      pluginManager_dialog(NULL),
       recentlyOpenedFilesManager("config/Sofa.ini"),
       saveReloadFile(false),
-      displayFlag(NULL)
+      frameCounter(0),
+#ifdef SOFA_GUI_INTERACTION
+      m_interactionActived(false),
+#endif
+      displayFlag(NULL),
+#ifdef SOFA_DUMP_VISITOR_INFO
+      windowTraceVisitor(NULL),
+      handleTraceVisitor(NULL),
+#endif
+      descriptionScene(NULL),
+      htmlPage(NULL),
+      animationState(false)
 {
 
     // parse the options
@@ -504,7 +528,6 @@ void RealGUI::setPixmap(std::string pixmap_filename, QPushButton* b)
 
 RealGUI::~RealGUI()
 {
-    viewer->setScene(NULL); // has been deleted
 #ifdef SOFA_PML
     if ( pmlreader )
     {
@@ -537,7 +560,9 @@ void RealGUI::init()
     m_dumpStateStream = 0;
     m_displayComputationTime = false;
     m_exportGnuplot = false;
+
     gnuplot_directory = "";
+    m_fullScreen = false;
 }
 
 void RealGUI::removeViewer()
@@ -874,6 +899,7 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
         // Unload viewer components before delete the whole scene
         viewer->unloadSceneView();
         simulation::getSimulation()->unload ( viewer->getScene() );
+        viewer->setScene(NULL);
     }
     //Clear the list of modified dialog opened
 
@@ -1075,27 +1101,62 @@ void RealGUI::setViewerResolution ( int w, int h )
     }
 }
 
-void RealGUI::setFullScreen ()
+void RealGUI::setFullScreen (bool enable)
 {
+    if (enable == m_fullScreen) return;
 
+    QSplitter *splitter_ptr = dynamic_cast<QSplitter *> ( splitter2 );
 #ifdef SOFA_QT4
     QList<int> list;
+    static QList<int> savedsizes;
 #else
     QValueList<int> list;
+    static QValueList<int> savedsizes;
 #endif
-    list.push_back ( 0 );
-    list.push_back ( this->width() );
-    QSplitter *splitter_ptr = dynamic_cast<QSplitter *> ( splitter2 );
-    splitter_ptr->setSizes ( list );
+    if (enable)
+    {
+        savedsizes = splitter_ptr->sizes();
+        optionTabs->hide();
+        optionTabs->setParent(static_cast<QWidget*>(splitter_ptr->parent()));
+    }
+    else if (m_fullScreen)
+    {
+        splitter_ptr->insertWidget(0,optionTabs);
+        optionTabs->show();
+        splitter_ptr->setSizes ( savedsizes );
+    }
 
-    showFullScreen();
+    if (enable)
+    {
+        std::cout << "Set Full Screen Mode" << std::endl;
+        showFullScreen();
+        m_fullScreen = true;
+    }
+    else
+    {
+        std::cout << "Set Windowed Mode" << std::endl;
+        showNormal();
+        m_fullScreen = false;
+    }
 
+    if (enable)
+    {
+        menuBar()->hide();
+        statusBar()->hide();
 #ifndef SOFA_GUI_QT_NO_RECORDER
-    if (recorder) recorder->parentWidget()->hide();
-    statusBar()->addWidget( recorder->getFPSLabel());
-    statusBar()->addWidget( recorder->getTimeLabel());
+        if (recorder) recorder->parentWidget()->hide();
+        //statusBar()->addWidget( recorder->getFPSLabel());
+        //statusBar()->addWidget( recorder->getTimeLabel());
 #endif
-
+    }
+    else
+    {
+        menuBar()->show();
+        statusBar()->show();
+#ifndef SOFA_GUI_QT_NO_RECORDER
+        recorder->parentWidget()->show();
+#endif
+    }
 }
 
 void RealGUI::setBackgroundColor(const defaulttype::Vector3& c)
@@ -1816,6 +1877,22 @@ void RealGUI::keyPressEvent ( QKeyEvent * e )
         _animationOBJcounter = 0;
         break;
     }
+    case Qt::Key_Space:
+    {
+        playpauseGUI(!startButton->isOn());
+        break;
+    }
+    case Qt::Key_Backspace:
+    {
+        resetScene();
+        break;
+    }
+    case Qt::Key_F11:
+        // --- fullscreen mode
+    {
+        setFullScreen(!m_fullScreen);
+        break;
+    }
     case Qt::Key_Escape:
     {
         emit(quit());
@@ -1823,7 +1900,10 @@ void RealGUI::keyPressEvent ( QKeyEvent * e )
     }
     default:
     {
-        e->ignore();
+        if (viewer)
+        {
+            viewer->keyPressEvent(e);
+        }
         break;
     }
     }

@@ -190,7 +190,7 @@ signals:
 
 protected:
 
-    void calcProjection();
+    void calcProjection( int width = 0, int height = 0 );
     void initializeGL();
     void paintGL();
     void resizeGL( int w, int h );
@@ -260,7 +260,6 @@ private:
     void	ApplySceneTransformation(int x, int y);
     //int		handle(int event);	// required by FLTK
 
-protected:
     //virtual bool event ( QEvent * e );
 
     virtual void keyPressEvent ( QKeyEvent * e );

@@ -36,15 +36,8 @@
 #include <sofa/component/collision/TriangleModel.h>
 #include <sofa/component/collision/SphereModel.h>
 
-
-
 #include <iostream>
-using std::cerr;
-using std::endl;
 #include <limits>
-
-
-
 
 
 namespace sofa
@@ -101,7 +94,7 @@ void PickHandler::allocateSelectionBuffer(int width, int height)
     {
 
         _fboParams.depthInternalformat = GL_DEPTH_COMPONENT24;
-#ifdef GL_VERSION_3_0
+#if defined(GL_VERSION_3_0) && defined(SOFA_HAVE_GLEW)
         if (GLEW_VERSION_3_0)
         {
             _fboParams.colorInternalformat = GL_RGBA32F;
@@ -415,6 +408,9 @@ component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
                     result.body=modelInCollision;
                     result.indexCollisionElement = output[i]->elem.second.getIndex();
                     result.point = output[i]->point[1];
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+                    result.baryCoords = output[i]->baryCoords[1];
+#endif
                     result.dist  = (output[i]->point[1]-output[i]->point[0]).norm();
                     result.rayLength  = d;
                 }
@@ -431,6 +427,9 @@ component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
                     result.body=modelInCollision;
                     result.indexCollisionElement = output[i]->elem.first.getIndex();
                     result.point = output[i]->point[0];
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+                    result.baryCoords = output[i]->baryCoords[0];
+#endif
                     result.dist  = (output[i]->point[1]-output[i]->point[0]).norm();
                     result.rayLength  = d;
                 }
@@ -464,7 +463,7 @@ component::collision::BodyPicked PickHandler::findCollisionUsingBruteForce(const
 {
     BodyPicked result;
     // Look for particles hit by this ray
-//  cerr<<"PickHandler::findCollisionUsingBruteForce" << endl;
+//  std::cerr<<"PickHandler::findCollisionUsingBruteForce" << std::endl;
     simulation::MechanicalPickParticlesVisitor picker(sofa::core::ExecParams::defaultInstance() /* PARAMS FIRST */, origin, direction, maxLength, 0 );
     //core::objectmodel::BaseNode* rootNode = mouseNode->getRoot(); //dynamic_cast<core::objectmodel::BaseNode*>(sofa::simulation::getSimulation()->getContext());
 

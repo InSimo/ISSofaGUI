@@ -46,6 +46,9 @@ SofaViewer::SofaViewer()
     , texLogo(NULL)
     , backgroundImageFile("textures/SOFA_logo.bmp")
     , ambientColour(Vector3())
+    , _stereoEnabled(false)
+    , _stereoMode(STEREO_AUTO)
+    , _stereoShift(1.0)
 {
     colourPickingRenderCallBack = ColourPickingRenderCallBack(this);
 }
@@ -93,7 +96,7 @@ void SofaViewer::setSceneFileName(const std::string &f)
 void SofaViewer::setScene(sofa::simulation::Node::SPtr scene, const char* filename /* = NULL */, bool /* = false */)
 {
     std::string file =
-        filename ? sofa::helper::system::SetDirectory::GetFileName(
+        filename ? sofa::helper::system::SetDirectory::GetFileNameWithoutExtension(
                 filename) : std::string();
     std::string screenshotPrefix =
         sofa::helper::system::SetDirectory::GetParentDir(
@@ -107,9 +110,6 @@ void SofaViewer::setScene(sofa::simulation::Node::SPtr scene, const char* filena
     sceneFileName = filename ? filename : std::string("default.scn");
     groot = scene;
     initTexturesDone = false;
-    _stereoEnabled = false;
-    _stereoShift = 1.0;
-    _binocularModeEnabled = false;
 
     //Camera initialization
     if (groot)
@@ -294,12 +294,10 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
             {
 #ifdef SOFA_HAVE_FFMPEG
                 SofaVideoRecorderManager* videoManager = SofaVideoRecorderManager::getInstance();
-                unsigned int framerate = videoManager->getFramerate(); //img.s-1
-                unsigned int freq = ceil(1000/framerate); //ms
                 unsigned int bitrate = videoManager->getBitrate();
+                unsigned int framerate = videoManager->getFramerate();
                 std::string videoFilename = videoRecorder.findFilename(videoManager->getCodecExtension());
-                videoRecorder.init( videoFilename, framerate, bitrate);
-                captureTimer.start(freq);
+                videoRecorder.init( videoFilename, framerate, bitrate, videoManager->getCodecName());
 #endif
 
                 break;
@@ -307,17 +305,28 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
             default :
                 break;
             }
+            if (SofaVideoRecorderManager::getInstance()->realtime())
+            {
+                unsigned int framerate = SofaVideoRecorderManager::getInstance()->getFramerate();
+                std::cout << "Starting capture timer ( " << framerate << " Hz )" << std::endl;
+                unsigned int interv = (1000+framerate-1)/framerate;
+                captureTimer.start(interv);
+            }
 
         }
         else
         {
+            if(captureTimer.isActive())
+            {
+                std::cout << "Stopping capture timer" << std::endl;
+                captureTimer.stop();
+            }
             switch (SofaVideoRecorderManager::getInstance()->getRecordingType())
             {
             case SofaVideoRecorderManager::SCREENSHOTS :
                 break;
             case SofaVideoRecorderManager::MOVIE :
             {
-                captureTimer.stop();
 #ifdef SOFA_HAVE_FFMPEG
                 videoRecorder.finishVideo();
 #endif //SOFA_HAVE_FFMPEG
@@ -343,26 +352,50 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
         // --- enable stereo mode
     {
         _stereoEnabled = !_stereoEnabled;
-        std::cout << "Stereoscopic View Enabled" << std::endl;
+        std::cout << "Stereoscopic View " << (_stereoEnabled ? "Enabled" : "Disabled") << std::endl;
         break;
     }
     case Qt::Key_F2:
         // --- reduce shift distance
     {
         _stereoShift -= 0.1;
+        std::cout << "Stereo separation = " << _stereoShift << std::endl;
         break;
     }
     case Qt::Key_F3:
         // --- increase shift distance
     {
         _stereoShift += 0.1;
+        std::cout << "Stereo separation = " << _stereoShift << std::endl;
         break;
     }
     case Qt::Key_F5:
         // --- enable binocular mode
     {
-        std::cout << "Binocular View Enabled" << std::endl;
-        _binocularModeEnabled = !_binocularModeEnabled;
+        _stereoMode = (StereoMode)(((int)_stereoMode+1)%(int)NB_STEREO_MODES);
+        switch (_stereoMode)
+        {
+        case STEREO_INTERLACED:
+            std::cout << "Stereo mode: Interlaced" << std::endl;
+            break;
+        case STEREO_SIDE_BY_SIDE:
+            std::cout << "Stereo mode: Side by Side" << std::endl; break;
+        case STEREO_SIDE_BY_SIDE_HALF:
+            std::cout << "Stereo mode: Side by Side Half" << std::endl; break;
+        case STEREO_FRAME_PACKING:
+            std::cout << "Stereo mode: Frame Packing" << std::endl; break;
+        case STEREO_TOP_BOTTOM:
+            std::cout << "Stereo mode: Top Bottom" << std::endl; break;
+        case STEREO_TOP_BOTTOM_HALF:
+            std::cout << "Stereo mode: Top Bottom Half" << std::endl; break;
+        case STEREO_AUTO:
+            std::cout << "Stereo mode: Automatic" << std::endl; break;
+        case STEREO_NONE:
+            std::cout << "Stereo mode: None" << std::endl; break;
+        default:
+            std::cout << "Stereo mode: INVALID" << std::endl; break;
+            break;
+        }
         break;
     }
     case Qt::Key_Control:
@@ -484,7 +517,7 @@ void SofaViewer::mouseReleaseEvent ( QMouseEvent * e)
 #endif
 }
 
-void SofaViewer::mouseEvent(QMouseEvent *e)
+bool SofaViewer::mouseEvent(QMouseEvent *e)
 {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT,viewport);
@@ -546,29 +579,44 @@ void SofaViewer::mouseEvent(QMouseEvent *e)
     {
         pick.activateRay(viewport[2],viewport[3], groot.get());
     }
-
+    return true;
 }
 
 void SofaViewer::captureEvent()
 {
     if (_video)
     {
-        switch (SofaVideoRecorderManager::getInstance()->getRecordingType())
+        bool skip = false;
+        unsigned int frameskip = SofaVideoRecorderManager::getInstance()->getFrameskip();
+        if (frameskip)
         {
-        case SofaVideoRecorderManager::SCREENSHOTS :
-            if(!captureTimer.isActive())
-                screenshot(capture.findFilename(), 1);
-            break;
-        case SofaVideoRecorderManager::MOVIE :
-            if(captureTimer.isActive())
+            static unsigned int skipcounter = 0;
+            if (skipcounter < frameskip)
             {
+                skip = true;
+                ++skipcounter;
+            }
+            else
+            {
+                skip = false;
+                skipcounter = 0;
+            }
+        }
+        if (!skip)
+        {
+            switch (SofaVideoRecorderManager::getInstance()->getRecordingType())
+            {
+            case SofaVideoRecorderManager::SCREENSHOTS :
+                screenshot(capture.findFilename(), 1);
+                break;
+            case SofaVideoRecorderManager::MOVIE :
 #ifdef SOFA_HAVE_FFMPEG
                 videoRecorder.addFrame();
 #endif //SOFA_HAVE_FFMPEG
+                break;
+            default :
+                break;
             }
-            break;
-        default :
-            break;
         }
     }
 }

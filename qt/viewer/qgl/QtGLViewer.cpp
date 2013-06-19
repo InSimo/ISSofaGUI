@@ -52,11 +52,6 @@
 
 #include <sofa/defaulttype/RigidTypes.h>
 
-
-// define this if you want video and OBJ capture to be only done once per N iteration
-//#define CAPTURE_PERIOD 5
-
-
 namespace sofa
 {
 
@@ -618,7 +613,24 @@ void QtGLViewer::DrawLogo()
 // -------------------------------------------------------------------
 void QtGLViewer::DisplayOBJs()
 {
+
+
+    if (_background==0)
+        DrawLogo();
+
     if (!groot) return;
+
+    // 		// Initialize lighting
+    glPushMatrix();
+    glLoadIdentity();
+    glLightfv(GL_LIGHT0, GL_POSITION, _lightPosition);
+    glPopMatrix();
+    Enable<GL_LIGHT0> light0;
+    //
+    glColor3f(0.5f, 0.5f, 0.6f);
+    // 			DrawXZPlane(-4.0, -20.0, 20.0, -20.0, 20.0, 1.0);
+    // 			DrawAxis(0.0, 0.0, 0.0, 10.0);
+
 
     if (!groot->f_bbox.getValue().isValid()) viewAll();
 
@@ -734,9 +746,6 @@ void QtGLViewer::DrawScene(void)
     vparams->zFar() = camera()->zFar();
     vparams->zNear() = camera()->zNear();
 
-    if (_background==0)
-        DrawLogo();
-
     camera()->getModelViewMatrix( lastModelviewMatrix );
     vparams->setModelViewMatrix( lastModelviewMatrix );
     vparams->setProjectionMatrix( lastProjectionMatrix );
@@ -753,87 +762,8 @@ void QtGLViewer::DrawScene(void)
 
     if (_renderingMode == GL_RENDER)
     {
-        // 		// Initialize lighting
-        glPushMatrix();
-        glLoadIdentity();
-        glLightfv(GL_LIGHT0, GL_POSITION, _lightPosition);
-        glPopMatrix();
-        Enable<GL_LIGHT0> light0;
-        //
-        glColor3f(0.5f, 0.5f, 0.6f);
-        // 			DrawXZPlane(-4.0, -20.0, 20.0, -20.0, 20.0, 1.0);
-        // 			DrawAxis(0.0, 0.0, 0.0, 10.0);
 
-        if(_stereoEnabled)
-        {
-            glEnable(GL_STENCIL_TEST);
-            MakeStencilMask();
-
-            //1st pass
-            glStencilFunc(GL_EQUAL, 0x1, 0x1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            DisplayOBJs();
-
-            //2nd pass
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glLoadIdentity();
-
-            //translate slighty the camera
-            //visualParameters.sceneTransform.translation[0] += stereoShift;
-            qglviewer::Vec newPos, pos = camera()->position();
-            newPos = camera()->cameraCoordinatesOf(pos);
-            newPos.x += _stereoShift;
-            newPos = camera()->worldCoordinatesOf(newPos);
-            camera()->setPosition(newPos);
-            camera()->computeModelViewMatrix();
-            camera()->getModelViewMatrix(lastModelviewMatrix);
-            glMultMatrixd(lastModelviewMatrix);
-
-
-            glStencilFunc(GL_NOTEQUAL, 0x1, 0x1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            DisplayOBJs();
-
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-
-            camera()->setPosition(pos);
-            camera()->computeModelViewMatrix();
-            camera()->getModelViewMatrix(lastModelviewMatrix);
-            glMultMatrixd(lastModelviewMatrix);
-
-            glDisable(GL_STENCIL_TEST);
-
-
-            //visualParameters.sceneTransform.translation[0] -= stereoShift;
-        }
-        else
-        {
-            //SPLIT MODE
-            if (_binocularModeEnabled)
-            {
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glViewport(0, 0, _W/2, _H);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                DisplayOBJs();
-
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glViewport(_W/2, 0, _W, _H);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                DisplayOBJs();
-            }
-            //NORMAL MODE
-            else
-            {
-                DisplayOBJs();
-            }
-        }
-
+        DisplayOBJs();
         DisplayMenu();		// always needs to be the last object being drawn
     }
 
@@ -928,15 +858,8 @@ void QtGLViewer::draw()
     // draw the scene
     DrawScene();
 
-    if (_video)
-    {
-#ifdef CAPTURE_PERIOD
-        static int counter = 0;
-        if ((counter++ % CAPTURE_PERIOD)==0)
-#endif
-        }
-
-    SofaViewer::captureEvent();
+    if(!captureTimer.isActive())
+        SofaViewer::captureEvent();
 
     if (_waitForRender)
         _waitForRender = false;
@@ -1001,7 +924,6 @@ void QtGLViewer::keyPressEvent ( QKeyEvent * e )
         {
             SofaViewer::keyPressEvent(e);
             QGLViewer::keyPressEvent(e);
-            e->ignore();
         }
         }
     }
@@ -1212,7 +1134,6 @@ void QtGLViewer::setSizeH( int size )
     updateGL();
 
 }
-
 
 QString QtGLViewer::helpString()
 {
