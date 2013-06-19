@@ -42,6 +42,7 @@
 #include <sofa/simulation/common/DeactivatedNodeVisitor.h>
 #include <sofa/component/visualmodel/VisualStyle.h>
 #include <sofa/helper/system/FileRepository.h>
+#include <sofa/helper/AdvancedTimer.h>
 
 #include <sofa/core/visual/VisualParams.h>
 
@@ -293,6 +294,13 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
 
     connect(this, SIGNAL(quit()), this, SLOT(fileExit()));
 
+    //--------
+    pluginManager_dialog = new SofaPluginManager();
+    pluginManager_dialog->hide();
+
+    this->connect( pluginManager_dialog, SIGNAL( libraryAdded() ),  this, SLOT( updateViewerList() ));
+    this->connect( pluginManager_dialog, SIGNAL( libraryRemoved() ),  this, SLOT( updateViewerList() ));
+
     informationOnPickCallBack = InformationOnPickCallBack(this);
 
 #ifdef SOFA_QT4
@@ -430,14 +438,6 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     htmlPage->mimeSourceFactory()->setExtensionType("html", "text/utf8");;
     connect(htmlPage, SIGNAL(sourceChanged(const QString&)), this, SLOT(changeHtmlPage(const QString&)));
 #endif
-    //--------
-    pluginManager_dialog = new SofaPluginManager();
-    pluginManager_dialog->hide();
-
-    this->connect( pluginManager_dialog, SIGNAL( libraryAdded() ),  this, SLOT( updateViewerList() ));
-    this->connect( pluginManager_dialog, SIGNAL( libraryRemoved() ),  this, SLOT( updateViewerList() ));
-
-
     SofaMouseManager::getInstance()->hide();
     SofaVideoRecorderManager::getInstance()->hide();
 
@@ -1564,42 +1564,7 @@ void RealGUI::eventNewStep()
 
     if ( m_displayComputationTime && ( frameCounter%100 ) == 0 && root!=NULL )
     {
-
-        std::cout << "========== ITERATION " << frameCounter << " ==========\n";
-        const sofa::simulation::Node::NodeTimer& total = root->getTotalTime();
-        const std::map<std::string, sofa::simulation::Node::NodeTimer>& times = root->getVisitorTime();
-        const std::map<std::string, std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer> >& objtimes = root->getObjectTime();
-        const double fact = 1000000.0 / ( 100*root->getTimeFreq() );
-        for ( std::map<std::string, sofa::simulation::Node::NodeTimer>::const_iterator it = times.begin(); it != times.end(); ++it )
-        {
-            std::cout << "TIME "<<it->first<<": " << ( ( int ) ( fact*it->second.tTree+0.5 ) ) *0.001 << " ms (" << ( 1000*it->second.tTree/total.tTree ) *0.1 << " %).\n";
-            std::map<std::string, std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer> >::const_iterator it1 = objtimes.find ( it->first );
-            if ( it1 != objtimes.end() )
-            {
-                for ( std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer>::const_iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2 )
-                {
-                    std::cout << "  "<< sofa::helper::gettypename ( typeid ( * ( it2->first ) ) ) <<" "<< it2->first->getName() <<": "
-                            << ( ( int ) ( fact*it2->second.tObject+0.5 ) ) *0.001 << " ms (" << ( 1000*it2->second.tObject/it->second.tTree ) *0.1 << " %).\n";
-                }
-            }
-        }
-        for ( std::map<std::string, std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer> >::const_iterator it = objtimes.begin(); it != objtimes.end(); ++it )
-        {
-            if ( times.count ( it->first ) >0 ) continue;
-            ctime_t ttotal = 0;
-            for ( std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2 )
-                ttotal += it2->second.tObject;
-            std::cout << "TIME "<<it->first<<": " << ( ( int ) ( fact*ttotal+0.5 ) ) *0.001 << " ms (" << ( 1000*ttotal/total.tTree ) *0.1 << " %).\n";
-            if ( ttotal > 0 )
-                for ( std::map<sofa::core::objectmodel::BaseObject*, sofa::simulation::Node::ObjectTimer>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2 )
-                {
-                    std::cout << "  "<< sofa::helper::gettypename ( typeid ( * ( it2->first ) ) ) <<" "<< it2->first->getName() <<": "
-                            << ( ( int ) ( fact*it2->second.tObject+0.5 ) ) *0.001 << " ms (" << ( 1000*it2->second.tObject/ttotal ) *0.1 << " %).\n";
-                }
-        }
-        std::cout << "TOTAL TIME: " << ( ( int ) ( fact*total.tTree+0.5 ) ) *0.001 << " ms (" << ( ( int ) ( 100/ ( fact*total.tTree*0.000001 ) +0.5 ) ) *0.01 << " FPS).\n";
-        root->resetTime();
-
+        /// @TODO: use AdvancedTimer in GUI to display time statistics
     }
 }
 
@@ -1674,10 +1639,19 @@ void RealGUI::resetScene()
     Node* root = getScene();
     startDumpVisitor();
     emit ( newScene() );
-    //Reset the scene
-    if ( root )
+
+    // Reset the scene
+    if (root)
     {
-        root->setTime(0.);
+        const core::behavior::BaseAnimationLoop *animLoop = root->getAnimationLoop();
+
+        if (animLoop != 0)
+        {
+            root->setTime(animLoop->getResetTime());
+        }
+        else
+            root->setTime(0.);
+
         eventNewTime();
         simulation::getSimulation()->reset ( root );
 
@@ -1688,7 +1662,6 @@ void RealGUI::resetScene()
 
     viewer->getPickHandler()->reset();
     stopDumpVisitor();
-
 }
 
 //*****************************************************************************************
@@ -1699,7 +1672,11 @@ void RealGUI::displayComputationTime ( bool value )
     m_displayComputationTime = value;
     if ( root )
     {
-        root->setLogTime ( m_displayComputationTime );
+        if (value)
+            std::cout << "Activating Timer" << std::endl;
+        else
+            std::cout << "Deactivating Timer" << std::endl;
+        sofa::helper::AdvancedTimer::setEnabled("Animate", value);
     }
 }
 
