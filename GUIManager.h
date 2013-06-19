@@ -27,16 +27,10 @@
 
 #include <sofa/helper/system/config.h>
 #include <sofa/simulation/common/Node.h>
+#include "SofaGUI.h"
 #include <vector>
 #include <string>
 #include <list>
-
-#ifdef SOFA_BUILD_GUIMANAGER
-#	define SOFA_GUIMANAGER_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#	define SOFA_GUIMANAGER_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
-
 
 namespace sofa
 {
@@ -46,7 +40,7 @@ namespace gui
 class SofaGUI;
 
 
-class SOFA_GUIMANAGER_API GUIManager
+class SOFA_SOFAGUI_API GUIManager
 {
 public:
     typedef int InitGUIFn(const char* name, const std::vector<std::string>& options);

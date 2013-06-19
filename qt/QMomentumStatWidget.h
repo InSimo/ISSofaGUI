@@ -22,53 +22,57 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "Main.h"
-#include "GUIManager.h"
-#include "SofaGUI.h"
-#include "BatchGUI.h"
-#include "qt/RealGUI.h"
-#include "glut/SimpleGUI.h"
-#ifdef SOFA_HAVE_BOOST
-#include "glut/MultithreadGUI.h"
-#endif
+#ifndef SOFA_GUI_QT_QMOMENTUMSTATWIDGET_H
+#define SOFA_GUI_QT_QMOMENTUMSTATWIDGET_H
+
+#include "QGraphStatWidget.h"
+
+#include <sofa/core/behavior/BaseMass.h>
 
 namespace sofa
 {
-
 namespace gui
 {
-
-void initMain()
+namespace qt
 {
-    static bool first = true;
-    if (first)
+
+class QMomentumStatWidget : public QGraphStatWidget
+{
+
+    Q_OBJECT
+
+public:
+
+    QMomentumStatWidget( QWidget* parent, simulation::Node* node ) : QGraphStatWidget( parent, node, "Momenta", 6 )
     {
-
-        first = false;
+        setCurve( 0, "Linear X", Qt::red );
+        setCurve( 1, "Linear Y", Qt::green );
+        setCurve( 2, "Linear Z", Qt::blue );
+        setCurve( 3, "Angular X", Qt::cyan );
+        setCurve( 4, "Angular Y", Qt::magenta );
+        setCurve( 5, "Angular Z", Qt::yellow );
     }
-}
 
-int BatchGUIClass = GUIManager::RegisterGUI("batch", &BatchGUI::CreateGUI, &BatchGUI::InitGUI, -1);
+    virtual void step()
+    {
+        QGraphStatWidget::step(); // time history
 
-#ifdef SOFA_GUI_GLUT
+        // Add Momentum
+        if( _node->mass )
+        {
+            defaulttype::Vec6d momenta = _node->mass->getMomentum();
+            for( unsigned i=0 ; i<6 ; ++i ) _YHistory[i].push_back( momenta[i] );
+        }
+        else
+            for( unsigned i=0 ; i<6 ; ++i ) _YHistory[i].push_back(0);
+    }
 
-int SimpleGUIClass = GUIManager::RegisterGUI("glut", &glut::SimpleGUI::CreateGUI, &glut::SimpleGUI::InitGUI, 0);
+};
 
-#ifdef SOFA_HAVE_BOOST
-int MtGUIClass = GUIManager::RegisterGUI("glut-mt", &glut::MultithreadGUI::CreateGUI, &glut::MultithreadGUI::InitGUI, 0);
-#endif
-#endif
 
-#ifdef SOFA_GUI_QGLVIEWER
+} // qt
+} // gui
+} //sofa
 
-int QGLViewerGUIClass = GUIManager::RegisterGUI ( "qglviewer", &qt::RealGUI::CreateGUI, &qt::RealGUI::InitGUI, 3 );
-#endif
+#endif // SOFA_GUI_QT_QMOMENTUMSTATWIDGET_H
 
-#ifdef SOFA_GUI_QTVIEWER
-
-int QtGUIClass = GUIManager::RegisterGUI ( "qt", &qt::RealGUI::CreateGUI, &qt::RealGUI::InitGUI, 2 );
-#endif
-
-} // namespace gui
-
-} // namespace sofa

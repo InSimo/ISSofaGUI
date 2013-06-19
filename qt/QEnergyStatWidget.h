@@ -25,28 +25,11 @@
 #ifndef SOFA_GUI_QT_QENERGYSTATWIDGET_H
 #define SOFA_GUI_QT_QENERGYSTATWIDGET_H
 
-#include <sofa/simulation/common/Node.h>
+#include "QGraphStatWidget.h"
+
 #include <sofa/core/behavior/BaseForceField.h>
 #include <sofa/core/behavior/BaseMass.h>
 
-#ifdef SOFA_QT4
-#include <QWidget>
-#include <QTextEdit>
-#include <Q3GroupBox>
-#else
-#include <qwidget.h>
-#include <qtextedit.h>
-#include <qgroupbox.h>
-#endif
-
-
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-
-#ifndef SOFA_QT4
-typedef QGroupBox Q3GroupBox;
-typedef QTextEdit   Q3TextEdit;
-#endif
 
 namespace sofa
 {
@@ -55,23 +38,44 @@ namespace gui
 namespace qt
 {
 
-class QEnergyStatWidget : public QWidget
+class QEnergyStatWidget : public QGraphStatWidget
 {
+
     Q_OBJECT
+
 public:
-    QEnergyStatWidget(QWidget* parent, simulation::Node* node);
-    void step();
-    void updateVisualization();
 
-protected:
-    simulation::Node *node;
+    QEnergyStatWidget( QWidget* parent, simulation::Node* node ) : QGraphStatWidget( parent, node, "Energy", 3 )
+    {
+        setCurve( 0, "Kinetic", Qt::red );
+        setCurve( 1, "Potential", Qt::green );
+        setCurve( 2, "Mechanical", Qt::blue );
+    }
 
-    std::vector< double > history;
-    std::vector< double > energy_history[3];
+    void step()
+    {
+        //Add Time
+        QGraphStatWidget::step();
 
+        //Add Kinetic Energy
+        if( _node->mass )
+            _YHistory[0].push_back( _node->mass->getKineticEnergy() );
+        else
+            _YHistory[0].push_back(0);
 
-    QwtPlot *graphEnergy;
-    QwtPlotCurve *energy_curve[3];
+        //Add Potential Energy
+        double potentialEnergy=0;
+        typedef sofa::simulation::Node::Sequence<core::behavior::BaseForceField> SeqFF;
+        for( SeqFF::iterator it = _node->forceField.begin() ; it != _node->forceField.end() ; ++it )
+        {
+            potentialEnergy += (*it)->getPotentialEnergy();
+        }
+        _YHistory[1].push_back( potentialEnergy );
+
+        //Add Mechanical Energy
+        _YHistory[2].push_back( _YHistory[0].back() + _YHistory[1].back() );
+    }
+
 };
 
 
