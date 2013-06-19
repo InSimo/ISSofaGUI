@@ -33,7 +33,7 @@
 #include <sofa/component/collision/InciseAlongPathPerformer.h>
 #ifdef SOFA_DEV
 #include <sofa/component/collision/AddFramePerformer.h>
-#ifdef WIN32
+#if defined(WIN32) && defined(SOFA_HAVE_PLUGIN_Compliant)
 #include <plugins/Compliant/CompliantAttachPerformer.h>
 #endif
 #endif
@@ -71,66 +71,74 @@ namespace gui
 {
 
 //*******************************************************************************************
-void AttachOperation::start()
+void Operation::start()
 {
     if (!performer)
     {
-        //Creation
-        performer=component::collision::InteractionPerformer::InteractionPerformerFactory::getInstance()->createObject("AttachBody", pickHandle->getInteraction()->mouseInteractor.get());
-        pickHandle->getInteraction()->mouseInteractor->addInteractionPerformer(performer);
-        //Configuration
-        component::collision::AttachBodyPerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::AttachBodyPerformerConfiguration*>(performer);
-        performerConfiguration->setStiffness(getStiffness());
-        performerConfiguration->setArrowSize(getArrowSize());
-        performerConfiguration->setShowFactorSize(getShowFactorSize());
-        //Start
-        performer->start();
+        performer = createPerformer();
+        if (!performer)
+        {
+            std::cerr << defaultPerformerType() << " performer cannot be created with the picked model" << std::endl;
+            return;
+        }
+        else
+        {
+            pickHandle->getInteraction()->mouseInteractor->addInteractionPerformer(performer);
+            configurePerformer(performer);
+            performer->start();
+        }
     }
 }
 
-void AttachOperation::execution()
+sofa::component::collision::InteractionPerformer *Operation::createPerformer()
 {
-    //do nothing
+    std::string type = defaultPerformerType();
+    if (type.empty()) return NULL;
+    return component::collision::InteractionPerformer::InteractionPerformerFactory::getInstance()->createObject(type, pickHandle->getInteraction()->mouseInteractor.get());
 }
 
-void AttachOperation::end()
+void Operation::configurePerformer(sofa::component::collision::InteractionPerformer* p)
 {
-    pickHandle->getInteraction()->mouseInteractor->removeInteractionPerformer(performer);
-    delete performer; performer=0;
+    if (mbsetting) p->configure(mbsetting.get());
 }
 
-void AttachOperation::endOperation()
+void Operation::end()
 {
-    pickHandle->getInteraction()->mouseInteractor->removeInteractionPerformer(performer);
+    if (performer)
+    {
+        pickHandle->getInteraction()->mouseInteractor->removeInteractionPerformer(performer);
+        delete performer; performer=NULL;
+    }
 }
-
-
-
 
 //*******************************************************************************************
-void FixOperation::start()
-{
-    //Creation
-    performer=component::collision::InteractionPerformer::InteractionPerformerFactory::getInstance()->createObject("FixParticle", pickHandle->getInteraction()->mouseInteractor.get());
-    if (!performer) {std::cerr << "FixParticule performer is not able to run with the model picked" << std::endl; return;}
-    pickHandle->getInteraction()->mouseInteractor->addInteractionPerformer(performer);
+std::string AttachOperation::defaultPerformerType() { return "AttachBody"; }
 
+void AttachOperation::configurePerformer(sofa::component::collision::InteractionPerformer* p)
+{
+    Operation::configurePerformer(p);
+    /*
+        //Configuration
+        component::collision::AttachBodyPerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::AttachBodyPerformerConfiguration*>(p);
+        if (performerConfiguration)
+        {
+            performerConfiguration->setStiffness(getStiffness());
+            performerConfiguration->setArrowSize(getArrowSize());
+            performerConfiguration->setShowFactorSize(getShowFactorSize());
+        }
+    */
+}
+
+//*******************************************************************************************
+std::string FixOperation::defaultPerformerType() { return "FixParticle"; }
+
+void FixOperation::configurePerformer(sofa::component::collision::InteractionPerformer* performer)
+{
+    Operation::configurePerformer(performer);
     //Configuration
     component::collision::FixParticlePerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::FixParticlePerformerConfiguration*>(performer);
     performerConfiguration->setStiffness(getStiffness());
-    //Start
-    performer->start();
 }
-
-void FixOperation::execution()
-{
-}
-
-void FixOperation::end()
-{
-    //do nothing
-}
-
 
 //*******************************************************************************************
 void TopologyOperation::start()
@@ -295,43 +303,29 @@ InciseOperation::~InciseOperation()
 }
 
 
+//*******************************************************************************************
+std::string AddFrameOperation::defaultPerformerType() { return "AddFrame"; }
 
-void AddFrameOperation::start()
+void AddFrameOperation::configurePerformer(sofa::component::collision::InteractionPerformer* p)
 {
-    //Creation
-    performer=component::collision::InteractionPerformer::InteractionPerformerFactory::getInstance()->createObject("AddFrame", pickHandle->getInteraction()->mouseInteractor.get());
-    pickHandle->getInteraction()->mouseInteractor->addInteractionPerformer(performer);
-    //Start
-    performer->start();
+    Operation::configurePerformer(p);
 }
-
-
 
 
 //*******************************************************************************************
-void AddSutureOperation::start()
-{
-    //Creation
-    if (!performer) //first clic
-    {
-        performer = component::collision::InteractionPerformer::InteractionPerformerFactory::getInstance()->createObject("SuturePoints", pickHandle->getInteraction()->mouseInteractor.get());
-        pickHandle->getInteraction()->mouseInteractor->addInteractionPerformer(performer);
+std::string AddSutureOperation::defaultPerformerType() { return "SuturePoints"; }
 
-        //configuration
-        component::collision::SuturePointPerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::SuturePointPerformerConfiguration*>(performer);
+void AddSutureOperation::configurePerformer(sofa::component::collision::InteractionPerformer* performer)
+{
+    Operation::configurePerformer(performer);
+    //configuration
+    component::collision::SuturePointPerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::SuturePointPerformerConfiguration*>(performer);
+    if (performerConfiguration)
+    {
         performerConfiguration->setStiffness(getStiffness());
         performerConfiguration->setDamping(getDamping());
     }
-
-    //Start
-    performer->start();
 }
 
-
-void AddSutureOperation::endOperation()
-{
-    pickHandle->getInteraction()->mouseInteractor->removeInteractionPerformer(performer);
-    delete performer; performer=0;
-}
 }
 }

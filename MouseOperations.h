@@ -31,6 +31,7 @@
 
 #include <sofa/component/configurationsetting/AttachBodyButtonSetting.h>
 #include <sofa/component/configurationsetting/FixPickedParticleButtonSetting.h>
+#include <sofa/gui/SofaGUI.h>
 
 namespace sofa
 {
@@ -57,20 +58,20 @@ struct MousePosition
 
 class PickHandler;
 
-class Operation
+class SOFA_SOFAGUI_API Operation
 {
     friend class OperationFactory;
 public:
-    Operation(): pickHandle(NULL), performer(NULL),button(NONE) {};
-    virtual ~Operation() {};
-    virtual void configure(PickHandler*picker, MOUSE_BUTTON b) {pickHandle=picker; button=b; }
-    virtual void configure(PickHandler* picker, sofa::component::configurationsetting::MouseButtonSetting* setting)
-    { configure(picker,GetMouseId(setting->button.getValue().getSelectedId()));  }
-    virtual void start() =0;                   /// This function is called each time the mouse is clicked.
-    virtual void execution() =0;
-    virtual void end() =0;                     /// This function is called after each mouse click.
-    virtual void endOperation() {this->end();}; /// This function is called when shift key is released.
-    virtual void wait() {};
+    Operation(sofa::component::configurationsetting::MouseButtonSetting::SPtr s = NULL): pickHandle(NULL),mbsetting(s),performer(NULL),button(NONE) {}
+    virtual ~Operation() {}
+    virtual void configure(PickHandler*picker, MOUSE_BUTTON b) { pickHandle=picker; button=b; }
+    virtual void configure(PickHandler* picker, sofa::component::configurationsetting::MouseButtonSetting* s)
+    { setSetting(s); configure(picker,GetMouseId(s->button.getValue().getSelectedId())); }
+    virtual void start();                      /// This function is called each time the mouse is clicked.
+    virtual void execution() {}
+    virtual void end();                        /// This function is called after each mouse click.
+    virtual void endOperation() { this->end(); }  /// This function is called when shift key is released.
+    virtual void wait() {}
     static MOUSE_BUTTON GetMouseId(unsigned int i)
     {
         switch (i)
@@ -83,11 +84,15 @@ public:
     }
 protected:
     PickHandler *pickHandle;
+    sofa::component::configurationsetting::MouseButtonSetting::SPtr mbsetting;
 public:
+    virtual void setSetting(sofa::component::configurationsetting::MouseButtonSetting* s) { mbsetting = s; }
     sofa::component::collision::InteractionPerformer *performer;
-
-    MOUSE_BUTTON getMouseButton() const {return button;};
-    std::string getId() {return id;};
+    virtual std::string defaultPerformerType() { return ""; }
+    virtual sofa::component::collision::InteractionPerformer *createPerformer();
+    virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
+    MOUSE_BUTTON getMouseButton() const { return button; }
+    std::string getId() { return id; }
 protected:
     MOUSE_BUTTON button;
 private:
@@ -97,13 +102,9 @@ private:
 class SOFA_SOFAGUI_API AttachOperation : public Operation
 {
 public:
-    AttachOperation() : setting(sofa::core::objectmodel::New<sofa::component::configurationsetting::AttachBodyButtonSetting>())
+    AttachOperation(sofa::component::configurationsetting::AttachBodyButtonSetting::SPtr s = sofa::core::objectmodel::New<sofa::component::configurationsetting::AttachBodyButtonSetting>()) : Operation(s), setting(s)
     {}
     virtual ~AttachOperation() {}
-    virtual void start() ;
-    virtual void execution() ;
-    virtual void end() ;
-    virtual void endOperation() ;
 
     void setStiffness(double s) {setting->stiffness.setValue(s);}
     double getStiffness() const { return setting->stiffness.getValue();}
@@ -113,7 +114,12 @@ public:
     double getShowFactorSize() const { return setting->showFactorSize.getValue(); }
 
     static std::string getDescription() {return "Attach an object to the Mouse";}
+
 protected:
+    virtual void setSetting(sofa::component::configurationsetting::MouseButtonSetting* s) { Operation::setSetting(s); setting = dynamic_cast<sofa::component::configurationsetting::AttachBodyButtonSetting*>(s); }
+    virtual std::string defaultPerformerType();
+    virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
+
     sofa::component::configurationsetting::AttachBodyButtonSetting::SPtr setting;
 };
 
@@ -125,25 +131,25 @@ public:
     {}
 
     virtual ~FixOperation() {};
-    virtual void start() ;
-    virtual void execution() ;
-    virtual void end() ;
 
     void setStiffness(double s) {setting->stiffness.setValue(s); }
     virtual double getStiffness() const { return setting->stiffness.getValue();}
 
     static std::string getDescription() {return "Fix Picked particle";}
 protected:
+    virtual std::string defaultPerformerType();
+    virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
+
     sofa::component::configurationsetting::FixPickedParticleButtonSetting::SPtr setting;
 };
 
 class SOFA_SOFAGUI_API AddFrameOperation : public Operation
 {
 public:
-    virtual void start() ;
-    virtual void execution() {};
-    virtual void end() {};
     static std::string getDescription() {return "Add a Frame to a Skinned model";}
+protected:
+    virtual std::string defaultPerformerType();
+    virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
 };
 
 
@@ -213,12 +219,8 @@ protected:
 class SOFA_SOFAGUI_API AddSutureOperation : public Operation
 {
 public:
-    AddSutureOperation():stiffness(10.0), damping(1.0) {};
-    virtual ~AddSutureOperation() {};
-    virtual void start();
-    virtual void execution() {};
-    virtual void end() {};
-    virtual void endOperation();
+    AddSutureOperation():stiffness(10.0), damping(1.0) {}
+    virtual ~AddSutureOperation() {}
 
     void setStiffness(double f) { stiffness = f;}
     virtual double getStiffness() const {return stiffness;}
@@ -227,6 +229,9 @@ public:
 
     static std::string getDescription() {return "Add a spring to suture two points.";}
 protected:
+    virtual std::string defaultPerformerType();
+    virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
+
     double stiffness;
     double damping;
 };
