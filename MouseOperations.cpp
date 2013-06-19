@@ -33,6 +33,9 @@
 #include <sofa/component/collision/InciseAlongPathPerformer.h>
 #ifdef SOFA_DEV
 #include <sofa/component/collision/AddFramePerformer.h>
+#ifdef WIN32
+#include <plugins/Compliant/CompliantAttachPerformer.h>
+#endif
 #endif
 #include <sofa/component/collision/SuturePointPerformer.h>
 
@@ -102,6 +105,8 @@ void AttachOperation::endOperation()
 }
 
 
+
+
 //*******************************************************************************************
 void FixOperation::start()
 {
@@ -165,7 +170,7 @@ void TopologyOperation::start()
 
 void TopologyOperation::execution()
 {
-//       performer->execute();
+    //       performer->execute();
 }
 
 void TopologyOperation::end()
@@ -299,6 +304,7 @@ void AddFrameOperation::start()
     //Start
     performer->start();
 }
+
 
 
 

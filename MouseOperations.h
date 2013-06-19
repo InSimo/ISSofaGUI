@@ -117,6 +117,7 @@ protected:
     sofa::component::configurationsetting::AttachBodyButtonSetting::SPtr setting;
 };
 
+
 class SOFA_SOFAGUI_API FixOperation : public Operation
 {
 public:
