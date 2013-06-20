@@ -43,8 +43,17 @@ public:
         name(_name)
     {}
 
-    // I have to have at least one virtual function in my base class to use dynamic_cast or to make it polymorphic
-    virtual std::string getName() {return name;}
+  virtual ~BaseViewerArgument() { }
+
+    // I have to have at least one virtual function in my base class
+    // to use dynamic_cast or to make it polymorphic
+
+    // maxime.tournier@inria.fr: then you want to make the class
+    // destructor virtual, otherwise you'll be in trouble. see
+    // http://www.parashift.com/c++-faq/virtual-dtors.html Also,
+    // consider putting method definitions in .cpp to void code bloat
+    // and increased link times whenever possible.
+    virtual std::string getName() const {return name;}
 
 protected:
     std::string name;
@@ -58,7 +67,7 @@ public:
         parent(_parent)
     {}
 
-    QWidget* getParentWidget() {return parent;}
+    QWidget* getParentWidget() const {return parent;}
 protected:
     QWidget* parent;
 };
@@ -72,35 +81,35 @@ namespace helper
 {
 
 template < >
-class SOFA_SOFAGUI_API BaseCreator< sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument>
+class SOFA_SOFAGUI_API BaseCreator< sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument&>
 {
 public:
     virtual ~BaseCreator() { }
-    virtual sofa::gui::BaseViewer *createInstance(sofa::gui::BaseViewerArgument arg) = 0;
+    virtual sofa::gui::BaseViewer *createInstance(sofa::gui::BaseViewerArgument& arg) = 0;
     virtual const std::type_info& type() = 0;
     virtual const char* viewerName() = 0;
     virtual const char* acceleratedName() = 0;
 };
 
 
-class SOFA_SOFAGUI_API SofaViewerFactory : public sofa::helper::Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument >
+class SOFA_SOFAGUI_API SofaViewerFactory : public sofa::helper::Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument& >
 {
 public:
-    typedef sofa::helper::Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument > Inherited;
+    typedef sofa::helper::Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument& > Inherited;
     typedef Inherited::Key Key;
-    typedef Inherited::Argument Argument;
+    typedef Inherited::Argument ArgumentRef;
     typedef Inherited::Object Object;
     typedef Inherited::Creator Creator;
 
 
     static SofaViewerFactory*  getInstance();
 
-    static Object* CreateObject(Key key, Argument arg)
+    static Object* CreateObject(Key key, ArgumentRef arg)
     {
         return getInstance()->createObject(key, arg);
     }
 
-    static Object* CreateAnyObject(Argument arg)
+    static Object* CreateAnyObject(ArgumentRef arg)
     {
         return getInstance()->createAnyObject(arg);
     }
@@ -130,11 +139,19 @@ class SofaViewerCreator : public Creator< SofaViewerFactory, RealObject >
 public:
     typedef Creator< SofaViewerFactory, RealObject > Inherited;
     typedef SofaViewerFactory::Object Object;
-    typedef SofaViewerFactory::Argument Argument;
+    typedef SofaViewerFactory::ObjectPtr ObjectPtr;
+    typedef SofaViewerFactory::Argument ArgumentRef;
     typedef SofaViewerFactory::Key Key;
     SofaViewerCreator(Key key, bool multi=false):Inherited(key,multi)
     {
     }
+
+    ObjectPtr createInstance(ArgumentRef arg)
+    {
+        RealObject* instance = NULL;
+        return RealObject::create(instance, arg);
+    }
+
     const char* viewerName()
     {
         return RealObject::viewerName();
@@ -146,7 +163,7 @@ public:
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_SOFAGUI)
-extern template class SOFA_SOFAGUI_API Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument >;
+extern template class SOFA_SOFAGUI_API Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument& >;
 #endif
 
 
