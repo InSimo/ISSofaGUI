@@ -22,66 +22,71 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_GUI_BATCHGUI_H
-#define SOFA_GUI_BATCHGUI_H
+#define SOFA_GUI_VIEWERFACTORY_CPP
 
-#include <sofa/gui/BaseGUI.h>
-#include <sofa/simulation/common/Node.h>
+#include <sofa/helper/Factory.h>
+#include <sofa/helper/Factory.inl>
+#include "ViewerFactory.h"
 
 namespace sofa
 {
-
 namespace gui
 {
+}
+}
 
-class SOFA_SOFAGUI_API BatchGUI : public BaseGUI
+namespace sofa
+{
+namespace helper
 {
 
-public:
+template class SOFA_SOFAGUI_API Factory< std::string, sofa::gui::BaseViewer, sofa::gui::BaseViewerArgument >;
 
-    /// @name methods each GUI must implement
-    /// @{
+SofaViewerFactory*  SofaViewerFactory::getInstance()
+{
+    static SofaViewerFactory instance;
+    return &instance;
+}
 
-    BatchGUI();
+const char* SofaViewerFactory::getViewerName(Key key)
+{
 
-    void setScene(sofa::simulation::Node::SPtr groot, const char* filename="", bool temporaryFile=false);
+    Creator* creator;
+    std::multimap<Key, Creator*>::iterator it = this->registry.lower_bound(key);
+    std::multimap<Key, Creator*>::iterator end = this->registry.upper_bound(key);
+    while (it != end)
+    {
+        creator = (*it).second;
+        const char* viewerName = creator->viewerName();
+        if(viewerName != NULL )
+        {
+            return viewerName;
+        }
+        ++it;
+    }
+    //	std::cerr<<"Object type "<<key<<" creation failed."<<std::endl;
+    return NULL;
+}
 
-    void resetScene();
+const char* SofaViewerFactory::getAcceleratedViewerName(Key key)
+{
 
-    int mainLoop();
-    void redraw();
-    int closeGUI();
+    Creator* creator;
+    std::multimap<Key, Creator*>::iterator it = this->registry.lower_bound(key);
+    std::multimap<Key, Creator*>::iterator end = this->registry.upper_bound(key);
+    while (it != end)
+    {
+        creator = (*it).second;
+        const char* acceleratedName = creator->acceleratedName();
+        if(acceleratedName != NULL )
+        {
+            return acceleratedName;
+        }
+        ++it;
+    }
+    //	std::cerr<<"Object type "<<key<<" creation failed."<<std::endl;
+    return NULL;
 
-    static void setNumIterations(unsigned int n) {nbIter=n;};
-    sofa::simulation::Node* currentSimulation();
-
-    /// @}
-
-    /// @name registration of each GUI
-    /// @{
-
-    static int InitGUI(const char* name, const std::vector<std::string>& options);
-    static BaseGUI* CreateGUI(const char* name, const std::vector<std::string>& options, sofa::simulation::Node::SPtr groot = NULL, const char* filename = NULL);
-
-    static const unsigned int DEFAULT_NUMBER_OF_ITERATIONS;
-    /// @}
-
-protected:
-    /// The destructor should not be called directly. Use the closeGUI() method instead.
-    ~BatchGUI();
-
-    void startDumpVisitor();
-    void stopDumpVisitor();
-
-    std::ostringstream m_dumpVisitorStream;
-
-    sofa::simulation::Node::SPtr groot;
-    std::string filename;
-    static unsigned int nbIter;
-};
-
-} // namespace gui
-
-} // namespace sofa
-
-#endif
+}
+}
+}

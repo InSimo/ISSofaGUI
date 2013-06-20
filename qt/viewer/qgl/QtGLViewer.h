@@ -35,7 +35,7 @@
 #include <fstream>
 
 #include <viewer/SofaViewer.h>
-#include <viewer/ViewerFactory.h>
+#include <sofa/gui/ViewerFactory.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/helper/gl/Transformation.h>
@@ -108,9 +108,14 @@ private:
 
 public:
 
-    static QtGLViewer* create(QtGLViewer*, const SofaViewerArgument& arg)
+    static QtGLViewer* create(QtGLViewer*, sofa::gui::BaseViewerArgument arg)
     {
-        return new QtGLViewer(arg.parent, arg.name.c_str() );
+        BaseViewerArgument* pArg = &arg;
+        ViewerQtArgument* viewerArg = dynamic_cast<ViewerQtArgument*>(pArg);
+        return viewerArg ?
+                new QtGLViewer(viewerArg->getParentWidget(), viewerArg->getName().c_str() ) :
+                new QtGLViewer(NULL, pArg->getName().c_str() )
+                ;
     }
 
     static const char* viewerName()  { return "QGLViewer"; }
@@ -145,7 +150,7 @@ public:
     {
         return _H;
     };
-    bool ready() {return _waitForRender;}
+    bool ready() {return !_waitForRender;}
     void wait() {_waitForRender = true;}
 
     void	UpdateOBJ(void);
@@ -179,7 +184,7 @@ private:
 protected:
     //virtual bool event ( QEvent * e );
 
-    virtual void	DrawScene();
+    virtual void	drawScene();
     virtual void	DrawLogo(void);
 
 

@@ -755,7 +755,7 @@ void QtViewer::MakeStencilMask()
 // ---------------------------------------------------------
 // ---
 // ---------------------------------------------------------
-void QtViewer::DrawScene(void)
+void QtViewer::drawScene(void)
 {
     if (!groot) return;
 
@@ -1071,7 +1071,7 @@ void QtViewer::paintGL()
     glClear( _clearBuffer);
 
     // draw the scene
-    DrawScene();
+    drawScene();
 
     if(!captureTimer.isActive())
         SofaViewer::captureEvent();
@@ -1542,7 +1542,7 @@ void QtViewer::moveRayPickInteractor(int eventX, int eventY)
     position = transform * Vec4d(0, 0, 0, 1);
     direction = transform * Vec4d(0, 0, 1, 0);
     direction.normalize();
-    pick.updateRay(position, direction);
+    getPickHandler()->updateRay(position, direction);
 }
 
 // -------------------------------------------------------------------

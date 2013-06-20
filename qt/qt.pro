@@ -48,7 +48,6 @@ win32 {
 
 HEADERS += viewer/VisualModelPolicy.h \
 	viewer/SofaViewer.h \
-	viewer/ViewerFactory.h \
 	GraphListenerQListView.h \
 	GenGraphForm.h \
 	AddObject.h \
@@ -71,6 +70,7 @@ HEADERS += viewer/VisualModelPolicy.h \
 	SofaVideoRecorderManager.h \	
 	PickHandlerCallBacks.h \
 	QDataDescriptionWidget.h \
+	QDisplayPropertyWidget.h \
 	QDisplayLinkWidget.h \     
 	QDisplayDataWidget.h \
 	QGraphStatWidget.h \
@@ -107,6 +107,7 @@ SOURCES += viewer/SofaViewer.cpp \
 	SofaMouseManager.cpp \
 	QDataDescriptionWidget.cpp \
 	PickHandlerCallBacks.cpp \
+	QDisplayPropertyWidget.cpp \
 	QDisplayLinkWidget.cpp \
 	QDisplayDataWidget.cpp \
 	QMouseOperations.cpp \               

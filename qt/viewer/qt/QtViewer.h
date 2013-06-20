@@ -38,7 +38,7 @@
 
 #include <viewer/SofaViewer.h>
 
-#include <viewer/ViewerFactory.h>
+#include "../../../ViewerFactory.h"
 
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Quat.h>
@@ -130,9 +130,14 @@ public:
     static const std::string VIEW_FILE_EXTENSION;
 
 
-    static QtViewer* create(QtViewer*, const SofaViewerArgument& arg)
+    static QtViewer* create(QtViewer*, BaseViewerArgument arg)
     {
-        return new QtViewer(arg.parent, arg.name.c_str() );
+        BaseViewerArgument* pArg = &arg;
+        ViewerQtArgument* viewerArg = dynamic_cast<ViewerQtArgument*>(pArg);
+        return viewerArg ?
+                new QtViewer(viewerArg->getParentWidget(), viewerArg->getName().c_str() ) :
+                new QtViewer(NULL, pArg->getName().c_str() )
+                ;
     }
 
     static const char* viewerName()
@@ -163,8 +168,8 @@ public:
 
     QWidget* getQWidget() { return this; }
 
-    bool ready() {return _waitForRender;};
-    void wait() {_waitForRender = true;};
+    bool ready() {return !_waitForRender;}
+    void wait() {_waitForRender = true;}
 
 public slots:
     void resetView();
@@ -254,7 +259,7 @@ private:
     void	DrawLogo(void);
     void	DisplayOBJs();
     void	DisplayMenu(void);
-    void	DrawScene();
+    virtual void	drawScene();
     void  MakeStencilMask();
 
     void	ApplySceneTransformation(int x, int y);

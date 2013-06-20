@@ -25,14 +25,6 @@
 #ifndef SOFA_GUI_SOFAGUI_H
 #define SOFA_GUI_SOFAGUI_H
 
-#include <sofa/simulation/common/Node.h>
-#include <sofa/defaulttype/Vec.h>
-#include <sofa/component/configurationsetting/ViewerSetting.h>
-#include <sofa/component/configurationsetting/MouseButtonSetting.h>
-
-#include <list>
-//class QWidget;
-
 #include <sofa/helper/system/config.h>
 
 #ifdef SOFA_BUILD_SOFAGUI
@@ -40,82 +32,5 @@
 #else
 #	define SOFA_SOFAGUI_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
-
-
-namespace sofa
-{
-
-namespace gui
-{
-
-namespace qt    // The SofaViewer class should become an abstract viewer without qt depend...
-{
-namespace viewer
-{
-class SofaViewer;
-}
-}
-
-class SOFA_SOFAGUI_API SofaGUI
-{
-
-public:
-
-    /// @name methods each GUI must implement
-    /// @{
-    virtual int mainLoop()=0;
-    virtual void redraw()=0;
-    virtual int closeGUI()=0;
-    virtual void setScene(sofa::simulation::Node::SPtr groot, const char* filename=NULL, bool temporaryFile=false)=0;
-    virtual sofa::simulation::Node* currentSimulation()=0;
-    /// @}
-
-    virtual void configureGUI(sofa::simulation::Node::SPtr groot);
-
-    /// @name methods to configure the GUI
-    /// @{
-    virtual void setViewerResolution(int /* width */, int /* height */) {};
-    virtual void setFullScreen() {};
-    virtual void setBackgroundColor(const defaulttype::Vector3& /*color*/) {};
-    virtual void setBackgroundImage(const std::string& /*image*/) {};
-    virtual void setDumpState(bool) {};
-    virtual void setLogTime(bool) {};
-    virtual void setExportState(bool) {};
-#ifdef SOFA_DUMP_VISITOR_INFO
-    virtual void setTraceVisitors(bool) {};
-#endif
-    virtual void setRecordPath(const std::string & /*path*/) {};
-    virtual void setGnuplotPath(const std::string & /*path*/) {};
-
-    virtual void registerViewer(sofa::gui::qt::viewer::SofaViewer* /*_viewer*/) {}
-    virtual void initViewer() {}
-    virtual void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* /*viewerConf*/) {};
-    virtual void setMouseButtonConfiguration(sofa::component::configurationsetting::MouseButtonSetting* /*button*/) {};
-    /// @}
-
-    /// @name methods to communicate with the GUI
-    /// @{
-    virtual void sendMessage(const std::string & /*msgType*/,const std::string & /*msgValue*/) {}
-    /// @}
-
-    void exportGnuplot(sofa::simulation::Node* node, std::string gnuplot_directory="");
-
-
-    static std::string& GetGUIName() { return guiName; }
-    static const char* GetProgramName() { return programName; }
-    static void SetProgramName(const char* argv0) { if(argv0) programName = argv0;}
-
-protected:
-    SofaGUI();
-    /// The destructor should not be called directly. Use the closeGUI() method instead.
-    virtual ~SofaGUI();
-    static std::string guiName; // would like to make it const but not possible with the current implementation of RealGUI...
-    static const char* programName;
-
-};
-
-} // namespace gui
-
-} // namespace sofa
 
 #endif
