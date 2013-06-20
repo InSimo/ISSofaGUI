@@ -37,12 +37,12 @@ namespace gui
 BaseViewer::BaseViewer()
     : groot(NULL)
     , currentCamera(NULL)
-    , _video(false)
-    , _axis(false)
-    , backgroundColour(Vector3())
 #ifndef SOFA_NO_OPENGL
     , texLogo(NULL)
 #endif
+    , _video(false)
+    , _axis(false)
+    , backgroundColour(Vector3())
     , backgroundImageFile("textures/SOFA_logo.bmp")
     , ambientColour(Vector3())
     , pick(NULL)
