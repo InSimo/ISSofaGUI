@@ -30,6 +30,7 @@
 #include <sofa/core/behavior/BaseForceField.h>
 #include <sofa/core/behavior/BaseMass.h>
 
+#include <sofa/simulation/common/MechanicalComputeEnergyVisitor.h>
 
 namespace sofa
 {
@@ -43,6 +44,9 @@ class QEnergyStatWidget : public QGraphStatWidget
 
     Q_OBJECT
 
+    sofa::simulation::MechanicalComputeEnergyVisitor *m_energyVisitor;
+
+
 public:
 
     QEnergyStatWidget( QWidget* parent, simulation::Node* node ) : QGraphStatWidget( parent, node, "Energy", 3 )
@@ -50,6 +54,13 @@ public:
         setCurve( 0, "Kinetic", Qt::red );
         setCurve( 1, "Potential", Qt::green );
         setCurve( 2, "Mechanical", Qt::blue );
+
+        m_energyVisitor   = new sofa::simulation::MechanicalComputeEnergyVisitor(core::MechanicalParams::defaultInstance());
+    }
+
+    ~QEnergyStatWidget()
+    {
+        delete m_energyVisitor;
     }
 
     void step()
@@ -57,20 +68,10 @@ public:
         //Add Time
         QGraphStatWidget::step();
 
-        //Add Kinetic Energy
-        if( _node->mass )
-            _YHistory[0].push_back( _node->mass->getKineticEnergy() );
-        else
-            _YHistory[0].push_back(0);
+        m_energyVisitor->execute( _node->getContext() );
 
-        //Add Potential Energy
-        double potentialEnergy=0;
-        typedef sofa::simulation::Node::Sequence<core::behavior::BaseForceField> SeqFF;
-        for( SeqFF::iterator it = _node->forceField.begin() ; it != _node->forceField.end() ; ++it )
-        {
-            potentialEnergy += (*it)->getPotentialEnergy();
-        }
-        _YHistory[1].push_back( potentialEnergy );
+        _YHistory[0].push_back( m_energyVisitor->getKineticEnergy() );
+        _YHistory[1].push_back( m_energyVisitor->getPotentialEnergy() );
 
         //Add Mechanical Energy
         _YHistory[2].push_back( _YHistory[0].back() + _YHistory[1].back() );
