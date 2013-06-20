@@ -40,7 +40,7 @@
 #endif
 
 #ifdef SOFA_PML
-#   include <sofa/simulation/tree/GNode.h>
+#   include <sofa/simulation/common/Node.h>
 #endif
 
 #include "QSofaListView.h"
@@ -303,7 +303,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     backgroundImage(NULL),
     left_stack(NULL),
     pluginManager_dialog(NULL),
-    recentlyOpenedFilesManager("config/Sofa.ini"),
+    recentlyOpenedFilesManager("share/config/Sofa.ini"),
     saveReloadFile(false),
     displayFlag(NULL),
     descriptionScene(NULL),
@@ -617,7 +617,7 @@ void RealGUI::pmlOpen ( const char* filename, bool /*resetView*/ )
         return;
     }
     this->unloadScene();
-    GNode *simuNode = dynamic_cast< GNode *> (simulation::getSimulation()->load ( scene.c_str() ));
+    Node *simuNode = dynamic_cast< Node *> (simulation::getSimulation()->load ( scene.c_str() ));
     getSimulation()->init(simuNode);
     if ( simuNode )
     {
@@ -903,7 +903,7 @@ void RealGUI::setTitle ( std::string windowTitle )
 
 void RealGUI::fileNew()
 {
-    std::string newScene("config/newScene.scn");
+    std::string newScene("share/config/newScene.scn");
     if (sofa::helper::system::DataRepository.findFile (newScene))
         fileOpen(sofa::helper::system::DataRepository.getFile ( newScene ).c_str());
 }
@@ -1417,18 +1417,7 @@ void RealGUI::eventNewStep()
         ctime_t curtime = CTime::getRefTime();
         int i = ( ( frameCounter/10 ) %10 );
         double fps = ( ( double ) timeTicks / ( curtime - beginTime[i] ) ) * ( frameCounter<100?frameCounter:100 );
-
-#ifndef SOFA_GUI_QT_NO_RECORDER
-        if (recorder)
-            recorder->setFPS(fps);
-#else
-        if (fpsLabel)
-        {
-            char buf[100];
-            sprintf ( buf, "%.1f FPS", fps );
-            fpsLabel->setText ( buf );
-        }
-#endif
+        showFPS(fps);
 
         beginTime[i] = curtime;
     }
@@ -1437,6 +1426,21 @@ void RealGUI::eventNewStep()
     {
         /// @TODO: use AdvancedTimer in GUI to display time statistics
     }
+}
+
+void RealGUI::showFPS(double fps)
+{
+#ifndef SOFA_GUI_QT_NO_RECORDER
+    if (recorder)
+        recorder->setFPS(fps);
+#else
+    if (fpsLabel)
+    {
+        char buf[100];
+        sprintf ( buf, "%.1f FPS", fps );
+        fpsLabel->setText ( buf );
+    }
+#endif
 }
 
 //------------------------------------
@@ -2209,9 +2213,9 @@ void RealGUI::setExportGnuplot ( bool exp )
 
 //------------------------------------
 
+#ifdef SOFA_DUMP_VISITOR_INFO
 void RealGUI::setExportVisitor ( bool exp )
 {
-#ifdef SOFA_DUMP_VISITOR_INFO
     if (exp)
     {
         windowTraceVisitor->show();
@@ -2221,8 +2225,12 @@ void RealGUI::setExportVisitor ( bool exp )
     {
         windowTraceVisitor->hide();
     }
-#endif
 }
+#else
+void RealGUI::setExportVisitor ( bool )
+{
+}
+#endif
 
 //------------------------------------
 
