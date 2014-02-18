@@ -110,7 +110,7 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
     {
         datawidget_ = new QDataSimpleEdit(this,dwarg.data->getName().c_str(), dwarg.data);
         datawidget_->createWidgets();
-        datawidget_->setEnabled( !(dwarg.readOnly) );
+        datawidget_->setDataReadOnly(dwarg.readOnly);
         assert(datawidget_ != NULL);
     }
 
@@ -188,6 +188,18 @@ bool QDataSimpleEdit::createWidgets()
 
 
     return true;
+}
+
+void QDataSimpleEdit::setDataReadOnly(bool readOnly)
+{
+    if(innerWidget_.type == TEXTEDIT)
+    {
+        innerWidget_.widget.textEdit->setReadOnly(readOnly);
+    }
+    else if(innerWidget_.type == LINEEDIT)
+    {
+        innerWidget_.widget.lineEdit->setReadOnly(readOnly);
+    }
 }
 
 void QDataSimpleEdit::readFromData()
@@ -270,6 +282,12 @@ bool QPoissonRatioWidget::createWidgets()
 
 
     return true;
+}
+
+void QPoissonRatioWidget::setDataReadOnly(bool readOnly)
+{
+    lineEdit->setReadOnly(readOnly);
+    slider->setEnabled(!readOnly);
 }
 
 void QPoissonRatioWidget::readFromData()

@@ -433,7 +433,9 @@ public:
         if (readOnly)
         {
             wSize->setEnabled(false);
-            wTableView->setEnabled(false);
+
+            //wTableView->setEnabled(false);
+            wTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         }
         else
         {
@@ -474,7 +476,11 @@ public:
     void setReadOnly(bool readOnly)
     {
         wSize->setEnabled(!readOnly);
-        wTableView->setEnabled(!readOnly);
+        //wTableView->setEnabled(!readOnly);
+        if (readOnly)
+        {
+            wTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        }
     }
 
     bool isDisplayed()
