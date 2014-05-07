@@ -699,7 +699,6 @@ sofa::simulation::Node* RealGUI::currentSimulation()
 
 void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
 {
-    std::cout << __FUNCTION__ << filename << std::endl;
     const std::string &extension=sofa::helper::system::SetDirectory::GetExtension(filename.c_str());
     if (extension == "simu")
     {
@@ -743,7 +742,7 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
 void RealGUI::fileOpen()
 {
     std::string filename(this->windowFilePath().ascii());
-     std::cout << __FUNCTION__ << filename << std::endl;
+
     // build the filter with the SceneLoaderFactory
     std::string filter;
     SceneLoaderFactory::SceneLoaderList* loaders = SceneLoaderFactory::getInstance()->getEntries();
@@ -2375,8 +2374,7 @@ std::string getFormattedLocalTime()
 //------------------------------------
 void RealGUI::appendToDataLogFile(QString dataModifiedString)
 {
-    std::string filename(this->windowFilePath ().ascii());
-    filename += ".log";
+    const std::string filename = (this->windowFilePath() + ".log");
 
     std::ofstream ofs( filename, std::ofstream::out | std::ofstream::app );
 
