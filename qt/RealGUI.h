@@ -422,6 +422,8 @@ protected slots:
     /// TODO: find a better way to propagate the argument when we construct the viewer
     virtual void updateViewerList();
 
+    void appendToDataLogFile(QString);
+
 signals:
     void reload();
     void newScene();

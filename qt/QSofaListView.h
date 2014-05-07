@@ -118,6 +118,7 @@ Q_SIGNALS:
     void NodeAdded();
     void focusChanged(sofa::core::objectmodel::BaseObject*);
     void focusChanged(sofa::core::objectmodel::BaseNode*);
+    void dataModified( QString );
 
 protected Q_SLOTS:
     void SaveNode();

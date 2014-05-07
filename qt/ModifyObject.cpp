@@ -102,6 +102,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 #endif
     node = base;
     data_ = NULL;
+
     //Layout to organize the whole window
     QVBoxLayout *generalLayout = new QVBoxLayout(this, 0, 1, "generalLayout");
 
@@ -109,8 +110,6 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     dialogTab = new QTabWidget(this);
     generalLayout->addWidget(dialogTab);
     connect(dialogTab, SIGNAL( currentChanged( QWidget*)), this, SLOT( updateTables()));
-
-
 
     bool isNode = (dynamic_cast< simulation::Node *>(node) != NULL);
 
@@ -128,7 +127,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     {
         const sofa::core::objectmodel::Base::VecData& fields = node->getDataFields();
         const sofa::core::objectmodel::Base::VecLink& links = node->getLinks();
-
+        
         std::map< std::string, std::vector<QTabulationModifyObject* > > groupTabulation;
 
         //If we operate on a Node, we have to ...
@@ -137,14 +136,14 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             if (dialogFlags_.REINIT_FLAG)
             {
                 //add the widgets to apply some basic transformations
-                std::vector<QTabulationModifyObject* > &tabs=groupTabulation[std::string("Property")];
-                tabs.push_back(new QTabulationModifyObject(this,node, item_,1));
+                
+                m_tabs.push_back(new QTabulationModifyObject(this,node, item_,1));
+                groupTabulation[std::string("Property")].push_back(m_tabs.back() );
+                connect(m_tabs.back(), SIGNAL(nodeNameModification(simulation::Node *)), this, SIGNAL(nodeNameModification(simulation::Node *)));
 
-                connect(tabs.back(), SIGNAL(nodeNameModification(simulation::Node *)), this, SIGNAL(nodeNameModification(simulation::Node *)));
-
-                transformation = new QTransformationWidget(tabs.back(), QString("Transformation"));
-                tabs.back()->layout()->add( transformation );
-                tabs.back()->externalWidgetAddition(transformation->getNumWidgets());
+                transformation = new QTransformationWidget(m_tabs.back(), QString("Transformation"));
+                m_tabs.back()->layout()->add( transformation );
+                m_tabs.back()->externalWidgetAddition(transformation->getNumWidgets());
                 connect( transformation, SIGNAL(TransformationDirty(bool)), buttonUpdate, SLOT( setEnabled(bool) ) );
                 connect( transformation, SIGNAL(TransformationDirty(bool)), this, SIGNAL( componentDirty(bool) ) );
             }
@@ -188,7 +187,8 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             if (tabs.empty() || tabs.back()->isFull())
             {
                 newTab = true;
-                tabs.push_back(new QTabulationModifyObject(this,node, item_,tabs.size()+1));
+                m_tabs.push_back( new QTabulationModifyObject(this,node, item_,tabs.size()+1) );
+                tabs.push_back( m_tabs.back() );
             }
             currentTab = tabs.back();
             currentTab->addData(data, getFlags());
@@ -229,7 +229,11 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 
             std::vector<QTabulationModifyObject* > &tabs=groupTabulation[currentGroup];
             if (tabs.empty()) tabNames.push_back(currentGroup);
-            if (tabs.empty() || tabs.back()->isFull()) tabs.push_back(new QTabulationModifyObject(this,node, item_,tabs.size()+1));
+            if (tabs.empty() || tabs.back()->isFull())
+            {
+                m_tabs.push_back( new QTabulationModifyObject(this,node, item_,tabs.size()+1) );
+                tabs.push_back(m_tabs.back() );
+            }
             currentTab = tabs.back();
 
             currentTab->addLink(link, getFlags());
@@ -330,6 +334,16 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         connect( buttonOk,       SIGNAL( clicked() ), this, SLOT( accept() ) );
         connect( buttonCancel,   SIGNAL( clicked() ), this, SLOT( reject() ) );
         resize( QSize(450, 130).expandedTo(minimumSizeHint()) );
+
+        //std::size_t count=0;
+        //for( std::map< std::string, std::vector<QTabulationModifyObject* > >::iterator it_map 
+        //     = groupTabulation.begin(); it_map != groupTabulation.end(); ++it_map )
+        //{
+        //    count += it_map->second.size();
+        //}
+        //std::cout<<" MAP COUNT : "<< count << std::endl;
+        //std::cout<<" VECTOR COUNT : " << m_tabs.size() << std::endl;
+
     }
 }
 
@@ -558,6 +572,14 @@ void ModifyObject::reject   ()
         std::cout << "GUI<emit endObjectModification(" << node->getName() << ")" << std::endl;
 #endif
     }
+
+    QString dataModifiedString = parseDataModified();
+
+    if( !dataModifiedString.isEmpty() )
+    {
+        emit  dataModified( dataModifiedString  );
+    }
+
 //          else if (data) emit endDataModification(data);
     emit(dialogClosed(Id_));
     deleteLater();
@@ -567,6 +589,13 @@ void ModifyObject::reject   ()
 void ModifyObject::accept   ()
 {
     updateValues();
+
+    QString dataModifiedString = parseDataModified();
+
+    if( !dataModifiedString.isEmpty() )
+    {
+        emit  dataModified( dataModifiedString  );
+    }
 
     if (node)
     {
@@ -584,7 +613,24 @@ void ModifyObject::accept   ()
     QDialog::accept();
 } //if closing by using Ok button, update the values
 
+QString ModifyObject::parseDataModified()
+{
+    QString cat;
 
+    for(std::size_t i =0;i<m_tabs.size();++i)
+    {
+        QString tabString = m_tabs[i]->getDataModifiedString();
+        if( tabString.isEmpty() ) continue;
+
+        cat += tabString;
+        if( i != (m_tabs.size() -1) )
+        {
+            cat+= "\n";
+        }
+    }
+
+    return cat;
+}
 
 } // namespace qt
 

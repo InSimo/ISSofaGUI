@@ -84,6 +84,8 @@ signals:
     void WidgetUpdate();
     void DataUpdate();
     void DataOwnerDirty(bool);
+    void dataValueChanged(QString);
+
 protected:
     core::objectmodel::BaseData* data_;
     ModifyObjectFlags flags_;

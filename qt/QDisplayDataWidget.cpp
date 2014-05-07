@@ -122,7 +122,7 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
     connect(this, SIGNAL( WidgetUpdate() ), datawidget_, SLOT( updateWidgetValue() ) );
     connect(this, SIGNAL( DataUpdate() ), datawidget_, SLOT(updateDataValue() ) );
     connect(datawidget_,SIGNAL(DataOwnerDirty(bool)),this,SIGNAL(DataOwnerDirty(bool)) );
-
+    connect(datawidget_,SIGNAL(dataValueChanged(QString)),this,SIGNAL(dataValueChanged(QString)) );
     if(flags.PROPERTY_WIDGET_FLAG)
     {
         QPushButton *refresh = new QPushButton(QIcon((sofa::helper::system::DataRepository.getFirstPath() + "/textures/refresh.png").c_str()), "", this);

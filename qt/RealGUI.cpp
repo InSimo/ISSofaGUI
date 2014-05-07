@@ -697,6 +697,7 @@ sofa::simulation::Node* RealGUI::currentSimulation()
 
 void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
 {
+    std::cout << __FUNCTION__ << filename << std::endl;
     const std::string &extension=sofa::helper::system::SetDirectory::GetExtension(filename.c_str());
     if (extension == "simu")
     {
@@ -740,7 +741,7 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
 void RealGUI::fileOpen()
 {
     std::string filename(this->windowFilePath().ascii());
-
+     std::cout << __FUNCTION__ << filename << std::endl;
     // build the filter with the SceneLoaderFactory
     std::string filter;
     SceneLoaderFactory::SceneLoaderList* loaders = SceneLoaderFactory::getInstance()->getEntries();
@@ -828,6 +829,7 @@ void RealGUI::fileOpenSimu ( std::string s )
 
 void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFile )
 {
+    std::cout << __FUNCTION__ << " "<< filename << std::endl;
     if (filename)
     {
         if (!temporaryFile)
@@ -1747,6 +1749,7 @@ void RealGUI::createSimulationGraph()
     connect(simulationGraph, SIGNAL( RequestActivation(sofa::simulation::Node*, bool) ), this, SLOT( ActivateNode(sofa::simulation::Node*, bool) ) );
     connect(simulationGraph, SIGNAL( Updated() ), this, SLOT( redraw() ) );
     connect(simulationGraph, SIGNAL( NodeAdded() ), this, SLOT( Update() ) );
+    connect(simulationGraph, SIGNAL( dataModified( QString ) ), this, SLOT( appendToDataLogFile(QString ) ) );
     connect(this, SIGNAL( newScene() ), simulationGraph, SLOT( CloseAllDialogs() ) );
     connect(this, SIGNAL( newStep() ), simulationGraph, SLOT( UpdateOpenedDialogs() ) );
 }
@@ -2342,6 +2345,22 @@ void RealGUI::updateViewerList()
         viewerMap.begin()->second->setOn(true);
     }
 }
+
+//------------------------------------
+void RealGUI::appendToDataLogFile(QString dataModifiedString)
+{
+    std::string filename(this->windowFilePath ().ascii());
+    filename += ".log";
+
+    std::ofstream ofs( filename, std::ofstream::out | std::ofstream::app );
+
+    ofs << dataModifiedString.toStdString();
+
+
+    ofs.close();
+}
+
+
 //======================= SIGNALS-SLOTS ========================= }
 
 } // namespace qt
