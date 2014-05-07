@@ -124,7 +124,9 @@
 #endif
 
 #include <algorithm>
-
+#include <iomanip>
+#include <sstream>
+#include <ctime>
 
 namespace sofa
 {
@@ -2346,6 +2348,30 @@ void RealGUI::updateViewerList()
     }
 }
 
+namespace
+{
+
+std::string getFormattedLocalTimeFromTimestamp(time_t timestamp)
+{
+    const tm *timeinfo = localtime(&timestamp);
+    std::ostringstream oss;
+    oss << std::setfill('0')
+        << std::setw(2) << timeinfo->tm_mday << "/" // Day
+        << std::setw(2) << (timeinfo->tm_mon + 1) << "/"  // Month
+        << std::setw(4) << (1900 + timeinfo->tm_year) << " " // Year
+        << std::setw(2) << timeinfo->tm_hour << ":" // Hours
+        << std::setw(2) << timeinfo->tm_min << ":"  // Minutes
+        << std::setw(2) << timeinfo->tm_sec;        // Seconds
+    return oss.str();
+}
+
+std::string getFormattedLocalTime()
+{
+    return getFormattedLocalTimeFromTimestamp( time( NULL ) );
+}
+
+} // namespace
+
 //------------------------------------
 void RealGUI::appendToDataLogFile(QString dataModifiedString)
 {
@@ -2354,8 +2380,16 @@ void RealGUI::appendToDataLogFile(QString dataModifiedString)
 
     std::ofstream ofs( filename, std::ofstream::out | std::ofstream::app );
 
-    ofs << dataModifiedString.toStdString();
+    if (ofs.good())
+    {
+        if (m_modifiedLogFiles.find(filename) == m_modifiedLogFiles.end())
+        {
+            ofs << std::endl << "--- NEW SESSION: " << getFormattedLocalTime() << " ---" << std::endl;
+            m_modifiedLogFiles.insert(filename);
+        }
 
+        ofs << dataModifiedString.toStdString();
+    }
 
     ofs.close();
 }
