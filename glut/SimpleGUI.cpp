@@ -1303,7 +1303,6 @@ void SimpleGUI::keyPressEvent ( int k )
         case 'q': //GLUT_KEY_Escape:
         {
             exit(0);
-            break;
         }
 
         case GLUT_KEY_F5:
