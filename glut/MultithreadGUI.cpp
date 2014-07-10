@@ -1055,7 +1055,7 @@ void MultithreadGUI::calcProjection()
     double xFactor = 1.0, yFactor = 1.0;
     double offset;
     //double xForeground, yForeground, xBackground, yBackground;
-    double zForeground, zBackground;
+    //double zForeground, zBackground;
     Vector3 center;
 
     /// Camera part
@@ -1106,8 +1106,8 @@ void MultithreadGUI::calcProjection()
 
     //std::cout << xNear << " " << yNear << std::endl;
 
-    zForeground = -vparams->zNear() - offset;
-    zBackground = -vparams->zFar() + offset;
+    //zForeground = -vparams->zNear() - offset;
+    //zBackground = -vparams->zFar() + offset;
 
     if (currentCamera->getCameraType() == core::visual::VisualParams::PERSPECTIVE_TYPE)
         gluPerspective(currentCamera->getFieldOfView(), (double) width / (double) height, vparams->zNear(), vparams->zFar());
