@@ -1008,7 +1008,7 @@ void SimpleGUI::calcProjection()
     int height = _H;
     double xNear, yNear/*, xOrtho, yOrtho*/;
     double xFactor = 1.0, yFactor = 1.0;
-    double offset;
+    //double offset;
     //double xForeground, yForeground, xBackground, yBackground;
     //double zForeground, zBackground;
     Vector3 center;
@@ -1030,7 +1030,7 @@ void SimpleGUI::calcProjection()
 
     xNear = 0.35 * vparams->zNear();
     yNear = 0.35 * vparams->zNear();
-    offset = 0.001 * vparams->zNear(); // for foreground and background planes
+    //offset = 0.001 * vparams->zNear(); // for foreground and background planes
 
     /*xOrtho = fabs(vparams->sceneTransform().translation[2]) * xNear
             / vparams->zNear();
