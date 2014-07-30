@@ -70,6 +70,7 @@ public:
 public slots:
     void UpdateLink();              //QWidgets ---> BaseLink
     void UpdateWidgets();           //BaseLink ---> QWidget
+    void showHelp(bool);
 signals:
     void WidgetDirty(bool);
     void WidgetUpdate();

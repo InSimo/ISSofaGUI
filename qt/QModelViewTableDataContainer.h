@@ -311,12 +311,12 @@ public:
     table_data_widget_container() 
     : wSize(NULL)
     , wTableView(NULL)
+    , wTableModel(NULL)
     , wDisplay(NULL)
     , widget(NULL)
     , container_layout(NULL) 
     , rows(0)
     , cols(0)
-    , wTableModel(NULL)
     {}
 
 

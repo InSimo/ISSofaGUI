@@ -183,6 +183,7 @@ signals:
     void nodeNameModification(simulation::Node*);
     void componentDirty(bool);
     void dataModified( QString );
+    void toggleHelp();
 
 
     void beginObjectModification(sofa::core::objectmodel::Base* object);
@@ -211,6 +212,7 @@ protected:
 
     QTabWidget *dialogTab;
     QPushButton *buttonUpdate;
+    QCheckBox* showHelp;
 
     //Widget specific to Node:
     //Transformation widget: translation, rotation, scale ( only experimental and deactivated)

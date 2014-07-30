@@ -79,6 +79,7 @@ public:
 public slots:
     void UpdateData();              //QWidgets ---> BaseData
     void UpdateWidgets();           //BaseData ---> QWidget
+    void showHelp(bool);
 signals:
     void WidgetDirty(bool);
     void WidgetUpdate();

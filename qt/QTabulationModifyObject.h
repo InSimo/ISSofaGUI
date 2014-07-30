@@ -42,7 +42,6 @@
 #include <qgroupbox.h>
 #include <qlistview.h>
 #endif
-
 #ifndef SOFA_QT4
 typedef QGroupBox Q3GroupBox;
 typedef QTextEdit   Q3TextEdit;
@@ -87,12 +86,14 @@ public slots:
     void updateDataValue();
     void updateWidgetValue();
     void dataValueChanged(QString dataValue);
+    void showHelp(bool);
 
 signals:
     void UpdateDatas();
     void UpdateDataWidgets();
     void TabDirty(bool);
     void nodeNameModification(simulation::Node *);
+    void dataShowHelp(bool);
 
 
 

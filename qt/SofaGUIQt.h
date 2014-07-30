@@ -33,4 +33,10 @@
 #	define SOFA_SOFAGUIQT_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
 
+// uncomment to enable scrollbars for data widget dialogs (fix issues with unresizeable very long window, but add other issues with initial sizes)
+//#define SOFAGUIQT_SCROLL
+
+// uncomment to activate more compact layout of data widget dialogs (help displayed as tooltip by default, smaller margins)
+#define SOFAGUIQT_COMPACT
+
 #endif

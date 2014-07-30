@@ -120,6 +120,10 @@ void QDisplayLinkWidget::UpdateWidgets()
     emit WidgetUpdate();
 }
 
+void QDisplayLinkWidget::showHelp(bool)
+{
+}
+
 QLinkSimpleEdit::QLinkSimpleEdit(QWidget* parent, const char* name, BaseLink* link)
     : LinkWidget(parent,name,link)
 {

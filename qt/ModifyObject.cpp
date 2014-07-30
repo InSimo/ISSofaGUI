@@ -46,6 +46,7 @@
 #include <qtabwidget.h>
 #include <qtextedit.h>
 #endif
+#include <QScrollArea>
 
 // uncomment to show traces of GUI operations in this file
 //#define DEBUG_GUI
@@ -105,6 +106,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 
     //Layout to organize the whole window
     QVBoxLayout *generalLayout = new QVBoxLayout(this, 0, 1, "generalLayout");
+    //generalLayout->setDirection(QVBoxLayout::BottomToTop);
 
     //Tabulation widget
     dialogTab = new QTabWidget(this);
@@ -116,6 +118,13 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     buttonUpdate = new QPushButton( this, "buttonUpdate" );
     buttonUpdate->setText("&Update");
     buttonUpdate->setEnabled(false);
+    showHelp = new QCheckBox( this, "showHelp" );
+    showHelp->setText("&Help");
+#ifndef SOFAGUIQT_COMPACT
+    showHelp->setChecked(true);
+#else
+    showHelp->setChecked(false);
+#endif
     QPushButton *buttonOk = new QPushButton( this, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
 
@@ -151,7 +160,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 
         std::vector<std::string> tabNames;
         //Put first the Property Tab
-        tabNames.push_back("Property");
+        //tabNames.push_back("Property");
 
         for( sofa::core::objectmodel::Base::VecData::const_iterator it = fields.begin(); it!=fields.end(); ++it)
         {
@@ -197,6 +206,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
                 connect(buttonUpdate,   SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
                 connect(buttonOk,       SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
                 connect(this,           SIGNAL(updateDataWidgets()), currentTab, SLOT( updateWidgetValue()) );
+                connect(showHelp,       SIGNAL(toggled(bool) ),      currentTab, SLOT( showHelp(bool) ) );
 
                 connect(currentTab, SIGNAL( TabDirty(bool) ), buttonUpdate, SLOT( setEnabled(bool) ) );
                 connect(currentTab, SIGNAL( TabDirty(bool) ), this, SIGNAL( componentDirty(bool) ) );
@@ -240,6 +250,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             connect(buttonUpdate,   SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
             connect(buttonOk,       SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
             connect(this,           SIGNAL(updateDataWidgets()), currentTab, SLOT( updateWidgetValue()) );
+            connect(showHelp,       SIGNAL(toggled(bool) ),      currentTab, SLOT( showHelp(bool) ) );
 
             connect(currentTab, SIGNAL( TabDirty(bool) ), buttonUpdate, SLOT( setEnabled(bool) ) );
             connect(currentTab, SIGNAL( TabDirty(bool) ), this, SIGNAL( componentDirty(bool) ) );
@@ -266,8 +277,15 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 #ifdef DEBUG_GUI
                 std::cout << "GUI: add Tab " << nameTab.ascii() << std::endl;
 #endif
+#ifndef SOFAGUIQT_SCROLL
                 dialogTab->addTab(tabs[i],nameTab);
+#else
+                QScrollArea* scroll = new QScrollArea(this);
                 tabs[i]->addStretch();
+                scroll->setWidget(tabs[i]);
+                scroll->setWidgetResizable(true);
+                dialogTab->addTab(scroll,nameTab);
+#endif
             }
         }
 
@@ -323,6 +341,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         //Adding buttons at the bottom of the dialog
         QHBoxLayout *lineLayout = new QHBoxLayout( 0, 0, 6, "Button Layout");
         lineLayout->addWidget(buttonUpdate);
+        lineLayout->addWidget(showHelp);
         QSpacerItem *Horizontal_Spacing = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
         lineLayout->addItem( Horizontal_Spacing );
 

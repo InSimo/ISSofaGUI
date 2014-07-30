@@ -76,6 +76,7 @@ void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, c
     connect(displaydatawidget, SIGNAL( DataOwnerDirty(bool)),  this, SLOT( updateListViewItem() ) );
     connect(this, SIGNAL(UpdateDatas()), displaydatawidget, SLOT( UpdateData()));
     connect(this, SIGNAL(UpdateDataWidgets()), displaydatawidget, SLOT( UpdateWidgets()));
+    connect(this, SIGNAL(dataShowHelp(bool)), displaydatawidget, SLOT( showHelp(bool)));
     connect(displaydatawidget, SIGNAL( dataValueChanged(QString) ), SLOT(dataValueChanged(QString) ) );
 #ifdef DEBUG_GUI
     std::cout << "GUI< addData " << data->getName() << std::endl;
@@ -99,6 +100,7 @@ void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, c
     connect(displaylinkwidget, SIGNAL( LinkOwnerDirty(bool)),  this, SLOT( updateListViewItem() ) );
     connect(this, SIGNAL(UpdateDatas()), displaylinkwidget, SLOT( UpdateLink()));
     connect(this, SIGNAL(UpdateDataWidgets()), displaylinkwidget, SLOT( UpdateWidgets()));
+    connect(this, SIGNAL(dataShowHelp(bool)), displaylinkwidget, SLOT( showHelp(bool)));
 }
 
 void QTabulationModifyObject::dataValueChanged(QString dataValue)
@@ -182,6 +184,11 @@ void QTabulationModifyObject::updateDataValue()
 void QTabulationModifyObject::updateWidgetValue()
 {
     emit UpdateDataWidgets();
+}
+
+void QTabulationModifyObject::showHelp(bool v)
+{
+    emit dataShowHelp(v);
 }
 
 void QTabulationModifyObject::addStretch()

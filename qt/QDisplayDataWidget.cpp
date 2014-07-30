@@ -67,24 +67,53 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
     if(data_ == NULL)
         return;
 
+    const std::string& name = data_->getName();
+    const std::string help = (std::string(data_->getHelp()) != "TODO") ? std::string(data_->getHelp()) : std::string("");
+    const std::string valuetype = data_->getValueTypeString();
+
+#ifndef SOFAGUIQT_COMPACT
     if(!flags.PROPERTY_WIDGET_FLAG)
     {
-        setTitle(data_->getName().c_str());
+        setTitle(name.c_str());
         setInsideMargin(4);
         setInsideSpacing(2);
     }
 
-    const std::string label_text = data_->getHelp();
+    const std::string label_text = help;
+    const std::string popup_text = valuetype;
+#else
+    if(!flags.PROPERTY_WIDGET_FLAG)
+    {
+        setTitle(name.c_str());
+        setInsideMargin(0);
+        setInsideSpacing(0);
+        //setMargin(0);
+        //setFlat(true);
+        //setStyleSheet("QGroupBox{border:0;}");
+        
+    }
+    const std::string label_text = help; // = name;
+    std::string popup_text = help;
+    if (!valuetype.empty())
+    {
+        if (!popup_text.empty()) popup_text += '\n';
+        popup_text += valuetype;
+    }
+#endif
 
-    if (label_text != "TODO")
+    if (!label_text.empty())
     {
         datainfowidget_ = new QDisplayDataInfoWidget(this,label_text,data_,flags.LINKPATH_MODIFIABLE_FLAG);
+#ifndef SOFAGUIQT_COMPACT
         numWidgets_ += datainfowidget_->getNumLines()/3;
+#else
+        datainfowidget_->setVisible(false);
+#endif
     }
 
-    const std::string valuetype = data_->getValueTypeString();
-    if (!valuetype.empty())
-        setToolTip(valuetype.c_str());
+
+    if (!popup_text.empty())
+        setToolTip(popup_text.c_str());
 
     DataWidget::CreatorArgument dwarg;
     dwarg.name =  data_->getName();
@@ -158,6 +187,38 @@ void QDisplayDataWidget::UpdateData()
 void QDisplayDataWidget::UpdateWidgets()
 {
     emit WidgetUpdate();
+}
+
+void QDisplayDataWidget::showHelp(bool v)
+{
+    //const std::string& name = data_->getName();
+    const std::string help = (std::string(data_->getHelp()) != "TODO") ? std::string(data_->getHelp()) : std::string("");
+    const std::string valuetype = data_->getValueTypeString();
+
+    if (datainfowidget_)
+    {
+        datainfowidget_->setVisible(v);
+    }
+
+    std::string popup_text;
+    if (v)
+    {
+        popup_text = valuetype;
+    }
+    else
+    {
+        popup_text = help;
+        if (!valuetype.empty())
+        {
+            if (!popup_text.empty()) popup_text += '\n';
+            popup_text += valuetype;
+        }
+    }
+
+    if (!popup_text.empty())
+        setToolTip(popup_text.c_str());
+
+    this->adjustSize();
 }
 
 QDataSimpleEdit::QDataSimpleEdit(QWidget* parent, const char* name, BaseData* data):
