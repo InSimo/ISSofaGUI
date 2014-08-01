@@ -102,7 +102,7 @@ void SofaMouseManager::setPickHandler(PickHandler *picker)
     updateContent();
     updateOperation(LEFT,   "Attach");
     updateOperation(MIDDLE, "Incise");
-    updateOperation(RIGHT,  "Remove");
+    updateOperation(RIGHT,  "ConstraintAttach");
 }
 
 
