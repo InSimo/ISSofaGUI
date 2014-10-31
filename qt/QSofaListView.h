@@ -106,6 +106,11 @@ public Q_SLOTS:
     void Export();
     void CloseAllDialogs();
     void UpdateOpenedDialogs();
+
+	void setFilter( const QString & );
+	void setSearchName( bool );
+	void setSearchType( bool );
+	void setDisplayChildrenWhenParentMatches( bool );
 Q_SIGNALS:
     void Close();
     void Lock(bool);
@@ -147,6 +152,14 @@ protected Q_SLOTS:
     void focusObject();
     void focusNode();
 protected:
+	void applyFilter();
+	bool nameMatchesFilter(Q3ListViewItem*, bool);
+	bool typeMatchesFilter(Q3ListViewItem*, bool);
+	bool isItemANode(Q3ListViewItem*);
+	bool shouldDisplayNode(Q3ListViewItem*, bool, bool);
+	bool fillFilteredList(std::vector< std::pair<Q3ListViewItem*, bool> >&, Q3ListViewItem*, bool);
+	void showMatchingNodes(const std::vector< std::pair<Q3ListViewItem*, bool> >& nodesList);
+
     void collapseNode(Q3ListViewItem* item);
     void expandNode(Q3ListViewItem* item);
     void transformObject ( sofa::simulation::Node *node, double dx, double dy, double dz,  double rx, double ry, double rz, double scale );
@@ -160,6 +173,11 @@ protected:
     AddObject* AddObjectDialog_;
     ObjectModel object_;
     SofaListViewAttribute attribute_;
+
+	QString	filter_;
+	bool searchName_;
+	bool searchType_;
+	bool displayChildrenWhenParentMatches_;
 
 };
 

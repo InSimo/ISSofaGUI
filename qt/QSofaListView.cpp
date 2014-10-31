@@ -32,7 +32,6 @@
 
 #include <sofa/simulation/common/TransformationVisitor.h>
 
-
 #ifdef SOFA_QT4
 #include <Q3PopupMenu>
 #else
@@ -92,6 +91,10 @@ QSofaListView::QSofaListView(const SofaListViewAttribute& attribute,
     header()->setClickEnabled(false, header()->count() - 1);
     header()->setResizeEnabled(false, header()->count() - 1);
     header()->setLabel(0, QString());
+
+	searchName_ = true;
+	searchType_ = false;
+	displayChildrenWhenParentMatches_ = true;
 
     setRootIsDecorated(true);
     setTreeStepSize(15);
@@ -161,6 +164,146 @@ void QSofaListView::modifyUnlock(void* Id)
 {
     map_modifyDialogOpened.erase( Id );
     map_modifyObjectWindow.erase( Id );
+}
+
+bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, bool bIsNode)
+{
+	if (!searchName_) return false;
+
+	bool match = false;
+
+	emit Lock(true);
+
+	if (bIsNode)
+	{
+		match = item->text(0).contains(filter_, Qt::CaseInsensitive);
+	}
+	else
+	{
+		QStringList list = item->text(0).split(' ');
+
+		if (list.size() >= 2)
+		{
+			list.pop_front();
+			match = list.join(" ").contains(filter_, Qt::CaseInsensitive);
+		}
+	}
+
+	emit Lock(false);
+
+	return match;
+}
+
+bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, bool bIsNode)
+{
+	if (bIsNode || !searchType_) return false;
+
+	bool match = false;
+
+	emit Lock(true);
+
+	QStringList list = item->text(0).split(' ');
+
+	emit Lock(false);
+
+	if (!list.isEmpty())
+		match = list.front().contains(filter_, Qt::CaseInsensitive);
+
+	return match;
+}
+
+bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, bool bIsNode)
+{
+	emit Lock(true);
+
+	bool noOption = !searchName_ && !searchType_; // No option activated : ignore filter and display node anyway
+
+	bool display =	noOption || filter_.isEmpty() || 
+					(parentMatched && displayChildrenWhenParentMatches_) ||
+					nameMatchesFilter(item, bIsNode) ||
+					typeMatchesFilter(item, bIsNode);
+
+	emit Lock(false);
+
+	return display;
+}
+
+bool QSofaListView::isItemANode(Q3ListViewItem* item)
+{
+	Base* base;
+	Node* node;
+
+	base = graphListener_->findObject(item);
+	node = dynamic_cast<Node*>(base);
+
+	return node != NULL;
+}
+
+typedef std::vector< std::pair<Q3ListViewItem*, bool> > MatchingNodesList;
+
+// Updates the Visible value of the nodes based on options and filter
+bool QSofaListView::fillFilteredList(MatchingNodesList& nodesList, Q3ListViewItem* item, bool parentMatched)
+{
+	bool hasVisibleItem = false;
+
+    emit Lock(true);
+	while (item)
+	{
+		std::pair<Q3ListViewItem*, bool> itemDisplayValue;
+		itemDisplayValue.first = item;
+
+		if (shouldDisplayNode(item, parentMatched, isItemANode(item)))
+		{
+			itemDisplayValue.second = true; // setVisible value
+			fillFilteredList(nodesList, item->firstChild(), true);
+			hasVisibleItem = true;
+		}
+		else
+		{
+			bool hasVisibleChild = fillFilteredList(nodesList, item->firstChild(), false);
+			if (hasVisibleChild)
+			{
+				itemDisplayValue.second = true; // setVisible value
+				hasVisibleItem = true;
+			}
+			else
+			{
+				itemDisplayValue.second = false; // setVisible value
+			}
+		}
+		nodesList.push_back(itemDisplayValue);
+
+		item = item->nextSibling();
+	}
+    emit Lock(false);
+
+	return hasVisibleItem;
+}
+
+void QSofaListView::showMatchingNodes(const MatchingNodesList& nodesList)
+{
+	emit Lock(true);
+
+	for (MatchingNodesList::const_reverse_iterator it = nodesList.rbegin(); it != nodesList.rend(); ++it)
+	{
+		if (it->first)
+		{
+			it->first->setVisible(it->second);
+		}
+	}
+
+	emit Lock(false);
+}
+
+void QSofaListView::applyFilter()
+{
+	//Must setVisible on parent before children to prevent bugs -> need to store in a temporary list and setVisible after algorithm is finished.
+	MatchingNodesList nodesList;
+
+    Q3ListViewItem* root = firstChild();
+	fillFilteredList(nodesList, root, false);
+
+	showMatchingNodes(nodesList);
 }
 
 void QSofaListView::collapseNode()
@@ -510,6 +653,56 @@ void QSofaListView::UpdateOpenedDialogs()
         ModifyObject* modify = reinterpret_cast<ModifyObject*>(iter->second);
         modify->updateTables();
     }
+}
+
+void QSofaListView::setFilter(const QString &newFilter)
+{
+	emit Lock(true);
+
+	filter_ = newFilter;
+	applyFilter();
+
+	emit Lock(false);
+}
+
+void QSofaListView::setSearchName(bool value)
+{
+	emit Lock(true);
+
+	bool oldValue = searchName_;
+
+	searchName_ = value;
+
+	if (oldValue != searchName_)
+		applyFilter();
+
+	emit Lock(false);
+}
+
+void QSofaListView::setSearchType(bool value)
+{
+	emit Lock(true);
+	bool oldValue = searchType_;
+
+	searchType_ = value;
+
+	if (oldValue != searchType_)
+		applyFilter();
+
+	emit Lock(false);
+}
+
+void QSofaListView::setDisplayChildrenWhenParentMatches(bool value)
+{
+	emit Lock(true);
+	bool oldValue = displayChildrenWhenParentMatches_;
+
+	displayChildrenWhenParentMatches_ = value;
+
+	if (oldValue != displayChildrenWhenParentMatches_)
+		applyFilter();
+
+	emit Lock(false);
 }
 
 void QSofaListView::HideDatas()

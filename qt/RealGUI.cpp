@@ -1742,7 +1742,15 @@ void RealGUI::createSimulationGraph()
 {
     simulationGraph = new QSofaListView(SIMULATION,TabGraph,"SimuGraph");
     ((QVBoxLayout*)TabGraph->layout())->addWidget(simulationGraph);
-    connect ( ExportGraphButton, SIGNAL ( clicked() ), simulationGraph, SLOT ( Export() ) );
+
+	connect ( GraphFilter, SIGNAL( textChanged(const QString &) ), simulationGraph, SLOT( setFilter( const QString & ) ) );
+	connect ( SearchNamesCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setSearchName( bool ) ) );
+	connect ( SearchTypesCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setSearchType( bool ) ) );
+	connect ( DisplayChildrenCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setDisplayChildrenWhenParentMatches( bool ) ) );
+//	connect ( SearchNamesCheckbox, SIGNAL( clicked() ), GraphFilter, SLOT( setFocus() ) );
+//	connect ( SearchTypesCheckbox, SIGNAL( clicked() ), GraphFilter, SLOT( setFocus() ) );
+
+	connect ( ExportGraphButton, SIGNAL ( clicked() ), simulationGraph, SLOT ( Export() ) );
     connect(simulationGraph, SIGNAL( RootNodeChanged(sofa::simulation::Node*, const char*) ), this, SLOT ( NewRootNode(sofa::simulation::Node* , const char*) ) );
     connect(simulationGraph, SIGNAL( NodeRemoved() ), this, SLOT( Update() ) );
     connect(simulationGraph, SIGNAL( Lock(bool) ), this, SLOT( LockAnimation(bool) ) );
