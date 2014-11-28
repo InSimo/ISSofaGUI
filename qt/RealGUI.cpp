@@ -868,6 +868,7 @@ void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFi
         }
 
         resetScene();
+		simulationGraph->applyFilter();
     }
 }
 

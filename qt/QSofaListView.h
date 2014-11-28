@@ -102,6 +102,7 @@ public:
     void Freeze();
     void Unfreeze();
     SofaListViewAttribute getAttribute() const { return attribute_; };
+	void applyFilter();
 public Q_SLOTS:
     void Export();
     void CloseAllDialogs();
@@ -152,7 +153,6 @@ protected Q_SLOTS:
     void focusObject();
     void focusNode();
 protected:
-	void applyFilter();
 	bool nameMatchesFilter(Q3ListViewItem*, bool);
 	bool typeMatchesFilter(Q3ListViewItem*, bool);
 	bool isItemANode(Q3ListViewItem*);
