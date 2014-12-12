@@ -893,7 +893,7 @@ void RealGUI::setTitle ( std::string windowTitle )
     if ( !windowTitle.empty() )
     {
         str += " - ";
-        str += windowTitle;
+        str += sofa::helper::system::SetDirectory::GetFileNameWithoutExtension(windowTitle.c_str());
     }
 #ifdef WIN32
     setWindowTitle ( str.c_str() );
