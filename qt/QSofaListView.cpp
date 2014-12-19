@@ -93,7 +93,7 @@ QSofaListView::QSofaListView(const SofaListViewAttribute& attribute,
     header()->setLabel(0, QString());
 
 	searchName_ = true;
-	searchType_ = false;
+	searchType_ = true;
 	displayChildrenWhenParentMatches_ = true;
 
     setRootIsDecorated(true);
