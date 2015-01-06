@@ -211,7 +211,7 @@ int MultithreadGUI::closeGUI()
 
 SOFA_DECL_CLASS(MultithreadGUI)
 
-static sofa::core::ObjectFactory::ClassEntry* classVisualModel = NULL;
+static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
 
 int MultithreadGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*options*/)
 {
@@ -686,7 +686,8 @@ void MultithreadGUI::DrawAxis(double xpos, double ypos, double zpos,
 // ---
 // ---
 // ---------------------------------------------------
-void MultithreadGUI::DrawBox(double* minBBox, double* maxBBox, double r)
+//void MultithreadGUI::DrawBox(double* minBBox, double* maxBBox, double r)
+void MultithreadGUI::DrawBox(SReal* minBBox, SReal* maxBBox, SReal r)//Moreno modif
 {
     //std::cout << "box = < " << minBBox[0] << ' ' << minBBox[1] << ' ' << minBBox[2] << " >-< " << maxBBox[0] << ' ' << maxBBox[1] << ' ' << maxBBox[2] << " >"<< std::endl;
     if (r==0.0)
@@ -1380,6 +1381,7 @@ void MultithreadGUI::keyPressEvent ( int k )
         case 'q': //GLUT_KEY_Escape:
         {
             exit(0);
+            break;
         }
 
         case GLUT_KEY_F5:

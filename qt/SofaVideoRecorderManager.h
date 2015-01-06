@@ -26,7 +26,7 @@
 #ifndef SOFA_GUI_QT_VIDEORECORDERMANAGER_H
 #define SOFA_GUI_QT_VIDEORECORDERMANAGER_H
 
-#include "VideoRecorderManager.h"
+#include <ui_VideoRecorderManager.h>
 #include "SofaGUIQt.h"
 
 #include <vector>
@@ -84,7 +84,7 @@ public:
     std::vector< Codec > listCodecs;
 };
 
-class SofaVideoRecorderManager: public VideoRecorderManager
+class SofaVideoRecorderManager: public QDialog, public Ui_VideoRecorderManager
 {
     Q_OBJECT
 public:

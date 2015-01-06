@@ -25,8 +25,16 @@
 
 #include "GUIManager.h"
 #include "BaseGUI.h"
-#include <sofa/component/init.h>
+//#include <SofaComponentMain/init.h>
+//#include <SofaComponentBase/initComponentBase.h>
+//#include <SofaComponentCommon/initComponentCommon.h>
+//#include <SofaComponentGeneral/initComponentGeneral.h>
+//#include <SofaComponentAdvanced/initComponentAdvanced.h>
+//#include <SofaComponentMisc/initComponentMisc.h>
+
 #include <sofa/simulation/common/xml/initXml.h>
+using std::cerr;
+using std::endl;
 
 namespace sofa
 {
@@ -102,7 +110,7 @@ std::string GUIManager::ListSupportedGUI(char separator)
 const char* GUIManager::GetValidGUIName()
 {
     const char* name;
-    std::string lastGuiFilename = "config/lastUsedGUI.ini";
+    std::string lastGuiFilename = "share/config/lastUsedGUI.ini";
     if (guiCreators.empty())
     {
         std::cerr << "ERROR(SofaGUI): No GUI registered."<<std::endl;
@@ -170,7 +178,20 @@ GUIManager::GUICreator* GUIManager::GetGUICreator(const char* name)
 int GUIManager::Init(const char* argv0, const char* name /* = "" */)
 {
     BaseGUI::SetProgramName(argv0);
-    sofa::component::init();
+    //sofa::component::init();
+
+    static bool first = true;
+    if (first)
+    {
+        //sofa::component::initComponentBase();
+        //sofa::component::initComponentCommon();
+        //sofa::component::initComponentGeneral();
+        //sofa::component::initComponentAdvanced();
+        //sofa::component::initComponentMisc();
+
+        first = false;
+    }
+
     sofa::simulation::xml::initXml();
     GUICreator* creator;
 
@@ -219,7 +240,7 @@ int GUIManager::createGUI(sofa::simulation::Node::SPtr groot, const char* filena
         //Save this GUI type as the last used GUI
         std::string lastGUIfileName;
         std::string path = sofa::helper::system::DataRepository.getFirstPath();
-        lastGUIfileName = path.append("/config/lastUsedGUI.ini");
+        lastGUIfileName = path.append("/share/config/lastUsedGUI.ini");
 
         std::ofstream out(lastGUIfileName.c_str(),std::ios::out);
         out << valid_guiname << std::endl;
@@ -273,13 +294,43 @@ int GUIManager::MainLoop(sofa::simulation::Node::SPtr groot, const char* filenam
 }
 void GUIManager::SetDimension(int  width , int  height )
 {
-    if (currentGUI) currentGUI->setViewerResolution(width,height);
+    if (currentGUI)
+    {
+//        std::string viewerFileName;
+//        std::string path = sofa::helper::system::DataRepository.getFirstPath();
+//        viewerFileName = path.append("/share/config/sofaviewer.ini");
+
+//        if(sofa::helper::system::DataRepository.findFile(viewerFileName))
+//        {
+//            std::string configPath = sofa::helper::system::DataRepository.getFile(viewerFileName);
+//            std::string w, h;
+//            std::ifstream viewerStream(configPath.c_str());
+//            std::getline(viewerStream,w);
+//            std::getline(viewerStream,h);
+//            viewerStream.close();
+
+//            std::stringstream convertW(w);
+//            convertW >> width;
+
+//            std::stringstream convertH(h);
+//            convertH >> height;
+//        }
+        currentGUI->setViewerResolution(width,height);
+    }
 }
 void GUIManager::SetFullScreen()
 {
     if (currentGUI) currentGUI->setFullScreen();
+    else cerr<<"GUIManager::SetFullScreen(), no currentGUI" << endl;
 }
 
+void GUIManager::SaveScreenshot(const char* filename)
+{
+    if (currentGUI) {
+		std::string output = (filename?std::string(filename):"output.png");
+		currentGUI->saveScreenshot(output);
+	}
+}
 
 
 }

@@ -38,7 +38,7 @@
 #include <qpushbutton.h>
 #endif
 
-#include <sofa/gui/qt/SofaGUIQt.h>
+#include "SofaGUIQt.h"
 #include <sofa/simulation/common/Node.h>
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/core/objectmodel/BaseObject.h>
@@ -140,15 +140,11 @@ protected Q_SLOTS:
     void DeactivateNode();
     void ActivateNode();
     void loadObject ( std::string path, double dx, double dy, double dz,  double rx, double ry, double rz,double scale );
-#ifdef SOFA_QT4
+
     void updateMatchingObjectmodel(Q3ListViewItem* item);
     void RunSofaRightClicked( Q3ListViewItem *item, const QPoint& point, int index );
     void RunSofaDoubleClicked( Q3ListViewItem*);
-#else
-    void updateMatchingObjectmodel(QListViewItem* item);
-    void RunSofaRightClicked( QListViewItem *item, const QPoint& point, int index );
-    void RunSofaDoubleClicked( QListViewItem*);
-#endif
+
     void nodeNameModification( simulation::Node*);
     void focusObject();
     void focusNode();

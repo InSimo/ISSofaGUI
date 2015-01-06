@@ -24,22 +24,18 @@
 ******************************************************************************/
 #include <sofa/gui/MouseOperations.h>
 #include <sofa/gui/PickHandler.h>
-#include <sofa/component/collision/InteractionPerformer.h>
+#include <SofaUserInteraction/InteractionPerformer.h>
 
-#include <sofa/component/collision/ComponentMouseInteraction.h>
-#include <sofa/component/collision/AttachBodyPerformer.h>
-#include <sofa/component/collision/FixParticlePerformer.h>
-#include <sofa/component/collision/RemovePrimitivePerformer.h>
-#include <sofa/component/collision/InciseAlongPathPerformer.h>
-#ifdef SOFA_DEV
-#include <sofa/component/collision/AddFramePerformer.h>
-#if defined(WIN32) && defined(SOFA_HAVE_PLUGIN_Compliant)
-#include <plugins/Compliant/Compliant_lib/CompliantAttachPerformer.h>
-#endif
-#endif
-#include <sofa/component/collision/SuturePointPerformer.h>
+#include <SofaUserInteraction/ComponentMouseInteraction.h>
+#include <SofaUserInteraction/AttachBodyPerformer.h>
+#include <SofaUserInteraction/FixParticlePerformer.h>
+#include <SofaUserInteraction/RemovePrimitivePerformer.h>
+#include <SofaUserInteraction/InciseAlongPathPerformer.h>
+#include <SofaUserInteraction/AddRecordedCameraPerformer.h>
+#include <SofaUserInteraction/StartNavigationPerformer.h>
+#include <SofaUserInteraction/SuturePointPerformer.h>
 #ifdef SOFA_HAVE_ARPLUGIN
-#include "./../../../applications-dev/plugins/ARPlugin/AdaptativeAttachPerformer.h"
+#include "./../../../applications-dev/plugins/ARPlugin/ARPSAttachPerformer.h"
 #endif
 
 namespace sofa
@@ -73,6 +69,8 @@ helper::Creator<InteractionPerformer::InteractionPerformerFactory, RemovePrimiti
 helper::Creator<InteractionPerformer::InteractionPerformerFactory, SuturePointPerformer<defaulttype::Vec3dTypes> >  SuturePointPerformerVec3dClass("SuturePoints",true);
 #endif
 helper::Creator<InteractionPerformer::InteractionPerformerFactory, InciseAlongPathPerformer>  InciseAlongPathPerformerClass("InciseAlongPath");
+helper::Creator<InteractionPerformer::InteractionPerformerFactory, AddRecordedCameraPerformer> AddRecordedCameraPerformerClass("AddRecordedCamera");
+helper::Creator<InteractionPerformer::InteractionPerformerFactory, StartNavigationPerformer> StartNavigationPerformerClass("StartNavigation");
 #endif
 
 namespace gui
@@ -319,7 +317,24 @@ void AddFrameOperation::configurePerformer(sofa::component::collision::Interacti
     Operation::configurePerformer(p);
 }
 
+
 //*******************************************************************************************
+std::string AddRecordedCameraOperation::defaultPerformerType() { return "AddRecordedCamera"; }
+
+void AddRecordedCameraOperation::configurePerformer(sofa::component::collision::InteractionPerformer* p)
+{
+    Operation::configurePerformer(p);
+}
+
+
+//*******************************************************************************************
+std::string StartNavigationOperation::defaultPerformerType() { return "StartNavigation"; }
+
+void StartNavigationOperation::configurePerformer(sofa::component::collision::InteractionPerformer* p)
+{
+    Operation::configurePerformer(p);
+}
+
 
 //*******************************************************************************************
 std::string AddSutureOperation::defaultPerformerType() { return "SuturePoints"; }

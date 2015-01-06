@@ -132,7 +132,13 @@ void QSofaStatWidget::addCollisionModelsStat(const sofa::helper::vector< sofa::c
         item->setText(1,QString(v[i]->getClassName().c_str()));
         item->setText(0,v[i]->getName().c_str());
         item->setText(2,QString::number(v[i]->getSize()));
-        item->setText(3,QString::number(v[i]->getGroup()));
+        {
+        const helper::set<int>& groups = v[i]->getGroups();
+        QString groupString;
+        helper::set<int>::const_iterator it = groups.begin(), itend = groups.end();
+        for( ; it != itend ; ++it ) groupString += QString::number(*it) + ", ";
+        item->setText(3,groupString);
+        }
         items_stats.push_back(std::make_pair(v[i], item));
     }
 }

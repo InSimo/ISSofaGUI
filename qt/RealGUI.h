@@ -25,7 +25,8 @@
 #ifndef SOFA_GUI_VIEWER_REALGUI_H
 #define SOFA_GUI_VIEWER_REALGUI_H
 
-#include "GUI.h"
+#include <ui_GUI.h>
+#include <sofa/SofaGui.h>
 #include "SofaGUIQt.h"
 #include "GraphListenerQListView.h"
 #include "QMenuFilesRecentlyOpened.h"
@@ -109,7 +110,7 @@ class SofaViewer;
 }
 
 
-class SOFA_SOFAGUIQT_API RealGUI : public ::GUI, public sofa::gui::BaseGUI
+class SOFA_SOFAGUIQT_API RealGUI :public Q3MainWindow, public Ui::GUI, public sofa::gui::BaseGUI
 {
     Q_OBJECT
 

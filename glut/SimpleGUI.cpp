@@ -53,7 +53,7 @@
 
 #include <sofa/simulation/common/PropagateEventVisitor.h>
 #ifdef SOFA_SMP
-#include <sofa/component/visualmodel/VisualModelImpl.h>
+#include <SofaBaseVisual/VisualModelImpl.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 #include <sofa/simulation/common/CollisionVisitor.h>
 #include <sofa/simulation/common/AnimateEndEvent.h>
@@ -177,7 +177,7 @@ int SimpleGUI::closeGUI()
 
 SOFA_DECL_CLASS(SimpleGUI)
 
-static sofa::core::ObjectFactory::ClassEntry* classVisualModel = NULL;
+static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
 
 int SimpleGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*options*/)
 {
@@ -381,6 +381,8 @@ SimpleGUI::SimpleGUI()
 
     //Register the different Operations possible
     RegisterOperation("Attach").add< AttachOperation >();
+	RegisterOperation("Add recorded camera").add< AddRecordedCameraOperation >();
+	RegisterOperation("Start navigation").add< StartNavigationOperation >();
     RegisterOperation("Fix").add< FixOperation >();
     RegisterOperation("Incise").add< InciseOperation >();
     RegisterOperation("Remove").add< TopologyOperation >();
@@ -632,7 +634,7 @@ void SimpleGUI::DrawAxis(double xpos, double ypos, double zpos,
 // ---
 // ---
 // ---------------------------------------------------
-void SimpleGUI::DrawBox(double* minBBox, double* maxBBox, double r)
+void SimpleGUI::DrawBox(SReal* minBBox, SReal* maxBBox, double r)
 {
     //std::cout << "box = < " << minBBox[0] << ' ' << minBBox[1] << ' ' << minBBox[2] << " >-< " << maxBBox[0] << ' ' << maxBBox[1] << ' ' << maxBBox[2] << " >"<< std::endl;
     if (r==0.0)
@@ -1683,6 +1685,10 @@ void SimpleGUI::mouseEvent ( int type, int eventX, int eventY, int button )
                 mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightPressed, eventX, eventY);
             else if (button == GLUT_MIDDLE_BUTTON)
                 mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddlePressed, eventX, eventY);
+			else{
+				// A fallback event to rules them all... 
+				mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed, eventX, eventY);
+			}
             currentCamera->manageEvent(mEvent);
             _moving = true;
             _spinning = false;
@@ -1708,6 +1714,10 @@ void SimpleGUI::mouseEvent ( int type, int eventX, int eventY, int button )
                 mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightReleased, eventX, eventY);
             else if (button == GLUT_MIDDLE_BUTTON)
                 mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddleReleased, eventX, eventY);
+			else{
+				// A fallback event to rules them all... 
+				mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased, eventX, eventY);
+			}
             currentCamera->manageEvent(mEvent);
             _moving = false;
             _spinning = false;

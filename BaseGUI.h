@@ -28,8 +28,8 @@
 #include "SofaGUI.h"
 #include <sofa/simulation/common/Node.h>
 #include <sofa/defaulttype/Vec.h>
-#include <sofa/component/configurationsetting/ViewerSetting.h>
-#include <sofa/component/configurationsetting/MouseButtonSetting.h>
+#include <SofaGraphComponent/ViewerSetting.h>
+#include <SofaGraphComponent/MouseButtonSetting.h>
 
 #include <list>
 
@@ -84,6 +84,7 @@ public:
 
     virtual BaseViewer* getViewer() {return NULL;}
     virtual void registerViewer(BaseViewer* /*viewer*/) {}
+    virtual bool saveScreenshot(const std::string& filename, int compression_level =-1);
 
     virtual void setMouseButtonConfiguration(sofa::component::configurationsetting::MouseButtonSetting* /*button*/) {}
     /// @}

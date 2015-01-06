@@ -27,9 +27,9 @@
 #include <sofa/core/objectmodel/ConfigurationSetting.h>
 #include <sofa/helper/vector.h>
 
-#include <sofa/component/configurationsetting/SofaDefaultPathSetting.h>
-#include <sofa/component/configurationsetting/BackgroundSetting.h>
-#include <sofa/component/configurationsetting/StatsSetting.h>
+#include <SofaGraphComponent/SofaDefaultPathSetting.h>
+#include <SofaGraphComponent/BackgroundSetting.h>
+#include <SofaGraphComponent/StatsSetting.h>
 
 #include <algorithm>
 #include <string.h>
@@ -118,6 +118,15 @@ void BaseGUI::exportGnuplot(sofa::simulation::Node* node, std::string /*gnuplot_
     sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
     ExportGnuplotVisitor expg ( params /* PARAMS FIRST */, node->getTime());
     node->execute ( expg );
+}
+
+bool BaseGUI::saveScreenshot(const std::string& filename, int compression_level)
+{
+	if(getViewer()) { 
+		getViewer()->screenshot(filename, compression_level);
+		return true;
+	}
+	else return false;
 }
 
 

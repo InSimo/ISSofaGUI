@@ -26,7 +26,7 @@
 #define ADDOBJECT_H
 
 
-#include "DialogAddObject.h"
+#include <ui_DialogAddObject.h>
 #include <vector>
 
 namespace sofa
@@ -40,7 +40,7 @@ namespace qt
 
 
 
-class AddObject : public DialogAddObject
+class AddObject : public QDialog, public Ui_DialogAddObject
 {
     Q_OBJECT
 public:

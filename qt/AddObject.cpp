@@ -65,7 +65,8 @@ typedef QButtonGroup Q3ButtonGroup;
 #endif
 
 
-AddObject::AddObject( std::vector< std::string > *list_object_, QWidget* parent , const char* name, bool , Qt::WFlags ):	DialogAddObject(parent, name), list_object(list_object_)
+AddObject::AddObject( std::vector< std::string > *list_object_, QWidget* parent , const char* name, bool , Qt::WFlags )
+:list_object(list_object_)
 {
     //At the creation of the dialog window, we enable the custom object
     custom->setChecked(true);

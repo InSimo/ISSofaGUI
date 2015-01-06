@@ -36,8 +36,7 @@
 #include <fstream>
 
 
-#include <viewer/SofaViewer.h>
-
+#include "../SofaViewer.h"
 #include "../../../ViewerFactory.h"
 
 #include <sofa/defaulttype/Vec.h>
