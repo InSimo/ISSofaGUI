@@ -3,6 +3,7 @@ set(SOLUTION_NAME "ISSofaGui")
 project(${SOLUTION_NAME})
 
 set( SofaGui_ACTUAL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sofa/gui )
+
 ##
 ## SofaGui version
 ##
@@ -35,7 +36,6 @@ find_package(Qt4 COMPONENTS qtcore qtgui qtopengl qtxml qt3support)
 
 set(SOFA_HAVE_QT ${Qt4_FOUND} )
 set(SOFA_QT4 ${Qt4_FOUND} )
-
 
 set(SOFAGUI_TARGETS SofaGuiCommon)
 
