@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.11)
 set(SOLUTION_NAME "ISSofaGui")
 project(${SOLUTION_NAME})
 
-#temporary until we move the sub projects
 set( SofaGui_ACTUAL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sofa/gui )
 ##
 ## SofaGui version
@@ -37,7 +36,6 @@ find_package(Qt4 COMPONENTS qtcore qtgui qtopengl qtxml qt3support)
 set(SOFA_HAVE_QT ${Qt4_FOUND} )
 set(SOFA_QT4 ${Qt4_FOUND} )
 
-#set(SOFAGUI_TARGETS SofaGuiCommon SofaGuiQt SofaGuiQTViewer SofaGuiGlut SofaGuiMain)
 
 set(SOFAGUI_TARGETS SofaGuiCommon)
 
@@ -56,8 +54,6 @@ if(Qt4_FOUND)
     add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/qt            ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiQt)
     set(SOFA_GUI_QTVIEWER 1)
     
-    #add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/qt/viewer/qt  ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiQTViewer)
-    #add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/qt/viewer/qgl ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiQTQGLViewer)
 endif(Qt4_FOUND)
 
 list(APPEND SOFAGUI_TARGETS SofaGuiMain)
