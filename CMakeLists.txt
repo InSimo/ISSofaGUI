@@ -3,7 +3,7 @@ set(SOLUTION_NAME "ISSofaGui")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaGui_ACTUAL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+set( SofaGui_ACTUAL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sofa )
 ##
 ## SofaGui version
 ##
