@@ -25,14 +25,14 @@
 #ifndef SOFA_GUI_QT_MODIFYOBJECT_H
 #define SOFA_GUI_QT_MODIFYOBJECT_H
 
-#include <sofa/gui/qt/SofaGUIQt.h>
+#include "SofaGUIQt.h"
 #include <sofa/core/objectmodel/BaseObject.h>
 
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/fixed_array.h>
 #include <sofa/simulation/common/Node.h>
-#include <sofa/gui/qt/WDoubleLineEdit.h>
+#include "WDoubleLineEdit.h"
 
 #ifdef SOFA_QT4
 #include <QDialog>

@@ -25,9 +25,9 @@
 #ifndef SOFA_GUI_SIMPLE_SIMPLEGUI_H
 #define SOFA_GUI_SIMPLE_SIMPLEGUI_H
 
-#include <sofa/gui/BaseGUI.h>
+#include "../BaseGUI.h"
 
-#include <sofa/gui/PickHandler.h>
+#include "../PickHandler.h"
 
 #include <sofa/helper/system/config.h>
 #include <sofa/defaulttype/Vec.h>

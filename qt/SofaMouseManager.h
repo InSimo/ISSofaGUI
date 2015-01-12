@@ -27,7 +27,7 @@
 #ifndef SOFA_GUI_QT_MOUSEMANAGER_H
 #define SOFA_GUI_QT_MOUSEMANAGER_H
 
-#include <sofa/gui/PickHandler.h>
+#include "../PickHandler.h"
 #include <QDialog>
 #include <memory>
 

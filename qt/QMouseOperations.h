@@ -25,7 +25,7 @@
 #ifndef SOFA_GUI_QT_QMOUSEOPERATIONS_H
 #define SOFA_GUI_QT_QMOUSEOPERATIONS_H
 
-#include <sofa/gui/MouseOperations.h>
+#include "../MouseOperations.h"
 #include "SofaMouseManager.h"
 
 #ifdef SOFA_QT4

@@ -25,8 +25,8 @@
 #ifndef SOFA_GUI_GLUT_MULTITHREADGUI_H
 #define SOFA_GUI_GLUT_MULTITHREADGUI_H
 
-#include <sofa/gui/BaseGUI.h>
-#include <sofa/gui/PickHandler.h>
+#include "../BaseGUI.h"
+#include "../PickHandler.h"
 
 #include <sofa/core/objectmodel/AspectPool.h>
 //#include <sofa/helper/system/thread/CircularQueue.h>

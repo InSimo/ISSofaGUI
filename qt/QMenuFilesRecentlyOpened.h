@@ -25,7 +25,7 @@
 #ifndef SOFA_GUI_VIEWER_QT_QMENUFILESRECENTLYOPENED_H
 #define SOFA_GUI_VIEWER_QT_QMENUFILESRECENTLYOPENED_H
 
-#include <sofa/gui/FilesRecentlyOpenedManager.h>
+#include "../FilesRecentlyOpenedManager.h"
 #include "SofaGUIQt.h"
 #ifdef SOFA_QT4
 #include <QMenu>

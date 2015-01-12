@@ -25,7 +25,7 @@
 #ifndef SOFA_GUI_BATCHGUI_H
 #define SOFA_GUI_BATCHGUI_H
 
-#include <sofa/gui/BaseGUI.h>
+#include "BaseGUI.h"
 #include <sofa/simulation/common/Node.h>
 
 namespace sofa

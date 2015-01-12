@@ -22,7 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/gui/PickHandler.h>
+#include "PickHandler.h"
 
 #include <SofaUserInteraction/ComponentMouseInteraction.h>
 #include <SofaUserInteraction/RayContact.h>

@@ -54,7 +54,7 @@
 #include <sofa/helper/io/ImageBMP.h>
 
 #include <sofa/defaulttype/RigidTypes.h>
-#include <sofa/gui/ColourPickingVisitor.h>
+#include "../../../ColourPickingVisitor.h"
 
 namespace sofa
 {

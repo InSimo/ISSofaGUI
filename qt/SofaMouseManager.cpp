@@ -26,8 +26,8 @@
 #include <ui_MouseManager.h>
 #include "QMouseOperations.h"
 
-#include <sofa/gui/MouseOperations.h>
-#include <sofa/gui/OperationFactory.h>
+#include "../MouseOperations.h"
+#include "../OperationFactory.h"
 
 #include <iostream>
 #ifndef SOFA_QT4

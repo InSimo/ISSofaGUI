@@ -29,7 +29,7 @@
 #include "QDataDescriptionWidget.h"
 #include "QTabulationModifyObject.h"
 
-#include <sofa/gui/qt/QTransformationWidget.h>
+#include "QTransformationWidget.h"
 #ifdef SOFA_HAVE_QWT
 #include <sofa/gui/qt/QEnergyStatWidget.h>
 #include <sofa/gui/qt/QMomentumStatWidget.h>

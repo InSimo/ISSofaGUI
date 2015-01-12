@@ -22,7 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/gui/ColourPickingVisitor.h>
+#include "ColourPickingVisitor.h"
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/system/gl.h>
 #include <sofa/core/objectmodel/BaseContext.h>

@@ -25,9 +25,9 @@
 #ifndef SOFA_GUI_QT_INFORMATIONONPICKCALLBACK
 #define SOFA_GUI_QT_INFORMATIONONPICKCALLBACK
 
-#include <sofa/gui/PickHandler.h>
+#include "../PickHandler.h"
 #include <sofa/core/CollisionModel.h>
-#include <sofa/gui/ColourPickingVisitor.h>
+#include "../ColourPickingVisitor.h"
 
 namespace sofa
 {

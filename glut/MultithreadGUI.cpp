@@ -53,8 +53,8 @@
 #include <sofa/defaulttype/BoundingBox.h>
 #include <sofa/core/ObjectFactory.h>
 
-#include <sofa/gui/OperationFactory.h>
-#include <sofa/gui/MouseOperations.h>
+#include "../OperationFactory.h"
+#include "../MouseOperations.h"
 
 #include <sofa/simulation/common/PropagateEventVisitor.h>
 

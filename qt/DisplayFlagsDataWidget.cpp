@@ -22,7 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/gui/qt/DisplayFlagsDataWidget.h>
+#include "DisplayFlagsDataWidget.h"
 #ifdef SOFA_QT4
 #include <QHBoxLayout>
 #include <QVBoxLayout>

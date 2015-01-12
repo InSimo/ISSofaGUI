@@ -29,7 +29,7 @@
 #include "OperationFactory.h"
 
 
-#include <sofa/gui/ColourPickingVisitor.h>
+#include "ColourPickingVisitor.h"
 
 #include <sofa/simulation/common/Simulation.h>
 #include <sofa/simulation/common/Node.h>

@@ -25,7 +25,7 @@
 #ifndef SOFA_GUI_QT_QSOFASTATGRAPH_H
 #define SOFA_GUI_QT_QSOFASTATGRAPH_H
 
-#include <sofa/gui/qt/SofaGUIQt.h>
+#include "SofaGUIQt.h"
 #include <sofa/helper/vector.h>
 
 #ifdef SOFA_QT4

@@ -53,7 +53,7 @@
 #include "QSofaStatWidget.h"
 #include "viewer/SofaViewer.h"
 
-#include <sofa/gui/BaseViewer.h>
+#include "../BaseViewer.h"
 #include <sofa/simulation/common/xml/XML.h>
 #include <sofa/simulation/common/DeactivatedNodeVisitor.h>
 #include <SofaBaseVisual/VisualStyle.h>

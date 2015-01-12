@@ -23,7 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include <sofa/gui/FilesRecentlyOpenedManager.h>
+#include "FilesRecentlyOpenedManager.h"
 
 #include <sofa/helper/system/FileRepository.h>
 #include <fstream>

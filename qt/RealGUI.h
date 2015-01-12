@@ -32,8 +32,8 @@
 #include "QMenuFilesRecentlyOpened.h"
 #include "PickHandlerCallBacks.h"
 
-#include <sofa/gui/BaseGUI.h>
-#include <sofa/gui/ViewerFactory.h>
+#include "../BaseGUI.h"
+#include "../ViewerFactory.h"
 
 #include <set>
 #include <string>

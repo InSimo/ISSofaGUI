@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/gui/MouseOperations.h>
-#include <sofa/gui/PickHandler.h>
+#include "MouseOperations.h"
+#include "PickHandler.h"
 #include <SofaUserInteraction/InteractionPerformer.h>
 
 #include <SofaUserInteraction/ComponentMouseInteraction.h>

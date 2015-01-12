@@ -25,7 +25,7 @@
 #ifndef SOFA_GUI_QT_DISPLAYFLAGSDATAWIDGET_H
 #define SOFA_GUI_QT_DISPLAYFLAGSDATAWIDGET_H
 
-#include <sofa/gui/qt/DataWidget.h>
+#include "DataWidget.h"
 #include <sofa/core/visual/DisplayFlags.h>
 
 #ifdef SOFA_QT4
