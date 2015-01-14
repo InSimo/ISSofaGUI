@@ -313,6 +313,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     animationState(false),
     frameCounter(0)
 {
+    setupUi(this);
     parseOptions(options);
 
     createPluginManager();

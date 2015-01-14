@@ -25,7 +25,7 @@
 #ifndef SOFA_PLUGINMANAGER_H
 #define SOFA_PLUGINMANAGER_H
 
-#include <ui_PluginManager.h>
+#include "ui_PluginManager.h"
 #include "SofaGUIQt.h"
 
 #include <Q3ListViewItem>
@@ -41,7 +41,7 @@ namespace qt
 {
 
 
-class SofaPluginManager: public QDialog, public Ui_PluginManager
+class SofaPluginManager: public QDialog, public Ui::PluginManager
 {
     Q_OBJECT
 public:

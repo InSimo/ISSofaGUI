@@ -50,6 +50,7 @@ namespace qt
 
 SofaPluginManager::SofaPluginManager()
 {
+    setupUi(this);
     // SIGNAL / SLOTS CONNECTIONS
     this->connect(buttonAdd, SIGNAL(clicked() ),  this, SLOT( addLibrary() ));
     this->connect(buttonRemove, SIGNAL(clicked() ),  this, SLOT( removeLibrary() ));
