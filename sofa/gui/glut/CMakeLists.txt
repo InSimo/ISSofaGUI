@@ -19,7 +19,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} SofaGuiCommon)
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
 
 set( SOFAGUIGLUT_COMPILER_FLAGS "-DSOFA_BUILD_SOFAGUIGLUT")
 

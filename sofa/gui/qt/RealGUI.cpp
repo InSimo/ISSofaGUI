@@ -460,17 +460,12 @@ void RealGUI::setTraceVisitors(bool b)
 
 //------------------------------------
 
-#ifdef SOFA_QT4
+
 void RealGUI::changeHtmlPage( const QUrl& u)
 {
     std::string path=u.path().ascii();
 #ifdef WIN32
     path = path.substr(1);
-#endif
-#else
-void RealGUI::changeHtmlPage( const QString& u)
-{
-    std::string path=u.ascii();
 #endif
     path  = sofa::helper::system::DataRepository.getFile(path);
     std::string extension=sofa::helper::system::SetDirectory::GetExtension(path.c_str());
@@ -976,6 +971,54 @@ void RealGUI::fileExit()
     this->close();
 }
 
+void RealGUI::editUndo()
+{
+    qWarning("RealGUI::editUndo(): Not implemented yet");
+}
+
+void RealGUI::editRedo()
+{
+    qWarning("RealGUI::editRedo(): Not implemented yet");
+}
+
+void RealGUI::editCut()
+{
+    qWarning("RealGUI::editCut(): Not implemented yet");
+}
+
+void RealGUI::editCopy()
+{
+    qWarning("RealGUI::editCopy(): Not implemented yet");
+}
+
+void RealGUI::editPaste()
+{
+    qWarning("RealGUI::editPaste(): Not implemented yet");
+}
+
+void RealGUI::editFind()
+{
+    qWarning("RealGUI::editFind(): Not implemented yet");
+}
+
+void RealGUI::helpIndex()
+{
+    qWarning("RealGUI::helpIndex(): Not implemented yet");
+}
+
+void RealGUI::helpContents()
+{
+    qWarning("RealGUI::helpContents(): Not implemented yet");
+}
+
+void RealGUI::helpAbout()
+{
+    qWarning("RealGUI::helpAbout(): Not implemented yet");
+}
+void RealGUI::GUI_usesTextLabelChanged(bool)
+{
+    qWarning("RealGUI::GUI_usesTextLabelChanged(bool): Not implemented yet");
+}
 //------------------------------------
 
 void RealGUI::saveXML()

@@ -163,11 +163,9 @@ public:
     virtual void showFPS(double fps);
 
 public slots:
-#ifdef SOFA_QT4
-    virtual void changeHtmlPage( const QUrl&);
-#else
-    virtual void changeHtmlPage( const QString&);
-#endif
+
+	virtual void changeHtmlPage( const QUrl&);
+
 
 
 protected:
@@ -266,34 +264,24 @@ private:
 
 
 //-----------------METHODS------------------------{
-public:
+public :
     void stepMainLoop ();
 
     virtual int mainLoop();
     virtual int closeGUI();
     virtual sofa::simulation::Node* currentSimulation();
     virtual void fileOpen(std::string filename, bool temporaryFile=false);
-    virtual void fileOpen();
+    
     virtual void fileOpenSimu(std::string filename);
     virtual void setScene(Node::SPtr groot, const char* filename=NULL, bool temporaryFile=false);
     virtual void unloadScene(bool _withViewer = true);
 
     virtual void setTitle( std::string windowTitle );
-    virtual void fileNew();
-    virtual void fileSave();
-    virtual void fileSaveAs()
-    {
-        fileSaveAs((Node *)NULL);
-    }
+
     virtual void fileSaveAs(Node* node,const char* filename);
-    virtual void fileReload();
-    virtual void fileExit();
+
     virtual void saveXML();
-    virtual void editRecordDirectory();
-    virtual void editGnuplotDirectory();
-    virtual void showPluginManager();
-    virtual void showMouseManager();
-    virtual void showVideoRecorderManager();
+
 
     virtual void setViewerResolution(int w, int h);
     virtual void setFullScreen(bool enable = true);
@@ -387,7 +375,36 @@ private:
 
 //-----------------SIGNALS-SLOTS------------------------{
 public slots:
-    virtual void NewRootNode(sofa::simulation::Node* root, const char* path);
+
+	//-----TEST
+	virtual void fileOpen();
+	virtual void fileNew();
+    virtual void fileSave();
+    virtual void fileSaveAs()
+    {
+        fileSaveAs((Node *)NULL);
+    }
+
+    virtual void fileReload();
+    virtual void fileExit();
+	virtual void editUndo();
+    virtual void editRedo();
+    virtual void editCut();
+    virtual void editCopy();
+    virtual void editPaste();
+    virtual void editFind();
+    virtual void helpIndex();
+    virtual void helpContents();
+    virtual void helpAbout();
+	virtual void editRecordDirectory();
+    virtual void editGnuplotDirectory();
+    virtual void showPluginManager();
+    virtual void showMouseManager();
+    virtual void showVideoRecorderManager();
+	virtual void GUI_usesTextLabelChanged( bool );
+	//----TEST
+
+	virtual void NewRootNode(sofa::simulation::Node* root, const char* path);
     virtual void ActivateNode(sofa::simulation::Node* , bool );
     virtual void fileSaveAs(sofa::simulation::Node *node);
     virtual void LockAnimation(bool);

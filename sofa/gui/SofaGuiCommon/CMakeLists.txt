@@ -31,7 +31,7 @@ set(GROUP_BASE_DIR "..")
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries( ${PROJECT_NAME} SofaGraphComponent SofaBaseCollision SofaUserInteraction SofaBaseVisual SofaComponentBase SofaComponentCommon SofaComponentGeneral)
+target_link_libraries( ${PROJECT_NAME} PUBLIC SofaGraphComponent SofaBaseCollision SofaUserInteraction SofaBaseVisual SofaComponentBase SofaComponentCommon SofaComponentGeneral)
 
 set( SOFAGUICOMMON_COMPILER_FLAGS "-DSOFA_BUILD_SOFAGUI")
 
