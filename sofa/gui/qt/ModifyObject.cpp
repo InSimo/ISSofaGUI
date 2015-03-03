@@ -194,11 +194,11 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             std::cout << "GUI: add Data " << data->getName() << " in " << currentGroup << std::endl;
 #endif
             QTabulationModifyObject* currentTab=NULL;
-
+            bool useScroll = (currentGroup[currentGroup.length()-1] == '_');
             std::vector<QTabulationModifyObject* > &tabs=groupTabulation[currentGroup];
             bool newTab = false;
             if (tabs.empty()) tabNames.push_back(currentGroup);
-            if (tabs.empty() || tabs.back()->isFull())
+            if (tabs.empty() || (!useScroll && tabs.back()->isFull()))
             {
                 newTab = true;
                 m_tabs.push_back(new QTabulationModifyObject(this,node, item_,tabs.size()+1));
@@ -271,9 +271,20 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         //    std::vector<QTabulationModifyObject* > &tabs=it->second;
         for (std::vector<std::string>::const_iterator it = tabNames.begin(), itend = tabNames.end(); it != itend; ++it)
         {
-            const std::string& groupName = *it;
+            std::string groupName = *it;
             std::vector<QTabulationModifyObject* > &tabs=groupTabulation[groupName];
 
+#ifdef SOFAGUIQT_SCROLL
+            bool useScroll = true;
+#else
+            bool useScroll = false;
+#endif
+            if (groupName[groupName.length()-1] == '_')
+            {
+                groupName = std::string(groupName, 0, groupName.length()-1);
+                useScroll = true;
+            }
+            
             for (unsigned int i=0; i<tabs.size(); ++i)
             {
                 QString nameTab;
@@ -282,15 +293,19 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 #ifdef DEBUG_GUI
                 std::cout << "GUI: add Tab " << nameTab.ascii() << std::endl;
 #endif
-#ifndef SOFAGUIQT_SCROLL
-                dialogTab->addTab(tabs[i],nameTab);
-#else
-                QScrollArea* scroll = new QScrollArea(this);
-                tabs[i]->addStretch();
-                scroll->setWidget(tabs[i]);
-                scroll->setWidgetResizable(true);
-                dialogTab->addTab(scroll,nameTab);
-#endif
+
+                if (!useScroll)
+                {
+                    dialogTab->addTab(tabs[i],nameTab);
+                }
+                else
+                {
+                    QScrollArea* scroll = new QScrollArea(this);
+                    tabs[i]->addStretch();
+                    scroll->setWidget(tabs[i]);
+                    scroll->setWidgetResizable(true);
+                    dialogTab->addTab(scroll,nameTab);
+                }
             }
         }
 
