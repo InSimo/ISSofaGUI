@@ -61,7 +61,7 @@ public:
 
     enum VISUAL_FLAG
     {
-        VISUALMODELS,
+        VISUALMODELS = 0,
         BEHAVIORMODELS,
         COLLISIONMODELS,
         BOUNDINGCOLLISIONMODELS,
@@ -81,8 +81,10 @@ public:
     DisplayFlagWidget(QWidget* parent, const char* name= 0, Qt::WFlags f= 0 );
 
     bool getFlag(int idx) {return itemShowFlag[idx]->isOn();}
-    void setFlag(int idx, bool value) {itemShowFlag[idx]->setOn(value);}
+    void setFlag(int idx, bool value) {itemShowFlag[idx]->setOn(value); itemShowFlagLastValue[idx] = value; }
 
+    bool checkDirty();
+    
 Q_SIGNALS:
     void change(int,bool);
     void clicked();
@@ -95,6 +97,7 @@ protected:
 
 
     Q3CheckListItem* itemShowFlag[ALLFLAGS];
+    bool itemShowFlagLastValue[ALLFLAGS];
     std::map<  Q3CheckListItem*, int > mapFlag;
 };
 
@@ -110,10 +113,11 @@ public:
     }
 
     virtual bool createWidgets();
-    virtual void setDataReadOnly(bool readOnly);
 
 protected:
 
+    virtual void setDataReadOnly(bool readOnly);
+    virtual bool checkDirty();
     virtual void readFromData();
     virtual void writeToData();
     virtual unsigned int sizeWidget() {return 3;}

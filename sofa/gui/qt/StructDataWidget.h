@@ -99,7 +99,8 @@ public:
     QLabel* label;
     Layout* container_layout;
     MasterLayout* master_layout;
-    struct_data_widget_container() : check(NULL),label(NULL),container_layout(NULL),master_layout(NULL) {}
+    bool checkLastValue;
+    struct_data_widget_container() : check(NULL),label(NULL),container_layout(NULL),master_layout(NULL), checkLastValue(false) {}
 
     void setMasterLayout(MasterLayout* layout)
     {
@@ -170,13 +171,13 @@ public:
 
         if (checkable)
         {
-            bool isChecked = vhelper::isChecked(d);
-            check->setChecked(isChecked);
+            checkLastValue = vhelper::isChecked(d);
+            check->setChecked(checkLastValue);
             if (readOnly || vhelper::readOnly())
                 check->setEnabled(false);
             else
             {
-                if (!isChecked)
+                if (!checkLastValue)
                     w.setReadOnly(true);
                 parent->connect(check, SIGNAL( toggled(bool) ),parent, SLOT( setWidgetDirty() ));
                 parent->connect(check, SIGNAL( toggled(bool) ),parent, SLOT( setReadOnly(bool) ));
@@ -200,7 +201,8 @@ public:
             bool isChecked = vhelper::isChecked(d);
             if (isChecked != wasChecked)
             {
-                check->setChecked(isChecked);
+                checkLastValue = isChecked;
+                check->setChecked(checkLastValue);
                 if (check->isEnabled())
                     w.setReadOnly(!isChecked);
             }
@@ -214,7 +216,8 @@ public:
         {
             if (check)
             {
-                check->setChecked(vhelper::isChecked(d));
+                checkLastValue = vhelper::isChecked(d);
+                check->setChecked(checkLastValue);
             }
             w.readFromData(*vhelper::get(d));
         }
@@ -224,8 +227,8 @@ public:
         p.writeToData(d);
         if (check)
         {
-            bool isChecked = check->isOn();
-            vhelper::setChecked(isChecked, d);
+            checkLastValue = check->isOn();
+            vhelper::setChecked(checkLastValue, d);
         }
         value_type v = *vhelper::get(d);
         w.writeToData(v);
@@ -235,6 +238,16 @@ public:
             shelper::set(d);
             readConstantsFromData(d); // reread constant fields
         }
+    }
+    bool checkDirty()
+    {
+        bool dirty = p.checkDirty();
+        dirty |= w.checkDirty();
+        if (check)
+        {
+            dirty |= (checkLastValue != check->isOn());
+        }
+        return dirty;
     }
 };
 
@@ -280,7 +293,11 @@ public:
     void writeToData(data_type& /*d*/)
     {
     }
-
+    bool checkDirty()
+    {
+        return false;
+    }
+    
     void insertWidgets()
     {
     }

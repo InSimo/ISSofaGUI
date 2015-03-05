@@ -168,17 +168,9 @@ bool RadioDataWidget::createWidgets()
             QRadioButton * m_radiobutton=new QRadioButton(QString(m_itemstring.c_str()), this);
             if (i==m_radiotrick.getSelectedId()) m_radiobutton->setChecked(true);
             layout->add(m_radiobutton);
-#ifdef SOFA_QT4
             buttonList->addButton(m_radiobutton,i);
-#else
-            buttonList->insert(m_radiobutton,i);
-#endif
         }
-#ifdef SOFA_QT4
         connect(buttonList, SIGNAL(buttonClicked(int)), this, SLOT(setWidgetDirty())) ;
-#else
-        connect(buttonList, SIGNAL(clicked(int)), this, SLOT(setWidgetDirty())) ;
-#endif
     }
     else
     {
@@ -218,18 +210,15 @@ void RadioDataWidget::setDataReadOnly(bool readOnly)
 void RadioDataWidget::readFromData()
 {
     sofa::helper::OptionsGroup m_radiotrick = getData()->virtualGetValue();
+    lastValue = m_radiotrick.getSelectedId();
 
     if (buttonMode)
     {
-#ifdef SOFA_QT4
-        buttonList->button(m_radiotrick.getSelectedId())->setChecked(true);
-#else
-        buttonList->find(m_radiotrick.getSelectedId())->setDown(true);
-#endif
+        buttonList->button(lastValue)->setChecked(true);
     }
     else
     {
-        comboList->setCurrentItem(m_radiotrick.getSelectedId());
+        comboList->setCurrentItem(lastValue);
     }
 }
 void RadioDataWidget::writeToData()
@@ -237,21 +226,28 @@ void RadioDataWidget::writeToData()
     sofa::helper::OptionsGroup m_radiotrick = getData()->virtualGetValue();
     if (buttonMode)
     {
-#ifdef SOFA_QT4
-        m_radiotrick.setSelectedItem((unsigned int)buttonList->checkedId ());
-#else
-        m_radiotrick.setSelectedItem((unsigned int)buttonList->selectedId ());
-#endif
+        lastValue = buttonList->checkedId ();
     }
     else
     {
-        m_radiotrick.setSelectedItem((unsigned int)comboList->currentItem());
+        lastValue = comboList->currentItem();
     }
-
+    m_radiotrick.setSelectedItem((unsigned int)lastValue);
+    
     this->getData()->virtualSetValue(m_radiotrick);
 }
 
-
+bool RadioDataWidget::checkDirty()
+{
+    if (buttonMode)
+    {
+        return lastValue != buttonList->checkedId ();
+    }
+    else
+    {
+        return lastValue != comboList->currentItem();
+    }
+}
 
 } // namespace qt
 

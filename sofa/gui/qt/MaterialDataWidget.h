@@ -109,23 +109,35 @@ public:
     {}
 
     virtual bool createWidgets();
-    virtual void setDataReadOnly(bool readOnly);
     virtual unsigned int numColumnWidget() {return 1;}
 
 protected:
+    virtual void setDataReadOnly(bool readOnly);
+    virtual bool checkDirty();
     virtual void readFromData();
     virtual void writeToData();
     QLineEdit* _nameEdit;
+    QString _nameEditLastValue;
     RGBAColorPicker* _ambientPicker;
+    sofa::defaulttype::Vec4f _ambientPickerLastValue;
     RGBAColorPicker* _emissivePicker;
+    sofa::defaulttype::Vec4f _emissivePickerLastValue;
     RGBAColorPicker* _specularPicker;
+    sofa::defaulttype::Vec4f _specularPickerLastValue;    
     RGBAColorPicker* _diffusePicker;
+    sofa::defaulttype::Vec4f _diffusePickerLastValue;    
     QLineEdit*  _shininessEdit;
+    QString     _shininessEditLastValue;    
     QCheckBox* _ambientCheckBox;
+    bool       _ambientCheckBoxLastValue;
     QCheckBox* _emissiveCheckBox;
+    bool       _emissiveCheckBoxLastValue;
     QCheckBox* _specularCheckBox;
+    bool       _specularCheckBoxLastValue;
     QCheckBox* _diffuseCheckBox;
+    bool       _diffuseCheckBoxLastValue;
     QCheckBox* _shininessCheckBox;
+    bool       _shininessCheckBoxLastValue;
 };
 
 
@@ -147,11 +159,12 @@ public:
     };
 
     virtual bool createWidgets();
-    virtual void setDataReadOnly(bool readOnly);
     virtual unsigned int numColumnWidget() {return 1;}
 
 
 protected:
+    virtual void setDataReadOnly(bool readOnly);
+    virtual bool checkDirty();
     virtual void readFromData();
     virtual void writeToData();
 

@@ -60,13 +60,17 @@ public:
     {}
 
     virtual bool createWidgets();
+protected:    
     virtual void setDataReadOnly(bool readOnly);
-protected:
+    /// Check if the widget really is dirty
+    virtual bool checkDirty();
+
     ///Implements how update the widgets knowing the data value.
     virtual void readFromData();
     ///Implements how to update the data, knowing the widget value.
     virtual void writeToData();
 
+    QString openFilePathLastValue;
     QLineEdit* openFilePath;
     QPushButton* openFileButton;
 

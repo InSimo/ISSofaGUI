@@ -78,23 +78,32 @@ class data_widget_trait
 public:
     typedef T data_type;
     typedef QLineEdit Widget;
+    typedef QString WidgetValue;
     static Widget* create(QWidget* parent, const data_type& /*d*/)
     {
         Widget* w = new Widget(parent);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         std::ostringstream o;
         o << d;
         if (o.str() != w->text().ascii())
-            w->setText(QString(o.str().c_str()));
+        {
+            lastValue = QString(o.str().c_str());
+            w->setText(lastValue);
+        }
     }
-    static void writeToData(Widget* w, data_type& d)
+    static void writeToData(Widget* w, data_type& d, WidgetValue& lastValue)
     {
-        std::string s = w->text().ascii();
+        lastValue = w->text();
+        std::string s = lastValue.ascii();
         std::istringstream i(s);
         i >> d;
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->text() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -107,9 +116,6 @@ public:
 };
 
 
-
-
-
 /// This class is used to create and manage the GUI of a data type,
 /// using data_widget_trait to know which widgets to use
 template<class T>
@@ -119,10 +125,12 @@ public:
     typedef T data_type;
     typedef data_widget_trait<data_type> helper;
     typedef typename helper::Widget Widget;
+    typedef typename helper::WidgetValue WidgetValue;
     typedef QHBoxLayout Layout;
     Widget* w;
     Layout* container_layout;
-    data_widget_container() : w(NULL),container_layout(NULL) {  }
+    WidgetValue lastValue;
+    data_widget_container() : w(NULL),container_layout(NULL), lastValue(WidgetValue()) {  }
 
     bool createLayout(DataWidget* parent)
     {
@@ -143,7 +151,7 @@ public:
         w = helper::create(parent,d);
         if (w == NULL) return false;
 
-        helper::readFromData(w, d);
+        helper::readFromData(w, d, lastValue);
         if (readOnly)
             helper::setReadOnly(w, readOnly);
         else
@@ -156,13 +164,17 @@ public:
     }
     void readFromData(const data_type& d)
     {
-        helper::readFromData(w, d);
+        helper::readFromData(w, d, lastValue);
     }
     void writeToData(data_type& d)
     {
-        helper::writeToData(w, d);
+        helper::writeToData(w, d, lastValue);
     }
-
+    bool checkDirty()
+    {
+        return helper::checkDirty(w, lastValue);
+    }
+    
     void insertWidgets()
     {
         assert(w);
@@ -201,6 +213,11 @@ public:
         container.setReadOnly(readOnly);
     }
 
+    virtual bool checkDirty()
+    {
+        return container.checkDirty();
+    }
+
     virtual void readFromData()
     {
         container.readFromData(this->getData()->getValue());
@@ -230,19 +247,28 @@ class data_widget_trait < std::string >
 public:
     typedef std::string data_type;
     typedef QLineEdit Widget;
+    typedef QString WidgetValue;
     static Widget* create(QWidget* parent, const data_type& /*d*/)
     {
         Widget* w = new Widget(parent);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         if (w->text().ascii() != d)
-            w->setText(QString(d.c_str()));
+        {
+            lastValue = QString(d.c_str());
+            w->setText(lastValue);
+        }
     }
-    static void writeToData(Widget* w, data_type& d)
+    static void writeToData(Widget* w, data_type& d, WidgetValue& lastValue)
     {
-        d = w->text().ascii();
+        lastValue = w->text();
+        d = lastValue.ascii();
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->text() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -264,19 +290,28 @@ class data_widget_trait < bool >
 public:
     typedef bool data_type;
     typedef QCheckBox Widget;
+    typedef bool WidgetValue;
     static Widget* create(QWidget* parent, const data_type& /*d*/)
     {
         Widget* w = new Widget(parent);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         if (w->isChecked() != d)
-            w->setChecked(d);
+        {
+            lastValue = d;
+            w->setChecked(lastValue);
+        }
     }
-    static void writeToData(Widget* w, data_type& d)
+    static void writeToData(Widget* w, data_type& d, WidgetValue& lastValue)
     {
-        d = (data_type) w->isOn();
+        lastValue = (WidgetValue) w->isOn();
+        d = (data_type) lastValue;
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->isOn() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -298,6 +333,7 @@ class real_data_widget_trait
 public:
     typedef T data_type;
     typedef WDoubleLineEdit Widget;
+    typedef double WidgetValue;
     static Widget* create(QWidget* parent, const data_type& /*d*/)
     {
         Widget* w = new Widget(parent, "real");
@@ -306,14 +342,22 @@ public:
         w->setMinimumWidth(20);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         if (d != w->getDisplayedValue())
-            w->setValue(d);
+        {
+            lastValue = d;
+            w->setValue(lastValue);
+        }
     }
-    static void writeToData(Widget* w, data_type& d)
+    static void writeToData(Widget* w, data_type& d, WidgetValue& lastValue)
     {
-        d = (data_type) w->getDisplayedValue();
+        lastValue = w->getDisplayedValue();
+        d = (data_type) lastValue;
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->getDisplayedValue() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -343,19 +387,28 @@ class int_data_widget_trait
 public:
     typedef T data_type;
     typedef QSpinBox Widget;
+    typedef int WidgetValue;
     static Widget* create(QWidget* parent, const data_type& /*d*/)
     {
         Widget* w = new Widget(vmin, vmax, 1, parent);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         if ((int)d != w->value())
-            w->setValue((int)d);
+        {
+            lastValue = (WidgetValue)d;
+            w->setValue(lastValue);
+        }
     }
-    static void writeToData(Widget* w, data_type& d)
+    static void writeToData(Widget* w, data_type& d, WidgetValue& lastValue)
     {
-        d = (data_type) w->value();
+        lastValue = w->value();
+        d = (data_type) lastValue;
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->value() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -480,7 +533,14 @@ public:
             vhelper::set(v,d,i);
         }
     }
-
+    bool checkDirty()
+    {
+        bool dirty = false;
+        for (int i=0; i<N; ++i)
+            dirty |= w[i].checkDirty();
+        return dirty;
+    }
+    
     void insertWidgets()
     {
         for (int i=0; i<N; ++i)
@@ -555,7 +615,19 @@ public:
             rhelper::set(r,d,y);
         }
     }
-
+    bool checkDirty()
+    {
+        bool dirty = false;
+        for (int y=0; y<L; ++y)
+        {
+            for (int x=0; x<C; ++x)
+            {
+                dirty |= w[y][x].checkDirty();
+            }
+        }
+        return dirty;
+    }
+    
     void insertWidgets()
     {
         assert(container_layout);
@@ -883,22 +955,28 @@ class data_widget_trait < Polynomial_LD<Real,N> >
 public:
     typedef Polynomial_LD<Real,N> data_type;
     typedef QLineEdit Widget;
+    typedef QString WidgetValue;
     static Widget* create(QWidget* parent, const data_type& )
     {
         Widget* w = new Widget(parent);
         return w;
     }
-    static void readFromData(Widget* w, const data_type& d)
+    static void readFromData(Widget* w, const data_type& d, WidgetValue& lastValue)
     {
         unsigned int m_length=d.getString().length();
         if (w->text().ascii() != d.getString())
         {
             w->setMaxLength(m_length+2); w->setReadOnly(true);
-            w->setText(QString(d.getString().c_str()));
+            lastValue = QString(d.getString().c_str());
+            w->setText(lastValue);
         }
     }
-    static void writeToData(Widget* , data_type& )
+    static void writeToData(Widget* , data_type&, WidgetValue& )
     {
+    }
+    static bool checkDirty(Widget* w, WidgetValue& lastValue)
+    {
+        return w->text() != lastValue;
     }
     static void setReadOnly(Widget* w, bool readOnly)
     {
@@ -1042,9 +1120,10 @@ public :
 
     ///In this method we  create the widgets and perform the signal / slots connections.
     virtual bool createWidgets();
-    virtual void setDataReadOnly(bool readOnly);
 
 protected:
+    virtual void setDataReadOnly(bool readOnly);
+    virtual bool checkDirty();
     ///Implements how update the widgets knowing the data value.
     virtual void readFromData();
 
@@ -1054,6 +1133,7 @@ protected:
     QButtonGroup *buttonList;
     QComboBox    *comboList;
     bool buttonMode;
+    int lastValue;
 };
 
 

@@ -46,7 +46,8 @@ QTabulationModifyObject::QTabulationModifyObject(QWidget* parent,
         unsigned int idx):
     QWidget(parent), object(o), item(i), index(idx), size(0), maxSize(8), dirty(false)
 {
-    new QVBoxLayout( this, 0, 1, "tabVisualizationLayout");
+    QVBoxLayout* layout = new QVBoxLayout( this, 0, 1, "tabVisualizationLayout");
+    layout->setSpacing(0);
 }
 
 void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags)

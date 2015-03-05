@@ -421,7 +421,12 @@ public:
     void writeToData(data_type& /*d*/)
     {
     }
-
+    
+    bool checkDirty()
+    {
+        return false;
+    }
+    
     void insertWidgets()
     {
         assert(container_layout);

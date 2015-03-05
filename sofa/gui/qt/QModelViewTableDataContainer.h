@@ -308,6 +308,9 @@ public:
     int rows;
     int cols;
 
+    int wSizeLastValue;
+    helper::vector<QString> cellsLastValue;
+    
     table_data_widget_container() 
     : wSize(NULL)
     , wTableView(NULL)
@@ -337,20 +340,27 @@ public:
 
     void setCellText(int r, int c, const std::string& s)
     {
+        int idx = r*cols + c;
+        if (idx >= (int)cellsLastValue.size())
+        {
+            cellsLastValue.resize(idx+1);
+        }
+        QString& lastValue = cellsLastValue[idx];
+        lastValue = QString(s.c_str());
         if (FLAGS & TABLE_HORIZONTAL)
         {
             QStandardItem* item= wTableModel->item(c,r);
-            if (!item) wTableModel->setItem(c, r, new QStandardItem(QString(s.c_str())));
-            else       item->setText(QString(s.c_str()));
+            if (!item) wTableModel->setItem(c, r, new QStandardItem(lastValue));
+            else       item->setText(lastValue);
         }
         else
         {
             QStandardItem* item= wTableModel->item(r,c);
-            if (!item) wTableModel->setItem(r, c, new QStandardItem(QString(s.c_str())));
-            else       item->setText(QString(s.c_str()));
+            if (!item) wTableModel->setItem(r, c, new QStandardItem(lastValue));
+            else       item->setText(lastValue);
         }
     }
-    std::string getCellText(int r, int c)
+    QString getCellValue(int r, int c)
     {
         QStandardItem *item;
         QString text;
@@ -361,11 +371,17 @@ public:
 
         if (item)
         {
-            text=item->text();
-
-            if (!text.isNull())
-                return std::string(text.ascii());
+            return item->text();
         }
+        return QString();
+    }
+    std::string getCellText(int r, int c)
+    {
+        QString text = getCellValue(r,c);
+
+        if (!text.isNull())
+            return std::string(text.ascii());
+
         return std::string("");
     }
 
@@ -435,6 +451,9 @@ public:
             wDisplay->setOn(dataRows < MAX_NUM_ELEM && dataRows != 0 );
         wDisplay->setAutoDefault(false);
 
+        wSizeLastValue = dataRows;
+        wSize->setValue(wSizeLastValue);
+        
         wSize->setValue(dataRows);
 
         wTableView->setDisplayed(isDisplayed());
@@ -508,7 +527,8 @@ public:
     }
     void writeToData(data_type& d)
     {
-        rows = wSize->value();
+        wSizeLastValue = wSize->value();
+        rows = wSizeLastValue;
         if (!(FLAGS & TABLE_FIXEDSIZE))
         {
             int oldrows = rhelper::size(d);
@@ -547,6 +567,27 @@ public:
 
     }
 
+    bool checkDirty()
+    {
+        bool dirty = (wSizeLastValue != wSize->value());
+        int currentNum;
+        if (FLAGS & TABLE_HORIZONTAL)
+            currentNum=wTableModel->columnCount();
+        else
+            currentNum=wTableModel->rowCount();
+
+        for (int y=0; y<currentNum; ++y)
+            for (int x=0; x<cols; ++x)
+            {
+                int idx = y*cols+x;
+                if (idx < (int)cellsLastValue.size())
+                {
+                    dirty |= (cellsLastValue[idx] != getCellValue(y, x));
+                }
+            }
+        return dirty;
+    }    
+    
     void processTableModifications(const data_type &d)
     {
         int currentTableNumRows;

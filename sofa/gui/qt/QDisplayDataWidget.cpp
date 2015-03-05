@@ -138,7 +138,7 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
     {
         datawidget_ = new QDataSimpleEdit(this,dwarg.data->getName().c_str(), dwarg.data);
         datawidget_->createWidgets();
-        datawidget_->setDataReadOnly(dwarg.readOnly);
+        datawidget_->setReadOnly(dwarg.readOnly);
         assert(datawidget_ != NULL);
     }
 
@@ -226,12 +226,12 @@ QDataSimpleEdit::QDataSimpleEdit(QWidget* parent, const char* name, BaseData* da
 }
 bool QDataSimpleEdit::createWidgets()
 {
-    QString str  = QString( getBaseData()->getValueString().c_str() );
+    lastValue = QString( getBaseData()->getValueString().c_str() );
     QLayout* layout = new QHBoxLayout(this);
-    if( str.length() > TEXTSIZE_THRESHOLD )
+    if( lastValue.length() > TEXTSIZE_THRESHOLD )
     {
         innerWidget_.type = TEXTEDIT;
-        innerWidget_.widget.textEdit = new QTextEdit(this); innerWidget_.widget.textEdit->setText(str);
+        innerWidget_.widget.textEdit = new QTextEdit(this); innerWidget_.widget.textEdit->setText(lastValue);
         connect(innerWidget_.widget.textEdit , SIGNAL( textChanged() ), this, SLOT ( setWidgetDirty() ) );
         layout->add(innerWidget_.widget.textEdit);
     }
@@ -239,7 +239,7 @@ bool QDataSimpleEdit::createWidgets()
     {
         innerWidget_.type = LINEEDIT;
         innerWidget_.widget.lineEdit  = new QLineEdit(this);
-        innerWidget_.widget.lineEdit->setText(str);
+        innerWidget_.widget.lineEdit->setText(lastValue);
         connect( innerWidget_.widget.lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT( setWidgetDirty() ) );
         layout->add(innerWidget_.widget.lineEdit);
     }
@@ -264,14 +264,14 @@ void QDataSimpleEdit::setDataReadOnly(bool readOnly)
 
 void QDataSimpleEdit::readFromData()
 {
-    QString str = QString( getBaseData()->getValueString().c_str() );
+    lastValue = QString( getBaseData()->getValueString().c_str() );
     if(innerWidget_.type == TEXTEDIT)
     {
-        innerWidget_.widget.textEdit->setText(str);
+        innerWidget_.widget.textEdit->setText(lastValue);
     }
     else if(innerWidget_.type == LINEEDIT)
     {
-        innerWidget_.widget.lineEdit->setText(str);
+        innerWidget_.widget.lineEdit->setText(lastValue);
     }
 }
 
@@ -279,16 +279,28 @@ void QDataSimpleEdit::writeToData()
 {
     if(getBaseData())
     {
-        std::string value;
         if( innerWidget_.type == TEXTEDIT)
         {
-            value = innerWidget_.widget.textEdit->text().ascii();
+            lastValue = innerWidget_.widget.textEdit->text().ascii();
         }
         else if( innerWidget_.type == LINEEDIT)
         {
-            value = innerWidget_.widget.lineEdit->text().ascii();
+            lastValue = innerWidget_.widget.lineEdit->text().ascii();
         }
+        std::string value = lastValue.ascii();
         getBaseData()->read(value);
+    }
+}
+
+bool QDataSimpleEdit::checkDirty()
+{
+    if( innerWidget_.type == TEXTEDIT)
+    {
+        return lastValue != innerWidget_.widget.textEdit->text();
+    }
+    else if( innerWidget_.type == LINEEDIT)
+    {
+        return lastValue != innerWidget_.widget.lineEdit->text();
     }
 }
 
@@ -306,7 +318,8 @@ bool QPoissonRatioWidget::createWidgets()
     QGridLayout* layout = new QGridLayout(this,2,3);
 
     lineEdit = new QLineEdit(this);
-    lineEdit->setText(QString("-1.0"));
+    lastValue = QString("-1.0");
+    lineEdit->setText(lastValue);
     lineEdit->setMaximumSize(lineEdit->size());
     lineEdit->setAlignment(Qt::AlignHCenter);
 
@@ -353,20 +366,25 @@ void QPoissonRatioWidget::setDataReadOnly(bool readOnly)
 void QPoissonRatioWidget::readFromData()
 {
     double value = this->getData()->virtualGetValue();
-    QString str;
-    str.setNum(value);
-    lineEdit->setText(str);
+    lastValue.setNum(value);
+    lineEdit->setText(lastValue);
     changeSliderValue();
 }
 
 void QPoissonRatioWidget::writeToData()
 {
     bool ok;
-    double d = lineEdit->text().toDouble(&ok);
+    lastValue = lineEdit->text();
+    double d = lastValue.toDouble(&ok);
     if(ok)
     {
         this->getData()->virtualSetValue(d);
     }
+}
+
+bool QPoissonRatioWidget::checkDirty()
+{
+    return lastValue != lineEdit->text();
 }
 
 void QPoissonRatioWidget::changeLineEditValue()

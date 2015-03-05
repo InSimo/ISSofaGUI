@@ -109,7 +109,7 @@ public:
         }
         if (instance)
         {
-            instance->setDataReadOnly(arg.readOnly);
+            instance->setReadOnly(arg.readOnly);
         }
         return instance;
     }
@@ -171,19 +171,23 @@ public:
 
     void updateVisibility();
     
-    inline bool isDirty() { return dirty; }
+    inline bool isDirty() { return dirty && !readOnly && checkDirty(); }
 
     /// The implementation of this method holds the widget creation and the signal / slot
     /// connections.
     virtual bool createWidgets() = 0;
     /// This method is called after createWidgets to configure whether the created widgets should be read-only
-    virtual void setDataReadOnly(bool readOnly) = 0;
+    virtual void setReadOnly(bool readOnly);
     /// Helper method to give a size.
     virtual unsigned int sizeWidget() {return 1;}
     /// Helper method for colum.
     virtual unsigned int numColumnWidget() {return 3;}
 
 protected:
+    /// This method is called after createWidgets to configure whether the created widgets should be read-only
+    virtual void setDataReadOnly(bool readOnly) = 0;
+    /// Check if the widget really is dirty
+    virtual bool checkDirty() = 0;
     /// The implementation of this method tells how the widget reads the value of the data.
     virtual void readFromData() = 0;
     /// The implementation of this methods needs to tell how the widget can write its value
@@ -191,6 +195,7 @@ protected:
     virtual void writeToData() = 0;
 
     core::objectmodel::BaseData* baseData;
+    bool readOnly;
     bool dirty;
     int counter;
 };
@@ -225,7 +230,7 @@ public:
             }
             if (obj)
             {
-                obj->setDataReadOnly(arg.readOnly);
+                obj->setReadOnly(arg.readOnly);
             }
             return obj;
         }
@@ -241,6 +246,7 @@ public:
 
     inline virtual void setData(MyTData* d)
     {
+        DataWidget::setData(d);
         Tdata = d;
     }
 protected:

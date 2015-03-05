@@ -259,52 +259,77 @@ void MaterialDataWidget::setDataReadOnly(bool readOnly)
     _shininessEdit->setReadOnly(readOnly);
     _shininessCheckBox->setEnabled(!readOnly);
 }
+
+bool MaterialDataWidget::checkDirty()
+{
+    return true;
+}
+
 void MaterialDataWidget::readFromData()
 {
     using namespace sofa::core::loader;
     const Material& material = getData()->virtualGetValue();
-    _nameEdit->setText( QString( material.name.c_str() ) );
-    _ambientCheckBox->setChecked( material.useAmbient );
-    _emissiveCheckBox->setChecked( material.useEmissive );
-    _diffuseCheckBox->setChecked( material.useDiffuse );
-    _specularCheckBox->setChecked( material.useSpecular );
-    _shininessCheckBox->setChecked(material.useShininess);
-    QString str;
-    str.setNum(material.shininess);
-    _shininessEdit->setText(str);
+    _nameEditLastValue = QString( material.name.c_str() );
+    _ambientCheckBoxLastValue = material.useAmbient;
+    _emissiveCheckBoxLastValue = material.useEmissive;
+    _diffuseCheckBoxLastValue = material.useDiffuse;
+    _specularCheckBoxLastValue = material.useSpecular;
+    _shininessCheckBoxLastValue = material.useShininess;
+    _shininessEditLastValue.setNum(material.shininess);
 
-    _ambientPicker->setColor( material.ambient );
-    _emissivePicker->setColor( material.emissive );
-    _specularPicker->setColor( material.specular );
-    _diffusePicker->setColor( material.diffuse );
+    _ambientPickerLastValue = ( material.ambient );
+    _emissivePickerLastValue = ( material.emissive );
+    _specularPickerLastValue = ( material.specular );
+    _diffusePickerLastValue = ( material.diffuse );
+
+    _nameEdit->setText( _nameEditLastValue );
+    _ambientCheckBox->setChecked( _ambientCheckBoxLastValue );
+    _emissiveCheckBox->setChecked( _emissiveCheckBoxLastValue );
+    _diffuseCheckBox->setChecked( _diffuseCheckBoxLastValue );
+    _specularCheckBox->setChecked( _specularCheckBoxLastValue );
+    _shininessCheckBox->setChecked( _shininessCheckBoxLastValue );
+    _shininessEdit->setText( _shininessEditLastValue );
+
+    _ambientPicker->setColor( _ambientPickerLastValue );
+    _emissivePicker->setColor( _emissivePickerLastValue );
+    _specularPicker->setColor( _specularPickerLastValue );
+    _diffusePicker->setColor( _diffusePickerLastValue );
 
     _ambientPicker->setEnabled( _ambientCheckBox->isChecked() );
     _emissivePicker->setEnabled( _emissiveCheckBox->isChecked() );
     _specularPicker->setEnabled( _specularCheckBox->isChecked() );
     _diffusePicker->setEnabled( _diffuseCheckBox->isChecked() );
-
-
 }
 void MaterialDataWidget::writeToData()
 {
     using namespace sofa::core::loader;
     Material* material = getData()->virtualBeginEdit();
 
-    material->name      = _nameEdit->text().ascii();
-    material->ambient   = _ambientPicker->getColor();
-    material->diffuse   = _diffusePicker->getColor();
-    material->emissive  = _emissivePicker->getColor();
-    material->specular  = _specularPicker->getColor();
-    material->shininess = _shininessEdit->text().toFloat();
-    material->useAmbient = _ambientCheckBox->isChecked();
-    material->useDiffuse = _diffuseCheckBox->isChecked();
-    material->useShininess = _shininessCheckBox->isChecked();
-    material->useEmissive = _emissiveCheckBox->isChecked();
-    material->useSpecular = _specularCheckBox->isChecked();
+    _nameEditLastValue = _nameEdit->text();
+    _ambientPickerLastValue     = _ambientPicker->getColor();
+    _diffusePickerLastValue     = _diffusePicker->getColor();
+    _emissivePickerLastValue    = _emissivePicker->getColor();
+    _specularPickerLastValue    = _specularPicker->getColor();
+    _shininessEditLastValue     = _shininessEdit->text();
+    _ambientCheckBoxLastValue   = _ambientCheckBox->isChecked();
+    _diffuseCheckBoxLastValue   = _diffuseCheckBox->isChecked();
+    _shininessCheckBoxLastValue = _shininessCheckBox->isChecked();
+    _emissiveCheckBoxLastValue  = _emissiveCheckBox->isChecked();
+    _specularCheckBoxLastValue  = _specularCheckBox->isChecked();
 
-
+    material->name         = _nameEditLastValue.ascii();
+    material->ambient      = _ambientPickerLastValue;
+    material->diffuse      = _diffusePickerLastValue;
+    material->emissive     = _emissivePickerLastValue;
+    material->specular     = _specularPickerLastValue;
+    material->shininess    = _shininessEditLastValue.toFloat();
+    material->useAmbient   = _ambientCheckBoxLastValue;
+    material->useDiffuse   = _diffuseCheckBoxLastValue;
+    material->useShininess = _shininessCheckBoxLastValue;
+    material->useEmissive  = _emissiveCheckBoxLastValue;
+    material->useSpecular  = _specularCheckBoxLastValue;
+    
     getData()->virtualEndEdit();
-
 }
 
 
@@ -332,7 +357,7 @@ bool VectorMaterialDataWidget::createWidgets()
 void VectorMaterialDataWidget::setDataReadOnly(bool readOnly)
 {
     if (_materialDataWidget)
-        _materialDataWidget->setDataReadOnly(readOnly);
+        _materialDataWidget->setReadOnly(readOnly);
 }
 
 void VectorMaterialDataWidget::readFromData()
@@ -389,6 +414,11 @@ void VectorMaterialDataWidget::writeToData()
 
     getData()->virtualEndEdit();
 
+}
+
+bool VectorMaterialDataWidget::checkDirty()
+{
+    return true;
 }
 
 }

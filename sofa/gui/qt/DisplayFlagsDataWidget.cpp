@@ -46,6 +46,11 @@ helper::Creator<DataWidgetFactory, DisplayFlagsDataWidget > DWClass_DisplayFlags
 DisplayFlagWidget::DisplayFlagWidget(QWidget* parent, const char* name,  Qt::WFlags f ):
     Q3ListView(parent,name,f)
 {
+    for (int i = 0; i < ALLFLAGS; ++i)
+    {
+        itemShowFlag[i] = NULL;
+        itemShowFlagLastValue[i] = false;
+    }
     addColumn(QString::null);
     setRootIsDecorated( TRUE );
     setTreeStepSize( 12 );
@@ -148,6 +153,17 @@ void DisplayFlagWidget::contentsMousePressEvent ( QMouseEvent * e )
     }
 }
 
+bool DisplayFlagWidget::checkDirty()
+{
+    bool dirty = false;
+    for (int idx = 0; idx < ALLFLAGS; ++idx)
+    {
+        if (itemShowFlag[idx])
+            dirty |= (itemShowFlag[idx]->isOn() != itemShowFlagLastValue[idx]);
+    }
+    return dirty;
+}
+
 bool DisplayFlagsDataWidget::createWidgets()
 {
     flags = new DisplayFlagWidget(this);
@@ -164,6 +180,11 @@ bool DisplayFlagsDataWidget::createWidgets()
 void DisplayFlagsDataWidget::setDataReadOnly(bool readOnly)
 {
     flags->setEnabled(!readOnly);
+}
+
+bool DisplayFlagsDataWidget::checkDirty()
+{
+    return flags->checkDirty();
 }
 
 void DisplayFlagsDataWidget::readFromData()

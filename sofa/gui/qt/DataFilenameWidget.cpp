@@ -67,6 +67,11 @@ void DataFileNameWidget::setDataReadOnly(bool readOnly)
     openFileButton->setEnabled(!readOnly);
 }
 
+bool DataFileNameWidget::checkDirty()
+{
+    return (openFilePath->text() != openFilePathLastValue);
+}
+
 void DataFileNameWidget::readFromData()
 {
     const std::string& filepath = this->getData()->getValue();

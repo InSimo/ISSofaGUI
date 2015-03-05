@@ -50,8 +50,9 @@ namespace qt
 using namespace core::objectmodel;
 
 DataWidget::DataWidget(QWidget* parent,const char* name, MyData* d) 
-:QWidget(parent,name), baseData(d), dirty(false), counter(-1)
+:QWidget(parent,name), baseData(d), readOnly(false), dirty(false), counter(-1)
 {
+      if (d) readOnly = d->isReadOnly();
 }
 
 DataWidget::~DataWidget()
@@ -62,7 +63,15 @@ void
 DataWidget::setData( MyData* d)
 {
     baseData = d;
+    if (d) readOnly = d->isReadOnly();
     readFromData();
+}
+
+void 
+DataWidget::setReadOnly( bool b )
+{
+    readOnly = b;
+    setDataReadOnly(b);
 }
 
 void
@@ -74,7 +83,11 @@ DataWidget::updateVisibility()
 void
 DataWidget::updateDataValue()
 {
-    if (dirty)
+    if (!isDirty())
+    {
+        dirty = false;
+    }
+    else
     {
         const bool hasOwner = baseData->getOwner();
         std::string previousName;
@@ -122,13 +135,17 @@ DataWidget::updateDataValue()
             {
                 std::cerr << __FUNCTION__ << " " << __LINE__ << " something went awfully wrong..." << std::endl;
             }
-
-            const QString dataString = (path + " = " + baseData->getValueString()).c_str();
-            Q_EMIT dataValueChanged(dataString);
-
+            std::string dataString = (path + " = " + baseData->getValueString());
+            baseData->getOwner()->sout << dataString << baseData->getOwner()->sendl;
+            const QString dataQString = dataString.c_str();
+            Q_EMIT dataValueChanged(dataQString);
         }
 
         updateVisibility();
+        
+        dirty = false;
+        counter = baseData->getCounter();
+
         if(hasOwner && baseData->getOwner()->getName() != previousName)
         {
             Q_EMIT DataOwnerDirty(true);
@@ -143,7 +160,7 @@ DataWidget::updateDataValue()
 void
 DataWidget::updateWidgetValue()
 {
-    if(!dirty)
+    if(!isDirty())
     {
         if(counter != baseData->getCounter())
         {
