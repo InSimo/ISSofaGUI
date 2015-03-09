@@ -1039,7 +1039,7 @@
   <tabstop>textEdit1</tabstop>
  </tabstops>
  <includes>
-  <include location="local">SofaGUIQt.h</include>
+  <include>sofa/gui/qt/SofaGUIQt.h</include>
  </includes>
  <resources/>
  <connections>
