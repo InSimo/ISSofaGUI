@@ -302,6 +302,7 @@ bool QDataSimpleEdit::checkDirty()
     {
         return lastValue != innerWidget_.widget.lineEdit->text();
     }
+    return false;
 }
 
 /* QPoissonRatioWidget */

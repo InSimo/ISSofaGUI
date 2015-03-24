@@ -155,6 +155,8 @@ void DisplayFlagWidget::contentsMousePressEvent ( QMouseEvent * e )
 
 bool DisplayFlagWidget::checkDirty()
 {
+    return true; // FIX: bug with duplicated widget on View GUI tab
+    /*
     bool dirty = false;
     for (int idx = 0; idx < ALLFLAGS; ++idx)
     {
@@ -162,6 +164,7 @@ bool DisplayFlagWidget::checkDirty()
             dirty |= (itemShowFlag[idx]->isOn() != itemShowFlagLastValue[idx]);
     }
     return dirty;
+    */
 }
 
 bool DisplayFlagsDataWidget::createWidgets()
