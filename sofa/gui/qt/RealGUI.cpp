@@ -833,7 +833,7 @@ void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFi
             recentlyOpenedFilesManager.openFile(filename);
         saveReloadFile=temporaryFile;
         setTitle ( filename );
-        loadHtmlDescription( filename );
+        //loadHtmlDescription( filename );
     }
 
     if (root)

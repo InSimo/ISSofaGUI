@@ -34,6 +34,9 @@ set(QT_USE_IMPORTED_TARGETS 1)
 set(QT4_NO_LINK_QTMAIN 1)
 find_package(Qt4 COMPONENTS qtcore qtgui qtopengl qtxml qt3support)
 
+find_package(Qwt)
+
+set(SOFA_HAVE_QWT ${Qwt_FOUND} )
 set(SOFA_HAVE_QT ${Qt4_FOUND} )
 set(SOFA_QT4 ${Qt4_FOUND} )
 
