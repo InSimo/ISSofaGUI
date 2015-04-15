@@ -358,6 +358,19 @@ void GenGraphForm::doExport()
         }
     }
 
+    if (genPDF->isOn())
+    {
+        QStringList argv = argv0;
+        argv << "-Tpdf" << "-o" << basefile+".pdf";
+        argv << dotfile;
+        addTask(argv);
+        if (!exp)
+        {
+            exp = true;
+            exportedFile = basefile+".pdf";
+        }
+    }
+
     if (genPNG->isOn())
     {
         QStringList argv = argv0;
@@ -381,19 +394,6 @@ void GenGraphForm::doExport()
         {
             exp = true;
             exportedFile = basefile+".ps";
-        }
-    }
-
-    if (genFIG->isOn())
-    {
-        QStringList argv = argv0;
-        argv << "-Tfig" << "-o" << basefile+".fig";
-        argv << dotfile;
-        addTask(argv);
-        if (!exp)
-        {
-            exp = true;
-            exportedFile = basefile+".fig";
         }
     }
     //exported = true;
