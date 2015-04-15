@@ -63,40 +63,45 @@ GenGraphForm::GenGraphForm()
     : currentTask(NULL), settingFilter(false)
 {
     setupUi(this);
-    // signals and slots connections
-    connect(browseButton, SIGNAL(clicked()), this, SLOT(doBrowse()));
-    connect(exportButton, SIGNAL(clicked()), this, SLOT(doExport()));
-    connect(displayButton, SIGNAL(clicked()), this, SLOT(doDisplay()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(doClose()));
-    connect(filename, SIGNAL(textChanged(const QString&)), this, SLOT(change()));
-    connect(presetFilter, SIGNAL(activated(const QString&)), this, SLOT(setFilter()));
-    connect(showNodes, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showBehaviorModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showCollisionModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showVisualModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showContext, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showCollisionPipeline, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showSolvers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showMechanicalStates, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showInteractionForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showConstraints, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showMass, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showTopology, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-    connect(showMechanicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
 
     // init preset filters
+    {
+        std::set<std::string>& filt = presetFilters["Overview"];
+        filt.insert("showNodes");
+        filt.insert("showObjects");
+        //filt.insert("showSlaves");
+        filt.insert("showBehaviorModels");
+        filt.insert("showCollisionModels");
+        //filt.insert("showVisualModels");
+        //filt.insert("showMappings");
+        //filt.insert("showContext");
+        //filt.insert("showEngine");
+        //filt.insert("showLoader");
+        //filt.insert("showCollisionPipeline");
+        filt.insert("showSolvers");
+        filt.insert("showMechanicalStates");
+        //filt.insert("showForceFields");
+        //filt.insert("showInteractionForceFields");
+        //filt.insert("showConstraints");
+        //filt.insert("showMass");
+        filt.insert("showTopology");
+        //filt.insert("showTopologyObjects");
+        filt.insert("showTopologicalMappings");
+        filt.insert("showMechanicalMappings");
+        //filt.insert("showOthers");
+    }
     {
         std::set<std::string>& filt = presetFilters["Full Graph"];
         filt.insert("showNodes");
         filt.insert("showObjects");
+        filt.insert("showSlaves");
         filt.insert("showBehaviorModels");
         filt.insert("showCollisionModels");
         filt.insert("showVisualModels");
         filt.insert("showMappings");
         filt.insert("showContext");
+        filt.insert("showEngine");
+        filt.insert("showLoader");
         filt.insert("showCollisionPipeline");
         filt.insert("showSolvers");
         filt.insert("showMechanicalStates");
@@ -105,7 +110,10 @@ GenGraphForm::GenGraphForm()
         filt.insert("showConstraints");
         filt.insert("showMass");
         filt.insert("showTopology");
+        filt.insert("showTopologyObjects");
+        filt.insert("showTopologicalMappings");
         filt.insert("showMechanicalMappings");
+        filt.insert("showOthers");
     }
     {
         std::set<std::string>& filt = presetFilters["All Objects"];
@@ -123,6 +131,11 @@ GenGraphForm::GenGraphForm()
         filt.erase("showVisualModels");
         filt.erase("showMappings");
         filt.erase("showCollisionPipeline");
+        filt.erase("showTopologyObjects");
+        filt.erase("showEngine");
+        filt.erase("showLoader");
+        filt.erase("showSlaves");
+        filt.erase("showOthers");
     }
     {
         std::set<std::string>& filt = presetFilters["Mechanical Objects"];
@@ -161,6 +174,8 @@ GenGraphForm::GenGraphForm()
         //filt.insert("showVisualModels");
         //filt.insert("showMappings");
         //filt.insert("showContext");
+        //filt.insert("showEngine");
+        //filt.insert("showLoader");
         //filt.insert("showCollisionPipeline");
         filt.insert("showSolvers");
         filt.insert("showMechanicalStates");
@@ -169,6 +184,8 @@ GenGraphForm::GenGraphForm()
         filt.insert("showConstraints");
         //filt.insert("showMass");
         //filt.insert("showTopology");
+        //filt.insert("showTopologyObjects");
+        //filt.insert("showTopologicalMappings");
         filt.insert("showMechanicalMappings");
     }
     {
@@ -176,6 +193,36 @@ GenGraphForm::GenGraphForm()
         filt = presetFilters["Collision Response Graph"];
         filt.erase("showNodes");
     }
+
+    setFilter();
+
+    // signals and slots connections
+    connect(browseButton, SIGNAL(clicked()), this, SLOT(doBrowse()));
+    connect(exportButton, SIGNAL(clicked()), this, SLOT(doExport()));
+    connect(displayButton, SIGNAL(clicked()), this, SLOT(doDisplay()));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(doClose()));
+    connect(filename, SIGNAL(textChanged(const QString&)), this, SLOT(change()));
+    connect(presetFilter, SIGNAL(activated(const QString&)), this, SLOT(setFilter()));
+    connect(showNodes, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showBehaviorModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showCollisionModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showVisualModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showContext, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showEngine, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showLoader, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showCollisionPipeline, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showSolvers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showMechanicalStates, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showInteractionForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showConstraints, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showMass, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showTopology, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showTopologyObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showTopologicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showMechanicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
 
 }
 
@@ -256,11 +303,14 @@ void GenGraphForm::doExport()
         sofa::simulation::tree::ExportDotVisitor act(sofa::core::ExecParams::defaultInstance() /* PARAMS FIRST */, &fdot);
         act.showNode = this->showNodes->isOn();
         act.showObject = this->showObjects->isOn();
+        act.showSlaves = this->showSlaves->isOn();
         act.showBehaviorModel = this->showBehaviorModels->isOn();
         act.showCollisionModel = this->showCollisionModels->isOn();
         act.showVisualModel = this->showVisualModels->isOn();
         act.showMapping = this->showMappings->isOn();
         act.showContext = this->showContext->isOn();
+        act.showEngine = this->showEngine->isOn();
+        act.showLoader = this->showLoader->isOn();
         act.showCollisionPipeline = this->showCollisionPipeline->isOn();
         act.showSolver = this->showSolvers->isOn();
         act.showMechanicalState = this->showMechanicalStates->isOn();
@@ -269,7 +319,10 @@ void GenGraphForm::doExport()
         act.showConstraint = this->showConstraints->isOn();
         act.showMass = this->showMass->isOn();
         act.showTopology = this->showTopology->isOn();
+        act.showTopologyObject = this->showTopologyObjects->isOn();
+        act.showTopologicalMapping = this->showTopologicalMappings->isOn();
         act.showMechanicalMapping = this->showMechanicalMappings->isOn();
+        act.showOthers = this->showOthers->isOn();
         act.labelNodeName = this->labelNodeName->isOn();
         act.labelNodeClass = this->labelNodeClass->isOn();
         act.labelObjectName = this->labelObjectName->isOn();
@@ -291,6 +344,19 @@ void GenGraphForm::doExport()
     bool exp = false;
 
     exportedFile = dotfile;
+
+    if (genSVG->isOn())
+    {
+        QStringList argv = argv0;
+        argv << "-Tsvg" << "-o" << basefile+".svg";
+        argv << dotfile;
+        addTask(argv);
+        if (!exp)
+        {
+            exp = true;
+            exportedFile = basefile+".svg";
+        }
+    }
 
     if (genPNG->isOn())
     {
@@ -330,19 +396,6 @@ void GenGraphForm::doExport()
             exportedFile = basefile+".fig";
         }
     }
-
-    if (genSVG->isOn())
-    {
-        QStringList argv = argv0;
-        argv << "-Tsvg" << "-o" << basefile+".svg";
-        argv << dotfile;
-        addTask(argv);
-        if (!exp)
-        {
-            //exp = true;
-            exportedFile = basefile+".svg";
-        }
-    }
     //exported = true;
     //displayButton->setEnabled(true);
 }
@@ -357,7 +410,7 @@ void GenGraphForm::doDisplay()
     ShellExecuteA(NULL, "open", exportedFile, NULL, NULL, SW_SHOWNORMAL);
 #else
     QStringList argv;
-    argv << "display" << exportedFile;
+    argv << "xdg-open" << exportedFile;
 #ifdef SOFA_QT4
     QString program = argv.front();
     argv.pop_front();
@@ -458,11 +511,14 @@ void GenGraphForm::setFilter()
         settingFilter = true;
         this->showNodes->setChecked(filt.find("showNodes")!=filt.end());
         this->showObjects->setChecked(filt.find("showObjects")!=filt.end());
+        this->showSlaves->setChecked(filt.find("showSlaves")!=filt.end());
         this->showBehaviorModels->setChecked(filt.find("showBehaviorModels")!=filt.end());
         this->showCollisionModels->setChecked(filt.find("showCollisionModels")!=filt.end());
         this->showVisualModels->setChecked(filt.find("showVisualModels")!=filt.end());
         this->showMappings->setChecked(filt.find("showMappings")!=filt.end());
         this->showContext->setChecked(filt.find("showContext")!=filt.end());
+        this->showEngine->setChecked(filt.find("showEngine")!=filt.end());
+        this->showLoader->setChecked(filt.find("showLoader")!=filt.end());
         this->showCollisionPipeline->setChecked(filt.find("showCollisionPipeline")!=filt.end());
         this->showSolvers->setChecked(filt.find("showSolvers")!=filt.end());
         this->showMechanicalStates->setChecked(filt.find("showMechanicalStates")!=filt.end());
@@ -471,7 +527,10 @@ void GenGraphForm::setFilter()
         this->showConstraints->setChecked(filt.find("showConstraints")!=filt.end());
         this->showMass->setChecked(filt.find("showMass")!=filt.end());
         this->showTopology->setChecked(filt.find("showTopology")!=filt.end());
+        this->showTopologyObjects->setChecked(filt.find("showTopologyObjects")!=filt.end());
+        this->showTopologicalMappings->setChecked(filt.find("showTopologicalMappings")!=filt.end());
         this->showMechanicalMappings->setChecked(filt.find("showMechanicalMappings")!=filt.end());
+        this->showOthers->setChecked(filt.find("showOthers")!=filt.end());
         settingFilter = false;
         displayButton->setEnabled(false);
         presetFilter->setCurrentText(fname);
@@ -488,11 +547,14 @@ std::set<std::string> GenGraphForm::getCurrentFilter()
     std::set<std::string> filt;
     if (this->showNodes->isOn()) filt.insert("showNodes");
     if (this->showObjects->isOn()) filt.insert("showObjects");
+    if (this->showSlaves->isOn()) filt.insert("showSlaves");
     if (this->showBehaviorModels->isOn()) filt.insert("showBehaviorModels");
     if (this->showCollisionModels->isOn()) filt.insert("showCollisionModels");
     if (this->showVisualModels->isOn()) filt.insert("showVisualModels");
     if (this->showMappings->isOn()) filt.insert("showMappings");
     if (this->showContext->isOn()) filt.insert("showContext");
+    if (this->showEngine->isOn()) filt.insert("showEngine");
+    if (this->showLoader->isOn()) filt.insert("showLoader");
     if (this->showCollisionPipeline->isOn()) filt.insert("showCollisionPipeline");
     if (this->showSolvers->isOn()) filt.insert("showSolvers");
     if (this->showMechanicalStates->isOn()) filt.insert("showMechanicalStates");
@@ -501,7 +563,10 @@ std::set<std::string> GenGraphForm::getCurrentFilter()
     if (this->showConstraints->isOn()) filt.insert("showConstraints");
     if (this->showMass->isOn()) filt.insert("showMass");
     if (this->showTopology->isOn()) filt.insert("showTopology");
+    if (this->showTopologyObjects->isOn()) filt.insert("showTopologyObjects");
+    if (this->showTopologicalMappings->isOn()) filt.insert("showTopologicalMappings");
     if (this->showMechanicalMappings->isOn()) filt.insert("showMechanicalMappings");
+    if (this->showOthers->isOn()) filt.insert("showOthers");
     return filt;
 }
 
