@@ -38,6 +38,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFAGUI_INSTALL_LIB_DIR}"
         )
 
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${SofaGuiGlut_SOURCE_DIR}/ DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/SofaGuiGlut"
         COMPONENT SofaGui_headers
         FILES_MATCHING
@@ -46,3 +47,4 @@ install(DIRECTORY ${SofaGuiGlut_SOURCE_DIR}/ DESTINATION "${SOFAGUI_INSTALL_INCL
             PATTERN "*.hxx"
             PATTERN "*.hpp"
         )
+endif()

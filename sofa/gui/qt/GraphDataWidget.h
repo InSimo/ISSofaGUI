@@ -263,9 +263,9 @@ public:
 
             if (i >= s)
             {
-                QString s;
-                if (name && *name) s = name;
-                c = new Curve(s);
+                QString str;
+                if (name && *name) str = name;
+                c = new Curve(str);
                 c->attach(w);
                 cd = new CurveData;
                 curve.push_back(c);
@@ -276,10 +276,10 @@ public:
             {
                 c = curve[i];
                 cd = cdata[i];
-                QString s;
-                if (name && *name) s = name;
-                if (s != c->title().text())
-                    c->setTitle(s);
+                QString str;
+                if (name && *name) str = name;
+                if (str != c->title().text())
+                    c->setTitle(str);
             }
 
             // c->setPen(getColor(i / (float)n));

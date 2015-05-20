@@ -194,9 +194,14 @@ install(TARGETS ${PROJECT_NAME}
 #        PUBLIC_HEADER DESTINATION "${SOFAGUI_INSTALL_LIB_DIR}/sofa/gui/qt" COMPONENT SofaGui_headers
         )
 
+install(FILES ${FORM_FILES} DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/sofa/gui/qt"
+        COMPONENT SofaGui_headers
+        )
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(FILES ${HEADER_FILES} DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/sofa/gui/qt"
         COMPONENT SofaGui_headers
         )
 install(FILES ${MOC_HEADER_FILES} DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/sofa/gui/qt"
         COMPONENT SofaGui_headers
         )
+endif()
