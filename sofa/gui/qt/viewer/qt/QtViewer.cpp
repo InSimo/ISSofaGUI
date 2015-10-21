@@ -1556,6 +1556,11 @@ void QtViewer::resetView()
     {
         std::string viewFileName = sceneFileName + "." + VIEW_FILE_EXTENSION;
         fileRead = currentCamera->importParametersFromFile(viewFileName);
+        if (!fileRead) // try default.scn.view
+        {
+            viewFileName = sofa::helper::system::SetDirectory::GetRelativeFromFile(sceneFileName, "default.scn.view");
+            fileRead = currentCamera->importParametersFromFile(viewFileName);
+        }
     }
 
     //if there is no .view file , look at the center of the scene bounding box
