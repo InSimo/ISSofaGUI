@@ -1558,7 +1558,7 @@ void QtViewer::resetView()
         fileRead = currentCamera->importParametersFromFile(viewFileName);
         if (!fileRead) // try default.scn.view
         {
-            viewFileName = sofa::helper::system::SetDirectory::GetRelativeFromFile(sceneFileName, "default.scn.view");
+            viewFileName = sofa::helper::system::SetDirectory::GetRelativeFromFile(sceneFileName.c_str(), "default.scn.view");
             fileRead = currentCamera->importParametersFromFile(viewFileName);
         }
     }
