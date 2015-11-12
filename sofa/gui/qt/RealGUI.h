@@ -259,6 +259,7 @@ private:
     QTextBrowser* htmlPage;
     bool animationState;
     int frameCounter;
+    int animateLockCounter;
 //-----------------DATAS MEMBER------------------------}
 
 
@@ -504,7 +505,6 @@ protected:
     std::string pixmap_filename;
     bool active;
     GraphListenerQListView* listener;
-
 };
 
 } // namespace qt

@@ -311,7 +311,8 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     descriptionScene(NULL),
     htmlPage(NULL),
     animationState(false),
-    frameCounter(0)
+    frameCounter(0),
+    animateLockCounter(0)
 {
     setupUi(this);
     parseOptions(options);
@@ -841,6 +842,7 @@ void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFi
         eventNewTime();
 
         //simulation::getSimulation()->updateVisualContext ( root );
+        //std::cout << "INIT ANIMATE " << (root->getContext()->getAnimate() ? "ON" : "OFF") << std::endl;
         startButton->setOn ( root->getContext()->getAnimate() );
         dtEdit->setText ( QString::number ( root->getDt() ) );
         simulationGraph->Clear(root.get());
@@ -1939,14 +1941,17 @@ void RealGUI::fileSaveAs(Node *node)
 
 void RealGUI::LockAnimation(bool value)
 {
+    //std::cout << "LockAnimation(" << (value ? "ON" : "OFF") << ")" << std::endl;
     if(value)
     {
-        animationState = startButton->isOn();
-        playpauseGUI(false);
+        ++animateLockCounter;
+        //animationState = startButton->isOn();
+        //playpauseGUI(false);
     }
     else
     {
-        playpauseGUI(animationState);
+        --animateLockCounter;
+        //playpauseGUI(animationState);
     }
 }
 
@@ -1961,6 +1966,7 @@ void RealGUI::fileRecentlyOpened(int id)
 
 void RealGUI::playpauseGUI ( bool value )
 {
+    //std::cout << "playpauseGUI(" << (value ? "ON" : "OFF") << ")" << std::endl;
     startButton->setOn ( value );
     if ( currentSimulation() )
         currentSimulation()->getContext()->setAnimate ( value );
@@ -2018,6 +2024,12 @@ void RealGUI::interactionGUI ( bool )
 //called at each step of the rendering
 void RealGUI::step()
 {
+    if (animateLockCounter>0)
+    {
+        std::cerr << "Step blocked by GUI Graph edit" << std::endl;
+        return;
+    }
+
     Node* root = currentSimulation();
     if ( root == NULL ) return;
 
