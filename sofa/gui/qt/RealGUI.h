@@ -259,6 +259,7 @@ private:
     QTextBrowser* htmlPage;
     bool animationState;
     int frameCounter;
+    int stopAfterStep;
     int animateLockCounter;
 //-----------------DATAS MEMBER------------------------}
 

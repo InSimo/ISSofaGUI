@@ -312,6 +312,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     htmlPage(NULL),
     animationState(false),
     frameCounter(0),
+    stopAfterStep(0),
     animateLockCounter(0)
 {
     setupUi(this);
@@ -1477,6 +1478,13 @@ void RealGUI::eventNewStep()
     {
         /// @TODO: use AdvancedTimer in GUI to display time statistics
     }
+
+    if (stopAfterStep && frameCounter == stopAfterStep)
+    {
+        std::cout << "Stopping simulation after " << stopAfterStep << " steps." << std::endl;
+        emit(quit());
+    }
+
 }
 
 void RealGUI::showFPS(double fps)
@@ -1718,8 +1726,22 @@ void RealGUI::parseOptions(const std::vector<std::string>& options)
 {
     for (unsigned int i=0; i<options.size(); ++i)
     {
-        if (options[i] == "noViewers")
+        size_t cursor = 0;
+        std::string opt = options[i];
+        if (opt == "noViewers")
+        {
             mCreateViewersOpt = false;
+        }
+        //Set number of iterations
+        //(option = "nbIterations=N where N is the number of iterations)
+        else if ( (cursor = opt.find("nbIterations=")) != std::string::npos )
+        {
+            unsigned int nbIterations;
+            std::istringstream iss;
+            iss.str(opt.substr(cursor+std::string("nbIterations=").length(), std::string::npos));
+            iss >> nbIterations;
+            stopAfterStep = nbIterations;
+        }
     }
 }
 
@@ -2099,6 +2121,7 @@ void RealGUI::resetScene()
     if (root)
     {
         simulation::getSimulation()->reset ( root );
+        frameCounter = 0;
         eventNewTime();
         emit newStep();
     }
