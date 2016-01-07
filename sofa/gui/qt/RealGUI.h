@@ -44,6 +44,7 @@ typedef Q3ListViewItem QListViewItem;
 #   include <QStackedWidget>
 typedef QStackedWidget QWidgetStack;
 #   include <QUrl>
+#   include <QSignalMapper>
 #else
 #   include <qurl.h>
 #   include <qwidgetstack.h>
@@ -165,6 +166,7 @@ public:
 public slots:
 
 	virtual void changeHtmlPage( const QUrl&);
+	virtual void setGUIMode( int );
 
 
 
@@ -184,7 +186,8 @@ protected:
     QLabel* fpsLabel;
     QLabel* timeLabel;
 #endif
-
+    QSignalMapper* guimodeSignalMapper;
+    int currentGUIMode;
 
 private:
 #ifndef SOFA_QT4

@@ -273,6 +273,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     fpsLabel(NULL),
     timeLabel(NULL),
 #endif
+    guimodeSignalMapper(NULL),
 
 #ifdef SOFA_GUI_INTERACTION
     m_interactionActived(false),
@@ -313,7 +314,8 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     animationState(false),
     frameCounter(0),
     stopAfterStep(0),
-    animateLockCounter(0)
+    animateLockCounter(0),
+    currentGUIMode(-1)
 {
     setupUi(this);
     parseOptions(options);
@@ -334,6 +336,18 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     connect ( exportGnuplotFilesCheckbox, SIGNAL ( toggled ( bool ) ), this, SLOT ( setExportGnuplot ( bool ) ) );
     connect ( tabs, SIGNAL ( currentChanged ( QWidget* ) ), this, SLOT ( currentTabChanged ( QWidget* ) ) );
 
+    guimodeSignalMapper = new QSignalMapper(this);
+    connect ( GUIMode0Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
+    guimodeSignalMapper->setMapping(GUIMode0Button, 0);
+    connect ( GUIMode1Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
+    guimodeSignalMapper->setMapping(GUIMode1Button, 1);
+    connect ( GUIMode2Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
+    guimodeSignalMapper->setMapping(GUIMode2Button, 2);
+    connect ( GUIMode3Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
+    guimodeSignalMapper->setMapping(GUIMode3Button, 3);
+    connect ( guimodeSignalMapper, SIGNAL ( mapped ( int ) ), this , SLOT ( setGUIMode ( int ) ) );
+    setGUIMode(1);
+    
     // create a Dock Window to receive the Sofa Recorder
 #ifndef SOFA_GUI_QT_NO_RECORDER
     QDockWindow *dockRecorder=new QDockWindow(this);
@@ -472,6 +486,25 @@ void RealGUI::changeHtmlPage( const QUrl& u)
     path  = sofa::helper::system::DataRepository.getFile(path);
     std::string extension=sofa::helper::system::SetDirectory::GetExtension(path.c_str());
     if (extension == "xml" || extension == "scn") fileOpen(path);
+}
+
+//------------------------------------
+
+void RealGUI::setGUIMode( int mode )
+{
+    //std::cout << "setGUIMode("<<mode<<")" << std::endl;
+    if (mode == currentGUIMode) return;
+
+    GUIMode0Button->setChecked(mode == 0);
+    GUIMode1Button->setChecked(mode == 1);
+    GUIMode2Button->setChecked(mode == 2);
+    GUIMode3Button->setChecked(mode == 3);
+
+    currentGUIMode = mode;
+
+    if (currentGUIMode != 0)
+        emit newStep();
+
 }
 
 //------------------------------------
@@ -2046,6 +2079,7 @@ void RealGUI::interactionGUI ( bool )
 //called at each step of the rendering
 void RealGUI::step()
 {
+
     if (animateLockCounter>0)
     {
         std::cerr << "Step blocked by GUI Graph edit" << std::endl;
@@ -2057,7 +2091,7 @@ void RealGUI::step()
 
     startDumpVisitor();
 
-    if ( !getViewer()->ready() ) return;
+    if ( currentGUIMode != 0 && !getViewer()->ready() ) return;
 
     //root->setLogTime(true);
     //T=T+DT
@@ -2088,7 +2122,8 @@ void RealGUI::step()
     }
 
     stopDumpVisitor();
-    emit newStep();
+    if (currentGUIMode != 0)
+        emit newStep();
     if ( !currentSimulation()->getContext()->getAnimate() )
         startButton->setOn ( false );
 }
@@ -2117,7 +2152,7 @@ void RealGUI::resetScene()
 {
     Node* root = currentSimulation();
     startDumpVisitor();
-    emit ( newScene() );
+    //emit ( newScene() );
     if (root)
     {
         simulation::getSimulation()->reset ( root );
@@ -2224,7 +2259,9 @@ void RealGUI::clear()
 
 void RealGUI::redraw()
 {
-    emit newStep();
+    eventNewTime();
+    if (currentGUIMode != 0)
+        emit newStep();
 }
 
 //------------------------------------
