@@ -76,6 +76,7 @@ enum
     BTLEFT_MODE = 101, BTRIGHT_MODE = 102, BTMIDDLE_MODE = 103,
 };
 
+struct CopyScreenInfo;
 
 class SOFA_SOFAGUI_API BaseViewer
 {
@@ -91,6 +92,11 @@ public:
     virtual void setSceneFileName(const std::string &f);
     virtual void setScene(sofa::simulation::Node::SPtr scene, const char* filename = NULL, bool /*keepParams*/= false);
     virtual void setCameraMode(core::visual::VisualParams::CameraType);
+
+    virtual void setGUIMode(int);
+
+    virtual bool getCopyScreenRequest(CopyScreenInfo* info);
+    virtual void useCopyScreen(CopyScreenInfo* info);
 
     /// true when the viewer keep the hand on the render
     /// false when it's not in activity
@@ -199,6 +205,7 @@ protected:
     };
     StereoMode _stereoMode;
     double _stereoShift;
+    int _currentGUIMode;
 
 };
 

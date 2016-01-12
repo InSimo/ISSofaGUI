@@ -42,6 +42,19 @@ namespace gui
 
 class BaseViewer;
 
+struct CopyScreenInfo
+{
+    void* ctx;
+    unsigned int name;
+    unsigned int target;
+    int srcX;
+    int srcY;
+    int dstX;
+    int dstY;
+    int width;
+    int height;
+};
+
 class SOFA_SOFAGUI_API BaseGUI
 {
 
@@ -97,6 +110,10 @@ public:
     virtual void sendMessage(const std::string & /*msgType*/,const std::string & /*msgValue*/) {}
     /// Force the displayed FPS value (if any)
     virtual void showFPS(double /*fps*/) {}
+
+    virtual bool getCopyScreenRequest(CopyScreenInfo* /*info*/) { return false; }
+    virtual void useCopyScreen(CopyScreenInfo* /*info*/) { }
+
     /// @}
 
     void exportGnuplot(sofa::simulation::Node* node, std::string gnuplot_directory="");

@@ -49,6 +49,7 @@ BaseViewer::BaseViewer()
     , _stereoEnabled(false)
     , _stereoMode(STEREO_AUTO)
     , _stereoShift(1.0)
+    , _currentGUIMode(1)
 {
     pick = new PickHandler();
 }
@@ -101,6 +102,20 @@ void BaseViewer::setScene(sofa::simulation::Node::SPtr scene, const char* filena
 void BaseViewer::setCameraMode(core::visual::VisualParams::CameraType mode)
 {
     currentCamera->setCameraType(mode);
+}
+
+void BaseViewer::setGUIMode(int mode)
+{
+    _currentGUIMode = mode;
+}
+
+bool BaseViewer::getCopyScreenRequest(CopyScreenInfo* info)
+{
+    return false;
+}
+
+void BaseViewer::useCopyScreen(CopyScreenInfo* info)
+{
 }
 
 bool BaseViewer::ready()

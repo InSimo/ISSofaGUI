@@ -502,6 +502,9 @@ void RealGUI::setGUIMode( int mode )
 
     currentGUIMode = mode;
 
+    if(getViewer())
+        getViewer()->setGUIMode(mode);
+
     if (currentGUIMode != 0)
         emit newStep();
 
@@ -2262,6 +2265,16 @@ void RealGUI::redraw()
     eventNewTime();
     if (currentGUIMode != 0)
         emit newStep();
+}
+
+bool RealGUI::getCopyScreenRequest(CopyScreenInfo* info)
+{
+    return getViewer()->getCopyScreenRequest(info);
+}
+
+void RealGUI::useCopyScreen(CopyScreenInfo* info)
+{
+    getViewer()->useCopyScreen(info);
 }
 
 //------------------------------------

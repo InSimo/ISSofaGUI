@@ -162,6 +162,27 @@ QtViewer::QtViewer(QWidget* parent, const char* name)
     _mouseInteractorTrackball.ComputeQuaternion(0.0, 0.0, 0.0, 0.0);
     _mouseInteractorNewQuat = _mouseInteractorTrackball.GetQuaternion();
 
+    copyscreen_texture_render = 0;
+    copyscreen_texture_update = 0;
+    copyscreen_needed = false;
+    copyscreen_requested = false;
+    copyscreen_available = false;
+    copyscreen_info.ctx = 0;
+    copyscreen_info.name = 0;
+    copyscreen_info.target = 0;
+    copyscreen_info.srcX = 1380;
+    copyscreen_info.srcX = 1380;
+    copyscreen_info.srcY = 0;
+    copyscreen_info.dstX = 0;
+    copyscreen_info.dstY = 0;
+    copyscreen_info.width = 1080;
+    copyscreen_info.height = 1080;
+    copyscreen_scale = 0.5;
+    copyscreen_view_x0 = 0;
+    copyscreen_view_y0 = 0;
+    copyscreen_view_width = 0;
+    copyscreen_view_height = 0;
+
     connect( &captureTimer, SIGNAL(timeout()), this, SLOT(captureEvent()) );
 }
 
@@ -654,6 +675,8 @@ void QtViewer::drawColourPicking(ColourPickingVisitor::ColourCode code)
 // -------------------------------------------------------------------
 void QtViewer::DisplayOBJs()
 {
+    if (_currentGUIMode == 2/* && copyscreen_available*/) // Sofa scene not rendering if external screen is in full view
+        return;
 
     if (_background == 0)
         DrawLogo();
@@ -712,8 +735,14 @@ void QtViewer::DisplayMenu(void)
     glPushMatrix();
     glLoadIdentity();
 
-    glColor3f(0.3f, 0.7f, 0.95f);
-    glRasterPos2i(_W / 2 - 5, _H - 15);
+
+    if (_currentGUIMode == 2 || _currentGUIMode == 3) {
+        // DISPLAY EXTERNAL SCREEN
+        drawCopyScreen();
+    }
+
+    //glColor3f(0.3f, 0.7f, 0.95f);
+    //glRasterPos2i(_W / 2 - 5, _H - 15);
     //sprintf(buffer,"FPS: %.1f\n", _frameRate.GetFPS());
     //PrintString(GLUT_BITMAP_HELVETICA_12, buffer);
 
@@ -721,6 +750,74 @@ void QtViewer::DisplayMenu(void)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+}
+
+void QtViewer::drawCopyScreen()
+{
+    // DISPLAY EXTERNAL SCREEN
+    if (!copyscreen_texture_render)
+    {
+        glGenTextures(1, &copyscreen_texture_render);
+        glGenTextures(1, &copyscreen_texture_update);
+        glBindTexture(GL_TEXTURE_2D, copyscreen_texture_render);
+        glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGB, copyscreen_info.width, copyscreen_info.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
+        glBindTexture(GL_TEXTURE_2D, copyscreen_texture_update);
+        glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGB, copyscreen_info.width, copyscreen_info.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (!copyscreen_requested)
+    {
+        copyscreen_needed = true;
+    }
+    if (copyscreen_available)
+    {
+        if (_currentGUIMode == 2) // fullscreen external view
+        {
+            if (copyscreen_info.width*_H > copyscreen_info.height*_W)
+            {
+                copyscreen_view_width = _W;
+                copyscreen_view_x0 = 0;
+                copyscreen_view_height = _W*copyscreen_info.height/copyscreen_info.width;
+                copyscreen_view_y0 = (_H-copyscreen_view_height)/2;
+            }
+            else
+            {
+                copyscreen_view_height = _H;
+                copyscreen_view_y0 = 0;
+                copyscreen_view_width = _H*copyscreen_info.width/copyscreen_info.height;
+                copyscreen_view_x0 = (_W-copyscreen_view_width)/2;
+            }
+        }
+        else // corner view
+        {
+            copyscreen_view_width = (int)( copyscreen_info.width * copyscreen_scale );
+            copyscreen_view_height = (int)( copyscreen_info.height * copyscreen_scale );
+            copyscreen_view_x0 = _W - copyscreen_view_width;
+            copyscreen_view_y0 = _H - copyscreen_view_height;
+        }
+
+
+        Enable<GL_TEXTURE_2D> tex;
+        glBindTexture(GL_TEXTURE_2D, copyscreen_texture_render);
+        glDisable(GL_DEPTH_TEST);
+
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glBegin(GL_QUADS);
+        glTexCoord2d(0.0, 0.0);
+        glVertex3d(copyscreen_view_x0, copyscreen_view_y0, 0.0);
+        
+        glTexCoord2d(1.0, 0.0);
+        glVertex3d(copyscreen_view_x0 + copyscreen_view_width, copyscreen_view_y0, 0.0);
+        
+        glTexCoord2d(1.0, 1.0);
+        glVertex3d(copyscreen_view_x0 + copyscreen_view_width, copyscreen_view_y0 + copyscreen_view_height, 0.0);
+        
+        glTexCoord2d(0.0, 1.0);
+        glVertex3d(copyscreen_view_x0, copyscreen_view_y0 + copyscreen_view_height, 0.0);
+        glEnd();
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
 
 void QtViewer::MakeStencilMask()
@@ -1644,6 +1741,37 @@ The captured images are saved in the running project directory under the name fo
 Each time the frame is updated a screenshot is saved<br></li>\
 <li><b>Esc</b>: TO QUIT ::sofa:: <br></li></ul>");
     return text;
+}
+
+
+
+bool QtViewer::getCopyScreenRequest(CopyScreenInfo* info)
+{
+    if (copyscreen_needed && !copyscreen_requested)
+    {
+        *info = copyscreen_info;
+        copyscreen_requested = true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void QtViewer::useCopyScreen(CopyScreenInfo* info)
+{
+    copyscreen_requested = false;
+    if (copyscreen_requested && info->name == copyscreen_texture_update)
+    {
+        std::swap(copyscreen_texture_render, copyscreen_texture_update);
+        copyscreen_available = true;
+        copyscreen_needed = false;
+    }
+    else
+    {
+        std::cerr << "Received unknown copy screen texture " << info->name << std::endl;
+    }
 }
 
 }// namespace qt
