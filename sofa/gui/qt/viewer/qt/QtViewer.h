@@ -151,10 +151,10 @@ public:
     {
         BaseViewerArgument* pArg = &arg;
         ViewerQtArgument* viewerArg = dynamic_cast<ViewerQtArgument*>(pArg);
-        return viewerArg ?
-                new QtViewer(viewerArg->getParentWidget(), viewerArg->getName().c_str() ) :
-                new QtViewer(NULL, pArg->getName().c_str() )
-                ;
+        return new QtViewer(
+            viewerArg ? viewerArg->getParentWidget() : NULL,
+            pArg->getName().c_str(),
+            pArg->getShareRenderingContext() );
     }
 
     static const char* viewerName()
@@ -180,7 +180,7 @@ public:
 
 
     static QGLFormat setupGLFormat();
-    QtViewer( QWidget* parent, const char* name="" );
+    QtViewer( QWidget* parent, const char* name="", void* shareRenderingContext = 0);
     ~QtViewer();
 
     QWidget* getQWidget() { return this; }
@@ -253,6 +253,8 @@ public:
     static Quaternion _mouseInteractorNewQuat;
     static bool _mouseTrans;
     static bool _mouseRotate;
+
+    void* _shareRenderingContext;
 
 
     QString helpString();

@@ -40,10 +40,13 @@ class BaseViewerArgument
 {
 public:
     BaseViewerArgument(std::string _name) :
-        name(_name)
+        name(_name), shareRenderingContext(0)
     {}
 
-  virtual ~BaseViewerArgument() { }
+    virtual ~BaseViewerArgument() { }
+
+    void setShareRenderingContext(void* p) { shareRenderingContext = p; }
+    void* getShareRenderingContext() const { return shareRenderingContext; }
 
     // I have to have at least one virtual function in my base class
     // to use dynamic_cast or to make it polymorphic
@@ -57,6 +60,7 @@ public:
 
 protected:
     std::string name;
+    void* shareRenderingContext;
 };
 
 class ViewerQtArgument : public BaseViewerArgument

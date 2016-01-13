@@ -1322,6 +1322,7 @@ void RealGUI::createViewer(const char* _viewerName, bool _updateViewerList/*=fal
         {
             removeViewer();
             ViewerQtArgument viewerArg = ViewerQtArgument("viewer", left_stack);
+            viewerArg.setShareRenderingContext(viewerShareRenderingContext);
             registerViewer( helper::SofaViewerFactory::CreateObject(iter_map->first, viewerArg) );
             iter_map->second->setOn(true);
         }
@@ -1777,6 +1778,17 @@ void RealGUI::parseOptions(const std::vector<std::string>& options)
             iss.str(opt.substr(cursor+std::string("nbIterations=").length(), std::string::npos));
             iss >> nbIterations;
             stopAfterStep = nbIterations;
+        }
+        //Set shareRenderingContext
+        //(option = "shareRenderingContext=N where N is the context (pointer) value)
+        else if ( (cursor = opt.find("shareRenderingContext=")) != std::string::npos )
+        {
+            unsigned long long shareRenderingContext;
+            std::istringstream iss;
+            iss.str(opt.substr(cursor+std::string("shareRenderingContext=").length(), std::string::npos));
+            iss >> shareRenderingContext;
+            std::cout << "Sofa GUI: sharing external rendering context " << shareRenderingContext << std::endl;
+            viewerShareRenderingContext = (void*)shareRenderingContext;
         }
     }
 }

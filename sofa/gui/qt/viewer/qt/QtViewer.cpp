@@ -117,12 +117,14 @@ QGLFormat QtViewer::setupGLFormat()
 // ---------------------------------------------------------
 // --- Constructor
 // ---------------------------------------------------------
-QtViewer::QtViewer(QWidget* parent, const char* name)
+QtViewer::QtViewer(QWidget* parent, const char* name, void* shareRenderingContext)
     : QGLWidget(setupGLFormat(), parent, name)
 {
 #if defined(QT_VERSION) && QT_VERSION >= 0x040700
-    std::cout << "QtViewer: OpenGL " << format().majorVersion() << "." << format().minorVersion() << " context created." << std::endl;
+    std::cout << "QtViewer: OpenGL " << format().majorVersion() << "." << format().minorVersion() << " context created. " << shareRenderingContext << std::endl;
 #endif
+
+    _shareRenderingContext = shareRenderingContext;
 
     groot = NULL;
     initTexturesDone = false;
@@ -170,13 +172,12 @@ QtViewer::QtViewer(QWidget* parent, const char* name)
     copyscreen_info.ctx = 0;
     copyscreen_info.name = 0;
     copyscreen_info.target = 0;
-    copyscreen_info.srcX = 1380;
-    copyscreen_info.srcX = 1380;
+    copyscreen_info.srcX = 0;
     copyscreen_info.srcY = 0;
+    copyscreen_info.width = 0;
+    copyscreen_info.height = 0;
     copyscreen_info.dstX = 0;
     copyscreen_info.dstY = 0;
-    copyscreen_info.width = 1080;
-    copyscreen_info.height = 1080;
     copyscreen_scale = 0.5;
     copyscreen_view_x0 = 0;
     copyscreen_view_y0 = 0;
@@ -199,6 +200,40 @@ QtViewer::~QtViewer()
 // -----------------------------------------------------------------
 void QtViewer::initializeGL(void)
 {
+    if (_shareRenderingContext)
+    {
+#ifdef WIN32
+        HDC myDC = wglGetCurrentDC();
+        HGLRC myCtx = wglGetCurrentContext();
+        wglMakeCurrent(NULL,NULL);
+        if (wglShareLists((HGLRC)_shareRenderingContext, myCtx))
+        {
+            std::cout << "Sharing OpenGL context successful" << std::endl;
+        }
+        else
+        {
+            DWORD err = GetLastError();
+            std::cout << "Sharing OpenGL context FAILED " << err << std::endl;
+            _shareRenderingContext = 0;
+        }
+        wglMakeCurrent(myDC,myCtx);
+#else
+        std::cout << "Sharing OpenGL context NOT SUPPORTED" << std::endl;
+        _shareRenderingContext = 0;
+#endif
+    }
+
+    if (_shareRenderingContext)
+        copyscreen_info.ctx = _shareRenderingContext;
+    else
+    {
+#ifdef WIN32
+        copyscreen_info.ctx = wglGetCurrentContext();
+#else
+        copyscreen_info.ctx = glXGetCurrentContext();
+#endif
+    }
+
     static GLfloat specref[4];
     static GLfloat ambientLight[4];
     static GLfloat diffuseLight[4];
@@ -759,11 +794,6 @@ void QtViewer::drawCopyScreen()
     {
         glGenTextures(1, &copyscreen_texture_render);
         glGenTextures(1, &copyscreen_texture_update);
-        glBindTexture(GL_TEXTURE_2D, copyscreen_texture_render);
-        glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGB, copyscreen_info.width, copyscreen_info.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
-        glBindTexture(GL_TEXTURE_2D, copyscreen_texture_update);
-        glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGB, copyscreen_info.width, copyscreen_info.height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
     if (!copyscreen_requested)
     {
@@ -1320,7 +1350,18 @@ void QtViewer::keyReleaseEvent(QKeyEvent * e)
 
 void QtViewer::wheelEvent(QWheelEvent* e)
 {
-    SofaViewer::wheelEvent(e);
+    if (_currentGUIMode == 3 &&
+        ((unsigned)(e->x()-copyscreen_view_x0) <= (unsigned)copyscreen_view_width) &&
+        ((unsigned)((_H-e->y())-copyscreen_view_y0) <= (unsigned)copyscreen_view_height))
+    {
+        //std::cout << "wheelEvent " << e->x() << "," << e->y() << " " << e->delta() << std::endl;
+        copyscreen_scale *= exp(e->delta()*0.0005);
+        e->setAccepted(true);
+    }
+    else
+    {
+        SofaViewer::wheelEvent(e);
+    }
 }
 
 void QtViewer::mousePressEvent(QMouseEvent * e)
@@ -1747,8 +1788,41 @@ Each time the frame is updated a screenshot is saved<br></li>\
 
 bool QtViewer::getCopyScreenRequest(CopyScreenInfo* info)
 {
-    if (copyscreen_needed && !copyscreen_requested)
+    if (copyscreen_needed && info->width > 0 && info->height > 0)
     {
+        // select central square
+        int size = std::min(info->width, info->height);
+        info->srcX += (info->width-size)/2;
+        info->srcY += (info->height-size)/2;
+        info->width = size;
+        info->height = size;
+        // check changes of size
+        if (info->width != copyscreen_info.width || info->height != copyscreen_info.height)
+        {
+            copyscreen_info.width = info->width;
+            copyscreen_info.height = info->height;
+            glBindTexture(GL_TEXTURE_2D, copyscreen_texture_render);
+            glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGBA, copyscreen_info.width, copyscreen_info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0 );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, copyscreen_texture_update);
+            glTexImage2D ( GL_TEXTURE_2D, 0, GL_RGBA, copyscreen_info.width, copyscreen_info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0 );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            copyscreen_info.width = info->width;
+            copyscreen_info.height = info->height;
+        }
+        copyscreen_info.srcX = info->srcX;
+        copyscreen_info.srcY = info->srcY;
+        //std::cout << "Request copyScreen to " << copyscreen_texture_update << " while drawing " << copyscreen_texture_render << std::endl;
+        copyscreen_info.name = copyscreen_texture_update;
+        copyscreen_info.target = GL_TEXTURE_2D;
+
         *info = copyscreen_info;
         copyscreen_requested = true;
         return true;
@@ -1761,7 +1835,7 @@ bool QtViewer::getCopyScreenRequest(CopyScreenInfo* info)
 
 void QtViewer::useCopyScreen(CopyScreenInfo* info)
 {
-    copyscreen_requested = false;
+    //std::cout << "Received copyScreen to " << info->name << std::endl;
     if (copyscreen_requested && info->name == copyscreen_texture_update)
     {
         std::swap(copyscreen_texture_render, copyscreen_texture_update);
@@ -1772,6 +1846,7 @@ void QtViewer::useCopyScreen(CopyScreenInfo* info)
     {
         std::cerr << "Received unknown copy screen texture " << info->name << std::endl;
     }
+    copyscreen_requested = false;
 }
 
 }// namespace qt

@@ -264,6 +264,7 @@ private:
     int frameCounter;
     int stopAfterStep;
     int animateLockCounter;
+    void* viewerShareRenderingContext;
 //-----------------DATAS MEMBER------------------------}
 
 
