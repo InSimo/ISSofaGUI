@@ -50,6 +50,9 @@
 #include <sofa/helper/gl/RAII.h>
 #ifdef SOFA_HAVE_GLEW
 #include <sofa/helper/gl/GLSLShader.h>
+#ifndef WIN32
+#include <GL/glxew.h>
+#endif
 #endif
 #include <sofa/helper/io/ImageBMP.h>
 
