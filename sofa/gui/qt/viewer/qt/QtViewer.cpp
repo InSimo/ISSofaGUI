@@ -1369,6 +1369,17 @@ void QtViewer::wheelEvent(QWheelEvent* e)
 
 void QtViewer::mousePressEvent(QMouseEvent * e)
 {
+    if (_currentGUIMode == 3 &&
+        ((unsigned)(e->x()-copyscreen_view_x0) <= (unsigned)copyscreen_view_width) &&
+        ((unsigned)((_H-e->y())-copyscreen_view_y0) <= (unsigned)copyscreen_view_height))
+    {
+        int delta = (e->button() == Qt::LeftButton) ? 120 : -120;
+        //std::cout << "wheelEvent " << e->x() << "," << e->y() << " " << e->delta() << std::endl;
+        copyscreen_scale *= exp(delta*0.0005);
+        e->setAccepted(true);
+        return;
+    }
+
     mouseEvent(e);
 
     SofaViewer::mousePressEvent(e);
