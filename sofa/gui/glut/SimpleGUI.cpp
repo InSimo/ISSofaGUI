@@ -177,13 +177,15 @@ int SimpleGUI::closeGUI()
 
 SOFA_DECL_CLASS(SimpleGUI)
 
-static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
+namespace SimpleGUIInternals {
+  static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
+}
 
 int SimpleGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*options*/)
 {
     // Replace generic visual models with OglModel
     sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
-            &classVisualModel);
+            &SimpleGUIInternals::classVisualModel);
     return 0;
 }
 
