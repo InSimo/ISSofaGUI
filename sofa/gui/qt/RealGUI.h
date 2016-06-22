@@ -187,7 +187,7 @@ protected:
     QLabel* timeLabel;
 #endif
     QSignalMapper* guimodeSignalMapper;
-    int currentGUIMode;
+    int currentGUIMode; ///< If -1, switch to mode 2 automatically if the application provides external image
 
 private:
 #ifndef SOFA_QT4

@@ -315,7 +315,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     frameCounter(0),
     stopAfterStep(0),
     animateLockCounter(0),
-    currentGUIMode(-1)
+    currentGUIMode(0)
 {
     setupUi(this);
     parseOptions(options);
@@ -346,7 +346,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     connect ( GUIMode3Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
     guimodeSignalMapper->setMapping(GUIMode3Button, 3);
     connect ( guimodeSignalMapper, SIGNAL ( mapped ( int ) ), this , SLOT ( setGUIMode ( int ) ) );
-    setGUIMode(1);
+    setGUIMode(-1); // mode 1, but switch to mode 2 when we receive the first external image
     
     // create a Dock Window to receive the Sofa Recorder
 #ifndef SOFA_GUI_QT_NO_RECORDER
@@ -493,7 +493,10 @@ void RealGUI::changeHtmlPage( const QUrl& u)
 void RealGUI::setGUIMode( int mode )
 {
     //std::cout << "setGUIMode("<<mode<<")" << std::endl;
-    if (mode == currentGUIMode) return;
+    if (mode == currentGUIMode)
+    {
+        return;
+    }
 
     GUIMode0Button->setChecked(mode == 0);
     GUIMode1Button->setChecked(mode == 1);
@@ -503,10 +506,14 @@ void RealGUI::setGUIMode( int mode )
     currentGUIMode = mode;
 
     if(getViewer())
-        getViewer()->setGUIMode(mode);
+    {
+        getViewer()->setGUIMode(abs(mode));
+    }
 
-    if (currentGUIMode != 0)
+    if (currentGUIMode > 0)
+    {
         emit newStep();
+    }
 
 }
 
@@ -2104,9 +2111,12 @@ void RealGUI::step()
     Node* root = currentSimulation();
     if ( root == NULL ) return;
 
-    startDumpVisitor();
+    if (currentGUIMode != 0 && !getViewer()->ready())
+    {
+        return;
+    }
 
-    if ( currentGUIMode != 0 && !getViewer()->ready() ) return;
+    startDumpVisitor();
 
     //root->setLogTime(true);
     //T=T+DT
@@ -2281,6 +2291,10 @@ void RealGUI::redraw()
 
 bool RealGUI::getCopyScreenRequest(CopyScreenInfo* info)
 {
+    if (currentGUIMode == -1)
+    {
+        setGUIMode(2); // automatically switch to mode 2 when receiving the first external view request.
+    }
     return getViewer()->getCopyScreenRequest(info);
 }
 
