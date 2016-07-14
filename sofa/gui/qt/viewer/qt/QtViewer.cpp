@@ -1203,7 +1203,7 @@ void QtViewer::paintGL()
     // draw the scene
     drawScene();
 
-    if(!captureTimer.isActive())
+    if(!captureTimer.isActive() && groot)
         SofaViewer::captureEvent();
 
     if (_waitForRender)

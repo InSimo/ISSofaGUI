@@ -318,7 +318,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     currentGUIMode(0)
 {
     setupUi(this);
-    parseOptions(options);
+    parseOptionsPreInit(options);
 
     createPluginManager();
 
@@ -433,6 +433,8 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     if(mCreateViewersOpt)
         getQtViewer()->getQWidget()->installEventFilter(this);
 #endif
+
+    parseOptionsPostInit(options);
 }
 
 //------------------------------------
@@ -1766,7 +1768,7 @@ void RealGUI::initViewer(BaseViewer* _viewer)
 
 //------------------------------------
 
-void RealGUI::parseOptions(const std::vector<std::string>& options)
+void RealGUI::parseOptionsPreInit(const std::vector<std::string>& options)
 {
     for (unsigned int i=0; i<options.size(); ++i)
     {
@@ -1796,6 +1798,33 @@ void RealGUI::parseOptions(const std::vector<std::string>& options)
             iss >> shareRenderingContext;
             std::cout << "Sofa GUI: sharing external rendering context " << shareRenderingContext << std::endl;
             viewerShareRenderingContext = (void*)shareRenderingContext;
+        }
+    }
+}
+
+void RealGUI::parseOptionsPostInit(const std::vector<std::string>& options)
+{
+    for (unsigned int i=0; i<options.size(); ++i)
+    {
+        size_t cursor = 0;
+        std::string opt = options[i];
+        //Enable auto-screenshots mode (video)
+        //(option = "nbIterations=N where N is the number of iterations)
+        if ( (cursor = opt.find("video=")) != std::string::npos )
+        {
+            unsigned int skip;
+            std::istringstream iss;
+            iss.str(opt.substr(cursor+std::string("video=").length(), std::string::npos));
+            iss >> skip;
+            std::cout << "Sofa GUI: setting video capture every " << skip << " frames" << std::endl;
+            if(getViewer())
+            {
+                getViewer()->setVideoRecording(skip != 0);
+                if (skip > 1)
+                {
+                    SofaVideoRecorderManager::getInstance()->setFrameskip(skip-1);
+                }
+            }
         }
     }
 }

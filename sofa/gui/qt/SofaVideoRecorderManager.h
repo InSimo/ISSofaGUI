@@ -105,6 +105,7 @@ public:
     unsigned int getBitrate();
     bool realtime();
     unsigned int getFrameskip();
+    void setFrameskip(unsigned int skip);
     RecordingType getRecordingType() { return currentRecordingType; }
 
     //helper function

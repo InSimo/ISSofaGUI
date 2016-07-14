@@ -157,10 +157,10 @@ void BaseViewer::setPrefix(const std::string& filename)
 #endif
 }
 
-void BaseViewer::screenshot(const std::string& filename, int compression_level)
+void BaseViewer::screenshot(const std::string& filename, int compression_level, bool front)
 {
 #ifndef SOFA_NO_OPENGL
-    capture.saveScreen(filename, compression_level);
+    capture.saveScreen(filename, compression_level, front);
 #endif
 }
 
@@ -220,6 +220,16 @@ void BaseViewer::newView()
 void BaseViewer::resetView()
 {
     redraw();
+}
+
+void BaseViewer::setVideoRecording(bool enable)
+{
+    _video = enable;
+}
+
+bool BaseViewer::isVideoRecording() const
+{
+    return _video;
 }
 
 void BaseViewer::setBackgroundColour(float r, float g, float b)

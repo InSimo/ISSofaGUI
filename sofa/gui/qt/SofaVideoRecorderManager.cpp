@@ -144,6 +144,11 @@ unsigned int SofaVideoRecorderManager::getFramerate()
     return captureOptionsWidget->framerateSpinBox->value();
 }
 
+void SofaVideoRecorderManager::setFrameskip(unsigned int skip)
+{
+    captureOptionsWidget->framerateSpinBox->setValue(skip);
+}
+
 unsigned int SofaVideoRecorderManager::getBitrate()
 {
     return movieOptionsWidget->bitrateSpinBox->value()*1024;

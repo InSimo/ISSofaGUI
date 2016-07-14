@@ -120,7 +120,7 @@ public:
     //Fonctions needed to take a screenshot
     virtual const std::string screenshotName();
     virtual void setPrefix(const std::string& filename);
-    virtual void screenshot(const std::string& filename, int compression_level =-1);
+    virtual void screenshot(const std::string& filename, int compression_level =-1, bool front = true);
 
     virtual void getView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori) const;
     virtual void setView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori);
@@ -128,6 +128,8 @@ public:
     virtual void newView();
     virtual void resetView();
 
+    virtual void setVideoRecording(bool enable);
+    bool isVideoRecording() const;
     virtual void setBackgroundColour(float r, float g, float b);
     virtual void setBackgroundImage(std::string imageFileName = std::string("textures/SOFA_logo.bmp"));
     std::string getBackgroundImage();

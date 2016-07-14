@@ -431,7 +431,7 @@ void SofaViewer::captureEvent()
             switch (SofaVideoRecorderManager::getInstance()->getRecordingType())
             {
             case SofaVideoRecorderManager::SCREENSHOTS :
-                screenshot(capture.findFilename(), 1);
+                screenshot(capture.findFilename(), 1, false);
                 break;
             case SofaVideoRecorderManager::MOVIE :
 #ifdef SOFA_HAVE_FFMPEG
