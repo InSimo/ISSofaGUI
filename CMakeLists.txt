@@ -3,6 +3,7 @@ set(SOLUTION_NAME "ISSofaGui")
 project(${SOLUTION_NAME})
 
 set( SofaGui_ACTUAL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sofa/gui )
+set(SOFAGUI_SOURCE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 ##
 ## SofaGui version
