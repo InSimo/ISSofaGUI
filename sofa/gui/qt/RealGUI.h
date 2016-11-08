@@ -253,6 +253,9 @@ protected:
     /// Keep track of log files that have been modified since the GUI started
     std::set<std::string>   m_modifiedLogFiles;
 
+    double maxFPS;
+    sofa::helper::system::thread::ctime_t throttle_lastframe; // only used if maxFPS > 0
+
 private:
     //currently unused: scale is experimental
     float object_Scale[2];
@@ -421,6 +424,8 @@ public slots:
     virtual void step();
     virtual void setDt(double);
     virtual void setDt(const QString&);
+    virtual void setMaxFPS(double);
+    virtual void setMaxFPS(const QString&);
     virtual void resetScene();
     virtual void screenshot();
     virtual void showhideElements();

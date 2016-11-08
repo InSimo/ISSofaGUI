@@ -307,6 +307,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     left_stack(NULL),
     pluginManager_dialog(NULL),
     recentlyOpenedFilesManager("config/Sofa.ini"),
+    maxFPS(0.0),
     saveReloadFile(false),
     displayFlag(NULL),
     descriptionScene(NULL),
@@ -331,6 +332,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     connect ( ResetSceneButton, SIGNAL ( clicked() ), this, SLOT ( resetScene() ) );
     connect ( dtEdit, SIGNAL ( textChanged ( const QString& ) ), this, SLOT ( setDt ( const QString& ) ) );
     connect ( stepButton, SIGNAL ( clicked() ), this, SLOT ( step() ) );
+    connect ( maxfpsEdit, SIGNAL ( textChanged ( const QString& ) ), this, SLOT ( setMaxFPS ( const QString& ) ) );
     connect ( dumpStateCheckBox, SIGNAL ( toggled ( bool ) ), this, SLOT ( dumpState ( bool ) ) );
     connect ( displayComputationTimeCheckBox, SIGNAL ( toggled ( bool ) ), this, SLOT ( displayComputationTime ( bool ) ) );
     connect ( exportGnuplotFilesCheckbox, SIGNAL ( toggled ( bool ) ), this, SLOT ( setExportGnuplot ( bool ) ) );
@@ -2076,8 +2078,11 @@ void RealGUI::playpauseGUI ( bool value )
     startButton->setOn ( value );
     if ( currentSimulation() )
         currentSimulation()->getContext()->setAnimate ( value );
-    if(value)
-        timerStep->start(0);
+    if (value)
+    {
+        timerStep->start();
+        throttle_lastframe = CTime::getRefTime(); // reset throttling
+    }
     else
         timerStep->stop();
 }
@@ -2130,7 +2135,6 @@ void RealGUI::interactionGUI ( bool )
 //called at each step of the rendering
 void RealGUI::step()
 {
-
     if (animateLockCounter>0)
     {
         std::cerr << "Step blocked by GUI Graph edit" << std::endl;
@@ -2143,6 +2147,37 @@ void RealGUI::step()
     if (currentGUIMode != 0 && !getViewer()->ready())
     {
         return;
+    }
+
+    if (maxFPS > 0)
+    {
+        static const ctime_t timeTicks = CTime::getRefTicksPerSec();
+        ctime_t now = CTime::getRefTime();
+        long long interval = (long long)(timeTicks / maxFPS);
+        long long diff = (long long)(now - throttle_lastframe);
+        if (diff >= 2 * interval)
+        {
+            //std::cerr << "Throttling disabled, simulation is more that twice too slow..." << std::endl;
+            throttle_lastframe = now;
+        }
+        else
+        {
+            if (diff < interval)
+            {
+                double waittime = (double)(interval - diff) / (double)timeTicks;
+                //std::cout << "WAIT " << waittime << std::endl;
+                if (waittime > 0.01)
+                {
+                    CTime::sleep(waittime - 0.01);
+                }
+                do
+                {
+                    now = CTime::getRefTime();
+                    diff = (long long)(now - throttle_lastframe);
+                } while (diff < interval);
+            }
+            throttle_lastframe += interval;
+        }
     }
 
     startDumpVisitor();
@@ -2197,6 +2232,39 @@ void RealGUI::setDt ( double value )
 void RealGUI::setDt ( const QString& value )
 {
     setDt ( value.toDouble() );
+}
+
+//------------------------------------
+
+// If not zero, throttle the simulation to never run faster that the given frames per second
+void RealGUI::setMaxFPS(double value)
+{
+    if (value != this->maxFPS)
+    {
+        throttle_lastframe = CTime::getRefTime(); // reset throttling
+    }
+    this->maxFPS = value;
+    // TODO: not precise enough in Qt4. Qt5 has Qt::PreciseTimer, could be used later
+    //timerStep->setInterval(maxFPS <= 0.0 ? 0 : (int)(1000.0/this->maxFPS));
+    if (value <= 0.0 || value >= 1000.0)
+    {
+        timerStep->setInterval(0);
+    }
+    else if (value >= 10.0)
+    {
+        timerStep->setInterval(1);
+    }
+    else
+    {
+        timerStep->setInterval(10);
+    }
+}
+
+//------------------------------------
+
+void RealGUI::setMaxFPS(const QString& value)
+{
+    setMaxFPS(value.toDouble());
 }
 
 //------------------------------------
