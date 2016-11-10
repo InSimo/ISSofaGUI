@@ -185,6 +185,7 @@ protected:
 #else
     QLabel* fpsLabel;
     QLabel* timeLabel;
+    QLabel* stepLabel;
 #endif
     QSignalMapper* guimodeSignalMapper;
     int currentGUIMode; ///< If -1, switch to mode 2 automatically if the application provides external image

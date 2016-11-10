@@ -370,8 +370,14 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     timeLabel = new QLabel ( "Time: 999.9999 s", statusBar() );
     timeLabel->setMinimumSize ( timeLabel->sizeHint() );
     timeLabel->clear();
+    
+    stepLabel = new QLabel("Step: 000000", statusBar());
+    stepLabel->setMinimumSize(stepLabel->sizeHint());
+    stepLabel->clear();
+
     statusBar()->addWidget ( fpsLabel );
     statusBar()->addWidget ( timeLabel );
+    statusBar()->addWidget ( stepLabel );
 #endif
 
     statWidget = new QSofaStatWidget(TabStats);
@@ -1559,12 +1565,22 @@ void RealGUI::eventNewTime()
         recorder->UpdateTime(currentSimulation());
 #else
     Node* root = currentSimulation();
-    if (root && timeLabel)
+    if (root)
     {
-        double time = root->getTime();
-        char buf[100];
-        sprintf ( buf, "Time: %.3g s", time );
-        timeLabel->setText ( buf );
+        if (timeLabel)
+        {
+            double time = root->getTime();
+            char buf[100];
+            snprintf(buf, 100, "Time: %.3g s", time);
+            timeLabel->setText(buf);
+        }
+        if (stepLabel)
+        {
+            unsigned step = static_cast<unsigned>( root->getTime() / root->getDt() );
+            char buf[100];
+            snprintf(buf, 100, "Step: %d", step);
+            stepLabel->setText(buf);
+        }
     }
 #endif
 }
