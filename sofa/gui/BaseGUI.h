@@ -110,6 +110,8 @@ public:
     virtual void sendMessage(const std::string & /*msgType*/,const std::string & /*msgValue*/) {}
     /// Force the displayed FPS value (if any)
     virtual void showFPS(double /*fps*/) {}
+    /// Set simulation loop maximum reachable frame rate  
+    virtual void setMaxFPS(double /*fpsMaxRate*/) {}
 
     virtual bool getCopyScreenRequest(CopyScreenInfo* /*info*/) { return false; }
     virtual void useCopyScreen(CopyScreenInfo* /*info*/) { }
