@@ -166,50 +166,51 @@ void QSofaListView::modifyUnlock(void* Id)
     map_modifyObjectWindow.erase( Id );
 }
 
-bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, bool bIsNode)
+bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode)
 {
-	if (!searchName_) return false;
+    if (!searchName_) return false;
 
-	bool match = false;
+    bool match = false;
 
-	emit Lock(true);
+    emit Lock(true);
 
-	if (bIsNode)
-	{
-		match = item->text(0).contains(filter_, Qt::CaseInsensitive);
-	}
-	else
-	{
-		QStringList list = item->text(0).split(' ');
+    if (bIsNode)
+    {
+        match = item->text(0).contains(filter, Qt::CaseInsensitive);
+    }
+    else
+    {
+        QStringList list = item->text(0).split(' ');
 
-		if (list.size() >= 2)
-		{
-			list.pop_front();
-			match = list.join(" ").contains(filter_, Qt::CaseInsensitive);
-		}
-	}
+        if (list.size() >= 2)
+        {
+            list.pop_front();
+            match = list.join(" ").contains(filter, Qt::CaseInsensitive);
+        }
 
-	emit Lock(false);
+    }
 
-	return match;
+    emit Lock(false);
+
+    return match;
 }
 
-bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, bool bIsNode)
+bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode)
 {
-	if (bIsNode || !searchType_) return false;
+    if (bIsNode || !searchType_) return false;
 
-	bool match = false;
+    bool match = false;
 
-	emit Lock(true);
+    emit Lock(true);
 
-	QStringList list = item->text(0).split(' ');
+    QStringList list = item->text(0).split(' ');
 
-	emit Lock(false);
+    emit Lock(false);
 
-	if (!list.isEmpty())
-		match = list.front().contains(filter_, Qt::CaseInsensitive);
+    if (!list.isEmpty())
+        match = list.front().contains(filter, Qt::CaseInsensitive);
 
-	return match;
+    return match;
 }
 
 bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, bool bIsNode)
@@ -218,10 +219,19 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
 
 	bool noOption = !searchName_ && !searchType_; // No option activated : ignore filter and display node anyway
 
-	bool display =	noOption || filter_.isEmpty() || 
-					(parentMatched && displayChildrenWhenParentMatches_) ||
-					nameMatchesFilter(item, bIsNode) ||
-					typeMatchesFilter(item, bIsNode);
+    bool display = noOption || filter_.isEmpty() ||
+        (parentMatched && displayChildrenWhenParentMatches_);
+    
+    if (!display)
+    {
+        QStringList filterList = filter_.split(' ');
+
+        display = true;
+        for (unsigned fl = 0; fl < filterList.size(); ++fl)
+        {
+            display &= nameMatchesFilter(item, filterList.at(fl), bIsNode) || typeMatchesFilter(item, filterList.at(fl), bIsNode);
+        }
+    }
 
 	emit Lock(false);
 
