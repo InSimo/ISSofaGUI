@@ -125,12 +125,14 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     buttonUpdate->setEnabled(false);
     showHelp = new QCheckBox( this, "showHelp" );
     showHelp->setText("&Help");
+    dataFilter = new QLineEdit(this, "data filter");
+
 #ifndef SOFAGUIQT_COMPACT
     showHelp->setChecked(true);
 #else
     showHelp->setChecked(false);
 #endif
-    QPushButton *buttonOk = new QPushButton( this, "buttonOk" );
+    buttonOk = new QPushButton( this, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
 
     QPushButton *buttonCancel = new QPushButton( this, "buttonCancel" );
@@ -139,6 +141,8 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     // displayWidget
     if (node)
     {
+        connect(dataFilter, SIGNAL(returnPressed()), this, SLOT(updateFullDisplay()));
+
         const sofa::core::objectmodel::Base::VecData& fields = node->getDataFields();
         const sofa::core::objectmodel::Base::VecLink& links = node->getLinks();
         
@@ -363,6 +367,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         QHBoxLayout *lineLayout = new QHBoxLayout( 0, 0, 6, "Button Layout");
         lineLayout->addWidget(buttonUpdate);
         lineLayout->addWidget(showHelp);
+        lineLayout->addWidget(dataFilter);
         QSpacerItem *Horizontal_Spacing = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
         lineLayout->addItem( Horizontal_Spacing );
 
@@ -559,6 +564,161 @@ void ModifyObject::updateListViewItem()
     name += data_->getOwner()->getName();
     QString newName(name.c_str());
     if (newName != currentName) parent->setText(0,newName);
+}
+
+//*******************************************************************************************************************
+
+void ModifyObject::updateFullDisplay()
+{
+    dialogTab->clear();
+    m_tabs.clear();
+
+    // displayWidget
+    if (node)
+    {
+        const sofa::core::objectmodel::Base::VecData& fields = node->getDataFields();
+        const sofa::core::objectmodel::Base::VecLink& links = node->getLinks();
+
+        std::map< std::string, std::vector<QTabulationModifyObject* > > groupTabulation;
+
+        //If we operate on a Node, we have to ...
+        bool isNode = (dynamic_cast< simulation::Node *>(node) != NULL);
+        if (isNode)
+        {
+            //if (dialogFlags_.REINIT_FLAG)
+            {
+                //add the widgets to apply some basic transformations
+
+                m_tabs.push_back(new QTabulationModifyObject(this, node, item_, 1));
+                groupTabulation[std::string("Property")].push_back(m_tabs.back());
+                connect(m_tabs.back(), SIGNAL(nodeNameModification(simulation::Node *)), this, SIGNAL(nodeNameModification(simulation::Node *)));
+
+                transformation = new QTransformationWidget(m_tabs.back(), QString("Transformation"));
+                m_tabs.back()->layout()->add(transformation);
+                m_tabs.back()->externalWidgetAddition(transformation->getNumWidgets());
+                connect(transformation, SIGNAL(TransformationDirty(bool)), buttonUpdate, SLOT(setEnabled(bool)));
+                connect(transformation, SIGNAL(TransformationDirty(bool)), this, SIGNAL(componentDirty(bool)));
+            }
+        }
+
+        std::vector<std::string> tabNames;
+        //Put first the Property Tab
+        //tabNames.push_back("Property");
+
+        for (sofa::core::objectmodel::Base::VecData::const_iterator it = fields.begin(); it != fields.end(); ++it)
+        {
+            core::objectmodel::BaseData* data = *it;
+            if (!data)
+            {
+                std::cerr << "ERROR: NULL Data in " << node->getName() << std::endl;
+                continue;
+            }
+
+            if (data->getName().empty()) continue; // ignore unnamed data
+
+            if (!data->getGroup())
+            {
+                std::cerr << "ERROR: NULL group for Data " << data->getName() << " in " << node->getName() << std::endl;
+                continue;
+            }
+
+            //For each Data of the current Object
+            //We determine where it belongs:
+            std::string currentGroup = data->getGroup();
+
+            if (currentGroup.empty()) currentGroup = "Property";
+
+            QString dataFilt = dataFilter->text();
+            if (!dataFilt.isEmpty())
+            {
+                QString qcurGroup(currentGroup.c_str());
+                QString qdatName(data->getName().c_str());
+                if (!qcurGroup.contains(dataFilt, Qt::CaseInsensitive)
+                    && !qdatName.contains(dataFilt, Qt::CaseInsensitive))
+                {
+                    continue;
+                }
+            }
+
+#ifdef DEBUG_GUI
+            std::cout << "GUI: add Data " << data->getName() << " in " << currentGroup << std::endl;
+#endif
+            QTabulationModifyObject* currentTab = NULL;
+            bool useScroll = (currentGroup[currentGroup.length() - 1] == '_');
+            std::vector<QTabulationModifyObject* > &tabs = groupTabulation[currentGroup];
+            bool newTab = false;
+            if (tabs.empty()) tabNames.push_back(currentGroup);
+            if (tabs.empty() || (!useScroll && tabs.back()->isFull()))
+            {
+                newTab = true;
+                m_tabs.push_back(new QTabulationModifyObject(this, node, item_, tabs.size() + 1));
+                tabs.push_back(m_tabs.back());
+            }
+            currentTab = tabs.back();
+            currentTab->addData(data, getFlags());
+            if (newTab)
+            {
+                connect(buttonUpdate, SIGNAL(clicked()), currentTab, SLOT(updateDataValue()));
+                connect(buttonOk, SIGNAL(clicked()), currentTab, SLOT(updateDataValue()));
+                connect(this, SIGNAL(updateDataWidgets()), currentTab, SLOT(updateWidgetValue()));
+                connect(showHelp, SIGNAL(toggled(bool)), currentTab, SLOT(showHelp(bool)));
+            
+                connect(currentTab, SIGNAL(TabDirty(bool)), buttonUpdate, SLOT(setEnabled(bool)));
+            }
+
+#ifdef DEBUG_GUI
+            std::cout << "GUI: added Data " << data->getName() << " in " << currentGroup << std::endl;
+#endif
+        }
+#ifdef DEBUG_GUI
+        std::cout << "GUI: end Data" << std::endl;
+#endif
+
+
+#ifdef DEBUG_GUI
+        std::cout << "GUI: end Link" << std::endl;
+#endif
+
+        for (std::vector<std::string>::const_iterator it = tabNames.begin(), itend = tabNames.end(); it != itend; ++it)
+        {
+            std::string groupName = *it;
+            std::vector<QTabulationModifyObject* > &tabs = groupTabulation[groupName];
+
+#ifdef SOFAGUIQT_SCROLL
+            bool useScroll = true;
+#else
+            bool useScroll = false;
+#endif
+            if (groupName[groupName.length() - 1] == '_')
+            {
+                groupName = std::string(groupName, 0, groupName.length() - 1);
+                useScroll = true;
+            }
+
+            for (unsigned int i = 0; i < tabs.size(); ++i)
+            {
+                QString nameTab;
+                if (tabs.size() == 1) nameTab = groupName.c_str();
+                else                  nameTab = QString(groupName.c_str()) + " " + QString::number(tabs[i]->getIndex()) + "/" + QString::number(tabs.size());
+#ifdef DEBUG_GUI
+                std::cout << "GUI: add Tab " << nameTab.ascii() << std::endl;
+#endif
+
+                if (!useScroll)
+                {
+                    dialogTab->addTab(tabs[i], nameTab);
+                }
+                else
+                {
+                    QScrollArea* scroll = new QScrollArea(this);
+                    tabs[i]->addStretch();
+                    scroll->setWidget(tabs[i]);
+                    scroll->setWidgetResizable(true);
+                    dialogTab->addTab(scroll, nameTab);
+                }
+            }
+        }
+    }
 }
 
 //**************************************************************************************************************************************

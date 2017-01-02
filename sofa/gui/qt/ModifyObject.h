@@ -175,6 +175,7 @@ public slots:
     void updateTables();
     virtual void updateValues();              //update the node with the values of the field
     void updateListViewItem();
+    void updateFullDisplay();
 signals:
     void updateDataWidgets();             // emitted eachtime updateValues is called to propagate the changes to the widgets.
     void objectUpdated();                 //update done
@@ -212,6 +213,9 @@ protected:
     QTabWidget *dialogTab;
     QPushButton *buttonUpdate;
     QCheckBox* showHelp;
+    QLineEdit* dataFilter;
+
+    QPushButton *buttonOk;
 
     //Widget specific to Node:
     //Transformation widget: translation, rotation, scale ( only experimental and deactivated)
