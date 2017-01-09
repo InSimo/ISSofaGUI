@@ -227,7 +227,7 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
         QStringList filterList = filter_.split(' ');
 
         display = true;
-        for (unsigned fl = 0; fl < filterList.size(); ++fl)
+        for (int fl = 0; fl < filterList.size(); ++fl)
         {
             display &= nameMatchesFilter(item, filterList.at(fl), bIsNode) || typeMatchesFilter(item, filterList.at(fl), bIsNode);
         }
