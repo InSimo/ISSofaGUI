@@ -42,7 +42,7 @@ using sofa::helper::Creator;
 using sofa::helper::fixed_array;
 using namespace sofa::defaulttype;
 
-SOFA_DECL_CLASS(GraphDataWidget);
+SOFA_DECL_CLASS(GraphDataWidget)
 
 
 Creator<DataWidgetFactory, GraphDataWidget< std::map< std::string, sofa::helper::vector<float> > > > DWClass_mapvectorf("graph",true);

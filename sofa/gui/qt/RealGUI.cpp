@@ -137,7 +137,7 @@ namespace gui
 namespace qt
 {
 
-SOFA_LINK_CLASS(ImageQt);
+SOFA_LINK_CLASS(ImageQt)
 
 
 #ifdef SOFA_QT4

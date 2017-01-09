@@ -63,7 +63,7 @@ void FilesRecentlyOpenedManager::setPath(const std::string &configFile)
     std::string filename;
     while (std::getline(filesStream, filename)) files.push_back(sofa::helper::system::DataRepository.getFile(filename));
     filesStream.close();
-};
+}
 
 void FilesRecentlyOpenedManager::writeFiles() const
 {

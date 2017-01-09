@@ -40,7 +40,7 @@ using sofa::helper::Creator;
 using sofa::helper::fixed_array;
 using namespace sofa::defaulttype;
 
-SOFA_DECL_CLASS(StructDataWidget);
+SOFA_DECL_CLASS(StructDataWidget)
 
 Creator<DataWidgetFactory, SimpleDataWidget< RigidCoord<2,float> > > DWClass_RigidCoord2f("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< RigidCoord<2,double> > > DWClass_RigidCoord2d("default",true);

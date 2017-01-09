@@ -56,7 +56,7 @@ namespace qt
 
 class SOFA_SOFAGUIQT_API DisplayFlagWidget : public Q3ListView
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
 
     enum VISUAL_FLAG
@@ -104,7 +104,7 @@ protected:
 
 class SOFA_SOFAGUIQT_API DisplayFlagsDataWidget : public TDataWidget< sofa::core::visual::DisplayFlags >
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     typedef sofa::core::visual::DisplayFlags DisplayFlags;
     DisplayFlagsDataWidget(QWidget* parent, const char* name, core::objectmodel::Data<DisplayFlags>* data, bool root = false)
