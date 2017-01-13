@@ -565,6 +565,19 @@ public:
             }
         }
 
+        for (int y = 0; y<rows; ++y)
+            for (int x = 0; x<cols; ++x)
+            {
+                int idx = y*cols + x;
+                if (idx < (int)cellsLastValue.size())
+                {
+                    if (cellsLastValue[idx] != getCellValue(y, x))
+                    {
+                        cellsLastValue[idx] = getCellValue(y, x);
+                    }
+                }
+            }
+
     }
 
     bool checkDirty()
