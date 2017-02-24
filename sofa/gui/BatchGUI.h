@@ -27,6 +27,7 @@
 
 #include "BaseGUI.h"
 #include <sofa/simulation/common/Node.h>
+#include <chrono>
 
 namespace sofa
 {
@@ -73,11 +74,14 @@ protected:
     void startDumpVisitor();
     void stopDumpVisitor();
 
+    void saveStepDurationLog(const std::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const;
+
     std::ostringstream m_dumpVisitorStream;
 
     sofa::simulation::Node::SPtr groot;
     std::string filename;
     static unsigned int nbIter;
+    static bool logStepDuration;
 };
 
 } // namespace gui

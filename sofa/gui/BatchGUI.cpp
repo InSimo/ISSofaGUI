@@ -28,8 +28,8 @@
 #ifdef SOFA_SMP
 #include <athapascan-1>
 #endif
-#include <sofa/helper/system/thread/CTime.h>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 namespace sofa
@@ -40,6 +40,7 @@ namespace gui
 
 const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 1000;
 unsigned int BatchGUI::nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
+bool BatchGUI::logStepDuration = false;
 
 BatchGUI::BatchGUI()
     : groot(NULL)
@@ -54,26 +55,44 @@ int BatchGUI::mainLoop()
 {
     if (groot)
     {
-
+        typedef std::chrono::steady_clock::time_point time_point;
         sofa::simulation::getSimulation()->animate(groot.get());
-        //As no visualization is done by the Batch GUI, these two lines are not necessary.
+        //As no visualization is done by the Batch GUI, this line is not necessary.
         sofa::simulation::getSimulation()->updateVisual(groot.get());
         std::cout << "Computing "<<nbIter<<" iterations." << std::endl;
-        sofa::simulation::Visitor::ctime_t rtfreq = sofa::helper::system::thread::CTime::getRefTicksPerSec();
-        sofa::simulation::Visitor::ctime_t tfreq = sofa::helper::system::thread::CTime::getTicksPerSec();
-        sofa::simulation::Visitor::ctime_t rt = sofa::helper::system::thread::CTime::getRefTime();
-        sofa::simulation::Visitor::ctime_t t = sofa::helper::system::thread::CTime::getFastTime();
-        for (unsigned int i=0; i<nbIter; i++)
-        {
-            sofa::simulation::getSimulation()->animate(groot.get());
-            //As no visualization is done by the Batch GUI, these two lines are not necessary.
-            sofa::simulation::getSimulation()->updateVisual(groot.get());
-        }
-        t = sofa::helper::system::thread::CTime::getFastTime()-t;
-        rt = sofa::helper::system::thread::CTime::getRefTime()-rt;
 
-        std::cout << nbIter << " iterations done in "<< ((double)t)/((double)tfreq) << " s ( " << (((double)tfreq)*nbIter)/((double)t) << " FPS)." << std::endl;
-        std::cout << nbIter << " iterations done in "<< ((double)rt)/((double)rtfreq) << " s ( " << (((double)rtfreq)*nbIter)/((double)rt) << " FPS)." << std::endl;
+        if (!logStepDuration)
+        {
+            const time_point startT = std::chrono::steady_clock::now();
+
+            for (unsigned int i = 0; i < nbIter; i++)
+            {
+                sofa::simulation::getSimulation()->animate(groot.get());
+                //As no visualization is done by the Batch GUI, this line is not necessary.
+                sofa::simulation::getSimulation()->updateVisual(groot.get());
+            }
+
+            const std::chrono::duration<double> duration = std::chrono::steady_clock::now() - startT;
+
+            std::cout << nbIter << " iterations done in " << duration.count() << " s ( " << nbIter / duration.count() << " FPS)." << std::endl;
+        }
+        else
+        {
+            sofa::helper::vector< std::chrono::duration<double, std::milli> > stepDurationVec;
+            stepDurationVec.reserve(nbIter);
+            time_point previousT = std::chrono::steady_clock::now();
+            for (unsigned int i = 0; i < nbIter; i++)
+            {
+                sofa::simulation::getSimulation()->animate(groot.get());
+                //As no visualization is done by the Batch GUI, this line is not necessary.
+                sofa::simulation::getSimulation()->updateVisual(groot.get());
+                const time_point currentT = std::chrono::steady_clock::now();
+                stepDurationVec.push_back(currentT - previousT);
+                previousT = currentT;
+            }
+
+            saveStepDurationLog(stepDurationVec);
+        }
     }
     return 0;
 }
@@ -131,6 +150,37 @@ void BatchGUI::stopDumpVisitor()
 #endif
 }
 
+void BatchGUI::saveStepDurationLog(const std::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const
+{
+    std::ofstream stepDurationFile;
+    const time_t timeNow = time(0);
+    struct tm * timeInfo = localtime(&timeNow);
+    std::ostringstream oss;
+    oss << std::setfill('0')
+        << std::setw(4) << (1900 + timeInfo->tm_year) << "_"
+        << std::setw(2) << (timeInfo->tm_mon + 1) << "_"  // Month
+        << std::setw(2) << timeInfo->tm_mday << "__" // Day
+        << std::setw(2) << timeInfo->tm_hour << "_" // Hours
+        << std::setw(2) << timeInfo->tm_min << "_"  // Minutes
+        << std::setw(2) << timeInfo->tm_sec;        // Seconds
+    const std::string fileName = "StepDurationLog_" + oss.str() + ".txt";
+    stepDurationFile.open(fileName);
+    if (stepDurationFile.is_open())
+    {
+        stepDurationFile.clear();
+        for (const auto& stepDuration : stepDurationVec)
+        {
+            stepDurationFile << stepDuration.count() << std::endl;
+        }
+        stepDurationFile.close();
+        std::cout << "File " << fileName << " generated.\n";
+    }
+    else
+    {
+        std::cerr << "Can't create " << fileName << " file.\n";
+    }
+}
+
 sofa::simulation::Node* BatchGUI::currentSimulation()
 {
     return groot.get();
@@ -155,6 +205,10 @@ int BatchGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& opti
             iss.str(opt.substr(cursor+std::string("nbIterations=").length(), std::string::npos));
             iss >> nbIterations;
             setNumIterations(nbIterations);
+        }
+        else if (opt.find("logStepDuration") != std::string::npos)
+        {
+            logStepDuration = true;
         }
     }
     return 0;
