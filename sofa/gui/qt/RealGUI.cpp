@@ -1576,9 +1576,8 @@ void RealGUI::eventNewTime()
         }
         if (stepLabel)
         {
-            unsigned step = static_cast<unsigned>( root->getTime() / root->getDt() );
             char buf[100];
-            snprintf(buf, 100, "Step: %d", step);
+            snprintf(buf, 100, "Step: %d", frameCounter);
             stepLabel->setText(buf);
         }
     }
