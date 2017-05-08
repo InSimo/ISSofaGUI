@@ -495,8 +495,8 @@ void SimpleGUI::initializeGL(void)
 
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         //Load texture for logo
-        texLogo = new helper::gl::Texture(new helper::io::ImageBMP( sofa::helper::system::DataRepository.getFile("textures/SOFA_logo.bmp")));
-        texLogo->init();
+        //texLogo = new helper::gl::Texture(new helper::io::ImageBMP( sofa::helper::system::DataRepository.getFile("textures/SOFA_logo.bmp")));
+        //texLogo->init();
 
 #ifndef PS3
         glEnableClientState(GL_VERTEX_ARRAY);
