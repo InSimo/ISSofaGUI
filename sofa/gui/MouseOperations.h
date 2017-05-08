@@ -117,7 +117,7 @@ public:
     static std::string getDescription() {return "Attach an object to the Mouse";}
 
 protected:
-    virtual void setSetting(sofa::component::configurationsetting::MouseButtonSetting* s) { Operation::setSetting(s); setting = dynamic_cast<sofa::component::configurationsetting::AttachBodyButtonSetting*>(s); }
+    virtual void setSetting(sofa::component::configurationsetting::MouseButtonSetting* s) { Operation::setSetting(s); setting = sofa::component::configurationsetting::AttachBodyButtonSetting::DynamicCast(s); }
     virtual std::string defaultPerformerType();
     virtual void configurePerformer(sofa::component::collision::InteractionPerformer* p);
 

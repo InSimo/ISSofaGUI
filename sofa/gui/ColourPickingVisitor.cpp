@@ -111,9 +111,9 @@ void ColourPickingVisitor::processCollisionModel(simulation::Node*  node , core:
     using namespace core::objectmodel;
     TriangleModel* tmodel = NULL;
     SphereModel*   smodel = NULL;
-    if((tmodel = dynamic_cast<TriangleModel*>(o)) != NULL )
+    if((tmodel = TriangleModel::DynamicCast(o)) != NULL )
         processTriangleModel(node,tmodel);
-    if( (smodel = dynamic_cast<SphereModel*>(o) ) != NULL )
+    if( (smodel = SphereModel::DynamicCast(o) ) != NULL )
         processSphereModel(node,smodel);
 }
 

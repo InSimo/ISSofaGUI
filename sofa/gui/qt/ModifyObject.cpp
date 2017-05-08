@@ -118,7 +118,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     generalLayout->addWidget(dialogTab);
     connect(dialogTab, SIGNAL( currentChanged( QWidget*)), this, SLOT( updateTables()));
 
-    bool isNode = (dynamic_cast< simulation::Node *>(node) != NULL);
+    bool isNode = (simulation::Node::DynamicCast(node) != NULL);
 
     buttonUpdate = new QPushButton( this, "buttonUpdate" );
     buttonUpdate->setText("&Update");
@@ -315,7 +315,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 
 #ifdef SOFA_HAVE_QWT
         //Energy Widget
-        if (simulation::Node* real_node = dynamic_cast< simulation::Node* >(node))
+        if (simulation::Node* real_node = simulation::Node::DynamicCast(node))
         {
             if (dialogFlags_.REINIT_FLAG /*&& (!real_node->mass.empty() || !real_node->forceField.empty() )*/ )
             {
@@ -325,7 +325,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         }
 
         //Momentum Widget
-        if (simulation::Node* real_node = dynamic_cast< simulation::Node* >(node))
+        if (simulation::Node* real_node = simulation::Node::DynamicCast(node))
         {
             if (dialogFlags_.REINIT_FLAG && (!real_node->mass.empty() ) )
             {
@@ -497,11 +497,11 @@ void ModifyObject::updateValues()
     //Make the update of all the values
     if (node)
     {
-        bool isNode =( dynamic_cast< simulation::Node *>(node) != 0);
+        bool isNode =( simulation::Node::DynamicCast(node) != 0);
         //If the current element is a node of the graph, we first apply the transformations
         if (dialogFlags_.REINIT_FLAG && isNode)
         {
-            simulation::Node* current_node = dynamic_cast< simulation::Node *>(node);
+            simulation::Node* current_node = simulation::Node::DynamicCast(node);
             if (!transformation->isDefaultValues())
                 transformation->applyTransformation(current_node);
             transformation->setDefaultValues();
@@ -511,11 +511,11 @@ void ModifyObject::updateValues()
 
         if (dialogFlags_.REINIT_FLAG)
         {
-            if (sofa::core::objectmodel::BaseObject *obj = dynamic_cast< sofa::core::objectmodel::BaseObject* >(node))
+            if (sofa::core::objectmodel::BaseObject *obj = sofa::core::objectmodel::BaseObject::DynamicCast(node))
             {
                 obj->reinit();
             }
-            else if (simulation::Node *n = dynamic_cast< simulation::Node *>(node)) n->reinit(sofa::core::ExecParams::defaultInstance());
+            else if (simulation::Node *n = simulation::Node::DynamicCast(node)) n->reinit(sofa::core::ExecParams::defaultInstance());
         }
 
     }
@@ -577,12 +577,12 @@ void ModifyObject::updateFullDisplay()
     if (node)
     {
         const sofa::core::objectmodel::Base::VecData& fields = node->getDataFields();
-        const sofa::core::objectmodel::Base::VecLink& links = node->getLinks();
+        //const sofa::core::objectmodel::Base::VecLink& links = node->getLinks();
 
         std::map< std::string, std::vector<QTabulationModifyObject* > > groupTabulation;
 
         //If we operate on a Node, we have to ...
-        bool isNode = (dynamic_cast< simulation::Node *>(node) != NULL);
+        bool isNode = (simulation::Node::DynamicCast(node) != NULL);
         if (isNode)
         {
             //if (dialogFlags_.REINIT_FLAG)

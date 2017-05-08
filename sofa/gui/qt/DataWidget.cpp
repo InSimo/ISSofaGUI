@@ -97,8 +97,8 @@ DataWidget::updateDataValue()
         if (hasOwner)
         {
             std::string path;
-            BaseNode* ownerAsNode = dynamic_cast<BaseNode*>(baseData->getOwner() );
-            BaseObject* ownerAsObject = dynamic_cast<BaseObject*>(baseData->getOwner() );
+            BaseNode* ownerAsNode = BaseNode::DynamicCast(baseData->getOwner() );
+            BaseObject* ownerAsObject = BaseObject::DynamicCast(baseData->getOwner() );
 
             if (ownerAsNode)
             {
@@ -113,7 +113,7 @@ DataWidget::updateDataValue()
                     objectPath = master->getName() + "/" + objectPath;
                     master = master->getMaster();
                 }
-                BaseNode* n = dynamic_cast<BaseNode*>(ownerAsObject->getContext());
+                BaseNode* n = BaseNode::DynamicCast(ownerAsObject->getContext());
                 if (n)
                 {
                     path = n->getPathName() + std::string("/") + objectPath + std::string(".") + baseData->getName(); // TODO: compute relative path

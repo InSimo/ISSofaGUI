@@ -125,7 +125,7 @@ void AttachOperation::configurePerformer(sofa::component::collision::Interaction
     Operation::configurePerformer(p);
     /*
         //Configuration
-        component::collision::AttachBodyPerformerConfiguration *performerConfiguration=dynamic_cast<component::collision::AttachBodyPerformerConfiguration*>(p);
+        component::collision::AttachBodyPerformerConfiguration *performerConfiguration=component::collision::AttachBodyPerformerConfiguration::DynamicCast(p);
         if (performerConfiguration)
         {
             performerConfiguration->setStiffness(getStiffness());

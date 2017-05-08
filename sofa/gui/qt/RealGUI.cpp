@@ -670,7 +670,7 @@ void RealGUI::pmlOpen ( const char* filename, bool /*resetView*/ )
         return;
     }
     this->unloadScene();
-    Node *simuNode = dynamic_cast< Node *> (simulation::getSimulation()->load ( scene.c_str() ));
+    Node *simuNode = Node::DynamicCast(simulation::getSimulation()->load ( scene.c_str() ));
     getSimulation()->init(simuNode);
     if ( simuNode )
     {

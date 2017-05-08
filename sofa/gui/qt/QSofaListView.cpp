@@ -141,7 +141,7 @@ void QSofaListView::Clear(Node* rootNode)
             graph_iterator != graphListener_->items.end();
             ++graph_iterator)
     {
-        Node* node = dynamic_cast< Node* >(graph_iterator->first);
+        Node* node = Node::DynamicCast(graph_iterator->first);
         if (node!=NULL && !node->isActive())
         {
             object_.ptr.Node = node;
@@ -244,7 +244,7 @@ bool QSofaListView::isItemANode(Q3ListViewItem* item)
 	Node* node;
 
 	base = graphListener_->findObject(item);
-	node = dynamic_cast<Node*>(base);
+	node = Node::DynamicCast(base);
 
 	return node != NULL;
 }
@@ -382,10 +382,10 @@ void QSofaListView::updateMatchingObjectmodel(Q3ListViewItem* item)
             object_.type = typeData;
             return;
         }
-        node = dynamic_cast<Node*>(base);
+        node = Node::DynamicCast(base);
         if( node == NULL)
         {
-            object = dynamic_cast<BaseObject*>(base);
+            object = BaseObject::DynamicCast(base);
             object_.ptr.Object = object;
             object_.type = typeObject;
         }
@@ -404,7 +404,7 @@ void QSofaListView::updateMatchingObjectmodel()
 }
 void QSofaListView::Freeze()
 {
-    Node* groot = dynamic_cast<Node*>( graphListener_->findObject(firstChild()) );
+    Node* groot = Node::DynamicCast( graphListener_->findObject(firstChild()) );
 
     assert(groot);
     graphListener_->freeze(groot);
@@ -412,7 +412,7 @@ void QSofaListView::Freeze()
 
 void QSofaListView::Unfreeze()
 {
-    Node* groot = dynamic_cast<Node*>(graphListener_->findObject(firstChild()) );
+    Node* groot = Node::DynamicCast(graphListener_->findObject(firstChild()) );
     assert(groot);
     graphListener_->unfreeze(groot);
 }
@@ -770,7 +770,7 @@ bool QSofaListView::isNodeErasable ( BaseNode* node)
 
 void QSofaListView::Export()
 {
-    Node* root = dynamic_cast<Node*>(graphListener_->findObject(firstChild()));
+    Node* root = Node::DynamicCast(graphListener_->findObject(firstChild()));
     assert(root);
     GenGraphForm* form = new sofa::gui::qt::GenGraphForm;
     form->setScene ( root );
@@ -800,7 +800,7 @@ void QSofaListView::loadObject ( std::string path, double dx, double dy, double 
         {
             if ( ( *it ).second->itemPos() == 0 ) //Root node position
             {
-                object_.ptr.Node = dynamic_cast< sofa::simulation::Node *> ( ( *it ).first );
+                object_.ptr.Node = sofa::simulation::Node::DynamicCast( ( *it ).first );
                 object_.type = typeNode;
                 break;
             }
@@ -820,7 +820,7 @@ void QSofaListView::loadObject ( std::string path, double dx, double dy, double 
     //std::cout << "Initializing objects"<<std::endl;
     if ( !xml->init() )  std::cerr << "Objects initialization failed."<<std::endl;
 
-    Node* new_node = dynamic_cast<Node*> ( xml->getObject() );
+    Node* new_node = Node::DynamicCast( xml->getObject() );
     if ( new_node == NULL )
     {
         std::cerr << "Objects initialization failed."<<std::endl;

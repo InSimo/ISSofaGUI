@@ -131,8 +131,8 @@ void PickHandler::init(core::objectmodel::BaseNode* root)
 
 
     //get a node of scene (root), create a new child (mouseNode), config it, then detach it from scene by default
-    //Node *root = dynamic_cast<Node*>(simulation::getSimulation()->getContext());
-    mouseNode = dynamic_cast<simulation::Node*>(root)->createChild("Mouse");
+    //Node *root = Node::DynamicCast(simulation::getSimulation()->getContext());
+    mouseNode = simulation::Node::DynamicCast(root)->createChild("Mouse");
 
     mouseContainer = sofa::core::objectmodel::New<MouseContainer>(); mouseContainer->resize(1);
     mouseContainer->setName("MousePosition");
@@ -470,7 +470,7 @@ component::collision::BodyPicked PickHandler::findCollisionUsingBruteForce(const
     // Look for particles hit by this ray
 //  std::cerr<<"PickHandler::findCollisionUsingBruteForce" << std::endl;
     simulation::MechanicalPickParticlesVisitor picker(sofa::core::ExecParams::defaultInstance() /* PARAMS FIRST */, origin, direction, maxLength, 0 );
-    //core::objectmodel::BaseNode* rootNode = mouseNode->getRoot(); //dynamic_cast<core::objectmodel::BaseNode*>(sofa::simulation::getSimulation()->getContext());
+    //core::objectmodel::BaseNode* rootNode = mouseNode->getRoot(); //core::objectmodel::BaseNode::DynamicCast(sofa::simulation::getSimulation()->getContext());
 
     if (rootNode) picker.execute(rootNode->getContext());
     else std::cerr << "ERROR: root node not found." << std::endl;
@@ -510,11 +510,11 @@ component::collision::BodyPicked PickHandler::findCollisionUsingColourCoding(con
         decodeCollisionElement(color,result);
         renderCallback->render(ColourPickingVisitor::ENCODE_RELATIVEPOSITION );
         glReadPixels(x,y,1,1,_fboParams.colorFormat,_fboParams.colorType,color.elems);
-        if( ( tmodel = dynamic_cast<TriangleModel*>(result.body) ) != NULL )
+        if( ( tmodel = TriangleModel::DynamicCast(result.body) ) != NULL )
         {
             decodePosition(result,color,tmodel,result.indexCollisionElement);
         }
-        if( ( smodel = dynamic_cast<SphereModel*>(result.body)) != NULL)
+        if( ( smodel = SphereModel::DynamicCast(result.body)) != NULL)
         {
             decodePosition(result, color,smodel,result.indexCollisionElement);
         }

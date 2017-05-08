@@ -61,52 +61,52 @@ QPixmap* getPixmap(core::objectmodel::Base* obj)
     using namespace sofa::simulation::Colors;
     unsigned int flags=0;
 
-    if (dynamic_cast<core::objectmodel::BaseNode*>(obj))
+    if (core::objectmodel::BaseNode::DynamicCast(obj))
     {
         static QPixmap pixNode((const char**)iconnode_xpm);
         return &pixNode;
         //flags |= 1 << NODE;
     }
-    else if (dynamic_cast<core::objectmodel::BaseObject*>(obj))
+    else if (core::objectmodel::BaseObject::DynamicCast(obj))
     {
-        if (dynamic_cast<core::objectmodel::ContextObject*>(obj))
+        if (core::objectmodel::ContextObject::DynamicCast(obj))
             flags |= 1 << CONTEXT;
-        if (dynamic_cast<core::BehaviorModel*>(obj))
+        if (core::BehaviorModel::DynamicCast(obj))
             flags |= 1 << BMODEL;
-        if (dynamic_cast<core::CollisionModel*>(obj))
+        if (core::CollisionModel::DynamicCast(obj))
             flags |= 1 << CMODEL;
-        if (dynamic_cast<core::behavior::BaseMechanicalState*>(obj))
+        if (core::behavior::BaseMechanicalState::DynamicCast(obj))
             flags |= 1 << MMODEL;
-        if (dynamic_cast<core::behavior::BaseProjectiveConstraintSet*>(obj))
+        if (core::behavior::BaseProjectiveConstraintSet::DynamicCast(obj))
             flags |= 1 << PROJECTIVECONSTRAINTSET;
-        if (dynamic_cast<core::behavior::BaseConstraintSet*>(obj))
+        if (core::behavior::BaseConstraintSet::DynamicCast(obj))
             flags |= 1 << CONSTRAINTSET;
-        if (dynamic_cast<core::behavior::BaseInteractionForceField*>(obj) &&
-            dynamic_cast<core::behavior::BaseInteractionForceField*>(obj)->getMechModel1()!=dynamic_cast<core::behavior::BaseInteractionForceField*>(obj)->getMechModel2())
+        if (core::behavior::BaseInteractionForceField::DynamicCast(obj) &&
+            core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel1()!=core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel2())
             flags |= 1 << IFFIELD;
-        else if (dynamic_cast<core::behavior::BaseForceField*>(obj))
+        else if (core::behavior::BaseForceField::DynamicCast(obj))
             flags |= 1 << FFIELD;
-        if (dynamic_cast<core::behavior::BaseAnimationLoop*>(obj)
-            || dynamic_cast<core::behavior::OdeSolver*>(obj))
+        if (core::behavior::BaseAnimationLoop::DynamicCast(obj)
+            || core::behavior::OdeSolver::DynamicCast(obj))
             flags |= 1 << SOLVER;
-        if (dynamic_cast<core::collision::Pipeline*>(obj)
-            || dynamic_cast<core::collision::Intersection*>(obj)
-            || dynamic_cast<core::collision::Detection*>(obj)
-            || dynamic_cast<core::collision::ContactManager*>(obj)
-            || dynamic_cast<core::collision::CollisionGroupManager*>(obj))
+        if (core::collision::Pipeline::DynamicCast(obj)
+            || core::collision::Intersection::DynamicCast(obj)
+            || core::collision::Detection::DynamicCast(obj)
+            || core::collision::ContactManager::DynamicCast(obj)
+            || core::collision::CollisionGroupManager::DynamicCast(obj))
             flags |= 1 << COLLISION;
-        if (dynamic_cast<core::BaseMapping*>(obj))
-            flags |= 1 << ((dynamic_cast<core::BaseMapping*>(obj))->isMechanical()?MMAPPING:MAPPING);
-        if (dynamic_cast<core::behavior::BaseMass*>(obj))
+        if (core::BaseMapping::DynamicCast(obj))
+            flags |= 1 << ((core::BaseMapping::DynamicCast(obj))->isMechanical()?MMAPPING:MAPPING);
+        if (core::behavior::BaseMass::DynamicCast(obj))
             flags |= 1 << MASS;
-        if (dynamic_cast<core::topology::Topology *>(obj)
-            || dynamic_cast<core::topology::BaseTopologyObject *>(obj) )
+        if (core::topology::Topology::DynamicCast(obj)
+            || core::topology::BaseTopologyObject::DynamicCast(obj) )
             flags |= 1 << TOPOLOGY;
-        if (dynamic_cast<core::loader::BaseLoader*>(obj))
+        if (core::loader::BaseLoader::DynamicCast(obj))
             flags |= 1 << LOADER;
-        if (dynamic_cast<core::objectmodel::ConfigurationSetting*>(obj))
+        if (core::objectmodel::ConfigurationSetting::DynamicCast(obj))
             flags |= 1 << CONFIGURATIONSETTING;
-        if (dynamic_cast<core::visual::VisualModel*>(obj) && !flags)
+        if (core::visual::VisualModel::DynamicCast(obj) && !flags)
             flags |= 1 << VMODEL;
         if (!flags)
             flags |= 1 << OBJECT;
@@ -333,7 +333,7 @@ void GraphListenerQListView::addObject(Node* parent, core::objectmodel::BaseObje
         std::string::size_type pos = name.find('<');
         if (pos != std::string::npos)
             name.erase(pos);
-        if (!dynamic_cast<core::objectmodel::ConfigurationSetting*>(object))
+        if (!core::objectmodel::ConfigurationSetting::DynamicCast(object))
         {
             name += "  ";
             name += object->getName();
@@ -433,7 +433,7 @@ void GraphListenerQListView::addSlave(core::objectmodel::BaseObject* master, cor
         std::string::size_type pos = name.find('<');
         if (pos != std::string::npos)
             name.erase(pos);
-        if (!dynamic_cast<core::objectmodel::ConfigurationSetting*>(slave))
+        if (!core::objectmodel::ConfigurationSetting::DynamicCast(slave))
         {
             name += "  ";
             name += slave->getName();
