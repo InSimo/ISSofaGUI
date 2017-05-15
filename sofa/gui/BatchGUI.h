@@ -74,7 +74,7 @@ protected:
     void startDumpVisitor();
     void stopDumpVisitor();
 
-    void saveStepDurationLog(const std::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const;
+    void saveStepDurationLog(const sofa::helper::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const;
 
     std::ostringstream m_dumpVisitorStream;
 

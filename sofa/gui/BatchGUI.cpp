@@ -150,7 +150,7 @@ void BatchGUI::stopDumpVisitor()
 #endif
 }
 
-void BatchGUI::saveStepDurationLog(const std::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const
+void BatchGUI::saveStepDurationLog(const sofa::helper::vector<std::chrono::duration<double, std::milli>>& stepDurationVec) const
 {
     std::ofstream stepDurationFile;
     const time_t timeNow = time(0);

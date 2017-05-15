@@ -128,9 +128,9 @@ void ColourPickingVisitor::processTriangleModel(simulation::Node * node, sofa::c
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
 
-    helper::vector<Vector3> points;
-    helper::vector<Vector3> normals;
-    helper::vector< Vec<4,float> > colours;
+    sofa::helper::vector<Vector3> points;
+    sofa::helper::vector<Vector3> normals;
+    sofa::helper::vector< Vec<4,float> > colours;
     helper::vector<core::CollisionModel*> listCollisionModel;
     helper::vector<core::CollisionModel*>::iterator iter;
     float r,g;
