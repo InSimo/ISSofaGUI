@@ -25,6 +25,7 @@
 #include "QDataDescriptionWidget.h"
 
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/helper/system/SetDirectory.h>
 
 #ifdef SOFA_QT4
 #include <QHBoxLayout>
@@ -69,6 +70,32 @@ QDataDescriptionWidget::QDataDescriptionWidget(QWidget* parent, core::objectmode
         {
             new QLabel(QString("Template"), box);
             (new QLabel(QString(object->getTemplateName().c_str()), box))->setMinimumWidth(20);
+        }
+        if (!object->getSourceFileName().empty())
+        {
+            new QLabel(QString("From"), box);
+            std::string path = object->getSourceFileName();
+            std::string filename = sofa::helper::system::SetDirectory::GetFileName(path.c_str());
+            std::string suffix;
+            std::pair<int,int> pos = object->getSourceFilePos();
+            if (pos.first || pos.second)
+            {
+                suffix += ':';
+                suffix += std::to_string(pos.first);
+                if (pos.second)
+                {
+                    suffix += ':';
+                    suffix += std::to_string(pos.second);
+                }
+            }
+            std::string text = filename + suffix;
+            if (path != filename)
+            {
+                text += '\n';
+                text += path;
+                text += suffix;
+            }
+            (new QLabel(QString(text.c_str()), box))->setMinimumWidth(20);
         }
 
         tabLayout->addWidget( box );

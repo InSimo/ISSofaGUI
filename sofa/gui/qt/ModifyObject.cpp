@@ -149,6 +149,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         std::map< std::string, std::vector<QTabulationModifyObject* > > groupTabulation;
 
         //If we operate on a Node, we have to ...
+#if 0
         if(isNode)
         {
             if (dialogFlags_.REINIT_FLAG)
@@ -166,6 +167,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
                 connect( transformation, SIGNAL(TransformationDirty(bool)), this, SIGNAL( componentDirty(bool) ) );
             }
         }
+#endif
 
         std::vector<std::string> tabNames;
         //Put first the Property Tab
@@ -313,7 +315,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             }
         }
 
-#ifdef SOFA_HAVE_QWT
+#if 0 //def SOFA_HAVE_QWT
         //Energy Widget
         if (simulation::Node* real_node = simulation::Node::DynamicCast(node))
         {
