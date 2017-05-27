@@ -118,7 +118,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
     generalLayout->addWidget(dialogTab);
     connect(dialogTab, SIGNAL( currentChanged( QWidget*)), this, SLOT( updateTables()));
 
-    bool isNode = (simulation::Node::DynamicCast(node) != NULL);
+    //bool isNode = (simulation::Node::DynamicCast(node) != NULL);
 
     buttonUpdate = new QPushButton( this, "buttonUpdate" );
     buttonUpdate->setText("&Update");
