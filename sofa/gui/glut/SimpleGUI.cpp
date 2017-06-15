@@ -47,11 +47,13 @@
 #include <sofa/defaulttype/LaparoscopicRigidTypes.h>
 #include <sofa/defaulttype/BoundingBox.h>
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/simulation/common/GUIFactory.h>
 
 #include "../OperationFactory.h"
 #include "../MouseOperations.h"
 
 #include <sofa/simulation/common/PropagateEventVisitor.h>
+
 #ifdef SOFA_SMP
 #include <SofaBaseVisual/VisualModelImpl.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
@@ -74,6 +76,22 @@ namespace gui
 
 namespace glut
 {
+
+class SimpleGUICreator : public sofa::simulation::gui::GUIFactory::Creator
+{
+public:
+    void init()
+    {
+        SimpleGUI::InitGUI();
+    }
+
+    sofa::simulation::gui::BaseGUI* create()
+    {
+        return SimpleGUI::CreateGUI();
+    }
+};
+
+int simpleGuiPluginId = sofa::simulation::gui::RegisterGUI<SimpleGUI, SimpleGUICreator>("SofaGuiSimpleGUI", "SofaGUI SimpleGUI");
 
 using std::cout;
 using std::endl;
@@ -168,10 +186,8 @@ void SimpleGUI::redraw()
     glutPostRedisplay();
 }
 
-int SimpleGUI::closeGUI()
+void SimpleGUI::initialize()
 {
-    delete this;
-    return 0;
 }
 
 
@@ -181,7 +197,7 @@ namespace SimpleGUIInternals {
   static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
 }
 
-int SimpleGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*options*/)
+int SimpleGUI::InitGUI()
 {
     // Replace generic visual models with OglModel
     sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
@@ -189,7 +205,7 @@ int SimpleGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*o
     return 0;
 }
 
-BaseGUI* SimpleGUI::CreateGUI(const char* /*name*/, const std::vector<std::string>& /*options*/, sofa::simulation::Node::SPtr groot, const char* filename)
+simulation::gui::BaseGUI* SimpleGUI::CreateGUI()
 {
 
     glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE );
@@ -228,7 +244,6 @@ BaseGUI* SimpleGUI::CreateGUI(const char* /*name*/, const std::vector<std::strin
     glutPassiveMotionFunc ( glut_motion );
 	
 	SimpleGUI* gui = new SimpleGUI();
-    gui->setScene(groot, filename);
 
     gui->initializeGL();
 #else
@@ -238,7 +253,6 @@ BaseGUI* SimpleGUI::CreateGUI(const char* /*name*/, const std::vector<std::strin
 	psglGetDeviceDimensions(psglGetCurrentDevice(), &screen_width, &screen_height);
 	
 	SimpleGUI* gui = new SimpleGUI();
-    gui->setScene(groot, filename);
 
     gui->initializeGL();
 	gui->resizeGL(screen_width, screen_height);

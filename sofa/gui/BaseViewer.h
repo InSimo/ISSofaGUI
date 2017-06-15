@@ -59,6 +59,7 @@
 #include <sofa/simulation/common/Simulation.h>
 #include <sofa/simulation/common/Node.h>
 #include <SofaBaseVisual/InteractiveCamera.h>
+#include <sofa/simulation/common/BaseGUI.h>
 
 #include <sofa/helper/io/Image.h>
 
@@ -75,8 +76,6 @@ enum
 {
     BTLEFT_MODE = 101, BTRIGHT_MODE = 102, BTMIDDLE_MODE = 103,
 };
-
-struct CopyScreenInfo;
 
 class SOFA_SOFAGUI_API BaseViewer
 {
@@ -95,6 +94,7 @@ public:
 
     virtual void setGUIMode(int);
 
+    using CopyScreenInfo = simulation::gui::BaseGUI::CopyScreenInfo;
     virtual bool getCopyScreenRequest(CopyScreenInfo* info);
     virtual void useCopyScreen(CopyScreenInfo* info);
 

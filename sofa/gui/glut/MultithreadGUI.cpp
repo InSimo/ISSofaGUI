@@ -52,6 +52,7 @@
 #include <sofa/defaulttype/LaparoscopicRigidTypes.h>
 #include <sofa/defaulttype/BoundingBox.h>
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/simulation/common/GUIFactory.h>
 
 #include "../OperationFactory.h"
 #include "../MouseOperations.h"
@@ -72,6 +73,21 @@ namespace gui
 
 namespace glut
 {
+
+class MTGUICreator : public sofa::simulation::gui::GUIFactory::Creator
+{
+public:
+    void init()
+    {
+        MultithreadGUI::InitGUI();
+    }
+
+    sofa::simulation::gui::BaseGUI* create()
+    {
+        return MultithreadGUI::CreateGUI();
+    }
+};
+int guiPluginId = sofa::simulation::gui::RegisterGUI<MultithreadGUI, MTGUICreator>("SofaGuiMultithreadedGUI", "SofaGUI MultithreadGUI");
 
 using std::cout;
 using std::endl;
@@ -202,12 +218,9 @@ void MultithreadGUI::redraw()
     glutPostRedisplay();
 }
 
-int MultithreadGUI::closeGUI()
+void MultithreadGUI::initialize()
 {
-    delete this;
-    return 0;
 }
-
 
 SOFA_DECL_CLASS(MultithreadGUI)
 
@@ -215,7 +228,7 @@ namespace MultithreadGUIInternals {
   static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
 }
 
-int MultithreadGUI::InitGUI(const char* /*name*/, const std::vector<std::string>& /*options*/)
+int MultithreadGUI::InitGUI()
 {
     // Replace generic visual models with OglModel
     sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
@@ -223,9 +236,8 @@ int MultithreadGUI::InitGUI(const char* /*name*/, const std::vector<std::string>
     return 0;
 }
 
-BaseGUI* MultithreadGUI::CreateGUI(const char* /*name*/, const std::vector<std::string>& /*options*/, sofa::simulation::Node::SPtr groot, const char* filename)
+simulation::gui::BaseGUI* MultithreadGUI::CreateGUI()
 {
-
     glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE );
 
     //glutInitWindowPosition ( x0, y0 );
@@ -261,7 +273,6 @@ BaseGUI* MultithreadGUI::CreateGUI(const char* /*name*/, const std::vector<std::
 
     MultithreadGUI* gui = new MultithreadGUI();
     gui->initAspects();
-    gui->setScene(groot, filename);
 
     gui->initializeGL();
     gui->initTextures();

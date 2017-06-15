@@ -12,7 +12,6 @@ set(HEADER_FILES
     ../FilesRecentlyOpenedManager.h
     ../SofaGUI.h
     ../ViewerFactory.h
-    ../GUIManager.h
     )
 
 set(SOURCE_FILES
@@ -23,7 +22,6 @@ set(SOURCE_FILES
     ../FilesRecentlyOpenedManager.cpp
     ../MouseOperations.cpp
     ../PickHandler.cpp
-    ../GUIManager.cpp
     ../ViewerFactory.cpp
     )
 

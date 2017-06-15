@@ -22,26 +22,56 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_GUI_MAIN_H
-#define SOFA_GUI_MAIN_H
-
-#include <sofa/helper/system/config.h>
-
-#ifdef SOFA_BUILD_GUIMAIN
-#	define SOFA_GUIMAIN_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#	define SOFA_GUIMAIN_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
-
+#include "initPlugin.h"
 
 namespace sofa
 {
-
 namespace gui
 {
+namespace qt
+{
 
-void SOFA_GUIMAIN_API initMain();
+    //Here are just several convenient functions to help user to know what contains the plugin
 
-}
-}
-#endif
+
+    void initExternalModule()
+    {
+        static bool first = true;
+        if (first)
+        {
+            first = false;
+        }
+
+    }
+
+    const char* getModuleName()
+    {
+        return "SofaGUIQt";
+    }
+
+    const char* getModuleVersion()
+    {
+        return "0.0";
+    }
+
+    const char* getModuleLicense()
+    {
+        return "GPL";
+    }
+
+
+    const char* getModuleDescription()
+    {
+        return "GUI Plugin: wrapper around SofaGUIQt's RealGUI";
+    }
+
+    const char* getModuleComponentList()
+    {
+        return "";
+    }
+
+} // namespace qt
+
+} // namespace gui
+
+} // namespace sofa

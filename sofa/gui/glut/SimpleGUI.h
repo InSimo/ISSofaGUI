@@ -87,22 +87,23 @@ public:
 
     SimpleGUI();
 
-    int mainLoop();
+    int mainLoop() override;
     void redraw();
-    int closeGUI();
 
-    sofa::simulation::Node* currentSimulation()
+    sofa::simulation::Node* getCurrentSimulation() override
     {
         return getScene();
     }
+
+    void initialize() override;
 
     /// @}
 
     /// @name registration of each GUI
     /// @{
 
-    static int InitGUI(const char* name, const std::vector<std::string>& options);
-    static BaseGUI* CreateGUI(const char* name, const std::vector<std::string>& options, sofa::simulation::Node::SPtr groot = NULL, const char* filename = NULL);
+    static int InitGUI();
+    static simulation::gui::BaseGUI* CreateGUI();
 
     /// @}
 

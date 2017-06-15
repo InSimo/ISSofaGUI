@@ -57,6 +57,12 @@ BaseGUI::~BaseGUI()
 
 }
 
+void BaseGUI::initialize(const char* programName)
+{
+    SetProgramName(programName);
+    initialize();
+}
+
 void BaseGUI::configureGUI(sofa::simulation::Node::SPtr groot)
 {
 
@@ -127,6 +133,24 @@ bool BaseGUI::saveScreenshot(const std::string& filename, int compression_level)
 		return true;
 	}
 	else return false;
+}
+
+void BaseGUI::getViewerView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori)
+{
+    BaseViewer* viewer = getViewer();
+    if (viewer)
+    {
+        viewer->getView(pos, ori);
+    }
+}
+
+void BaseGUI::setViewerView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori)
+{
+    BaseViewer * viewer = getViewer();
+    if (viewer)
+    {
+        viewer->setView(pos, ori);
+    }
 }
 
 

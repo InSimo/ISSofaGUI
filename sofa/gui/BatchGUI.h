@@ -45,24 +45,24 @@ public:
 
     BatchGUI();
 
-    void setScene(sofa::simulation::Node::SPtr groot, const char* filename="", bool temporaryFile=false);
+    void setScene(sofa::simulation::Node::SPtr groot, const char* filename="", bool temporaryFile=false) override;
 
     void resetScene();
 
-    int mainLoop();
+    int mainLoop() override;
     void redraw();
-    int closeGUI();
 
     static void setNumIterations(unsigned int n) {nbIter=n;};
-    sofa::simulation::Node* currentSimulation();
+    sofa::simulation::Node* getCurrentSimulation() override;
+    
+    void initialize() override;
+
 
     /// @}
 
     /// @name registration of each GUI
     /// @{
-
-    static int InitGUI(const char* name, const std::vector<std::string>& options);
-    static BaseGUI* CreateGUI(const char* name, const std::vector<std::string>& options, sofa::simulation::Node::SPtr groot = NULL, const char* filename = NULL);
+    int initGUI();
 
     static const unsigned int DEFAULT_NUMBER_OF_ITERATIONS;
     /// @}

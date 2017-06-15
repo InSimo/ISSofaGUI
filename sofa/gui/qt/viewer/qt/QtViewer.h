@@ -47,7 +47,7 @@
 
 #include <sofa/helper/system/thread/CTime.h>
 #include <sofa/simulation/common/xml/Element.h>
-#include <sofa/gui/BaseGUI.h>
+#include <sofa/simulation/common/BaseGUI.h>
 
 // allow catheter navigation using the tracking system (very simple version, surely will be modified)
 //#define TRACKING
@@ -127,6 +127,7 @@ private:
 
     // COPY EXTERNAL SCREEN
 
+    using CopyScreenInfo = sofa::simulation::gui::BaseGUI::CopyScreenInfo;
     virtual bool getCopyScreenRequest(CopyScreenInfo* info);
     virtual void useCopyScreen(CopyScreenInfo* info);
 
@@ -135,6 +136,7 @@ private:
     bool copyscreen_needed;
     bool copyscreen_requested;
     bool copyscreen_available;
+
     CopyScreenInfo copyscreen_info;
     double copyscreen_scale;
     int copyscreen_view_x0;

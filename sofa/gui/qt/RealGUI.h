@@ -117,8 +117,8 @@ class SOFA_SOFAGUIQT_API RealGUI :public Q3MainWindow, public Ui::GUI, public so
 
 //-----------------STATIC METHODS------------------------{
 public:
-    static int InitGUI(const char* name, const std::vector<std::string>& options);
-    static BaseGUI* CreateGUI(const char* name, const std::vector<std::string>& options, sofa::simulation::Node::SPtr groot = NULL, const char* filename = NULL);
+    static int InitGUI();
+    static simulation::gui::BaseGUI* CreateGUI();
 
     static void SetPixmap(std::string pixmap_filename, QPushButton* b);
 
@@ -131,8 +131,7 @@ protected:
 
 //-----------------CONSTRUCTOR - DESTRUCTOR ------------------------{
 public:
-    RealGUI( const char* viewername,
-            const std::vector<std::string>& options = std::vector<std::string>() );
+    RealGUI();
 
     ~RealGUI();
 //-----------------CONSTRUCTOR - DESTRUCTOR ------------------------}
@@ -277,13 +276,13 @@ private:
 public :
     void stepMainLoop ();
 
-    virtual int mainLoop();
-    virtual int closeGUI();
-    virtual sofa::simulation::Node* currentSimulation();
+    int mainLoop() override;
+    void initialize() override;
+    virtual sofa::simulation::Node* getCurrentSimulation() override;
     virtual void fileOpen(std::string filename, bool temporaryFile=false);
     
     virtual void fileOpenSimu(std::string filename);
-    virtual void setScene(Node::SPtr groot, const char* filename=NULL, bool temporaryFile=false);
+    virtual void setScene(Node::SPtr groot, const char* filename=NULL, bool temporaryFile=false) override;
     virtual void unloadScene(bool _withViewer = true);
 
     virtual void setTitle( std::string windowTitle );
@@ -330,6 +329,12 @@ public :
     void dragEnterEvent( QDragEnterEvent* event);
 
     void dropEvent(QDropEvent* event);
+
+    void initQt(const char* name);
+
+    using CopyScreenInfo = sofa::simulation::gui::BaseGUI::CopyScreenInfo;
+    bool getCopyScreenRequest(CopyScreenInfo& info) override;
+    void useCopyScreen(CopyScreenInfo& info) override;
 
 protected:
     /// init data member from RealGUI for the viewer initialisation in the GUI
@@ -449,9 +454,6 @@ public slots:
     virtual void setExportGnuplot(bool);
     virtual void setExportVisitor(bool);
     virtual void currentTabChanged(QWidget*);
-
-    virtual bool getCopyScreenRequest(CopyScreenInfo* info);
-    virtual void useCopyScreen(CopyScreenInfo* info);
 
 protected slots:
     /// Allow to dynamicly change viewer. Called when click on another viewer in GUI Qt viewer list (see viewerMap).

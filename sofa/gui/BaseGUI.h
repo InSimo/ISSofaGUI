@@ -31,6 +31,8 @@
 #include <SofaGraphComponent/ViewerSetting.h>
 #include <SofaGraphComponent/MouseButtonSetting.h>
 
+#include <sofa/simulation/common/BaseGUI.h>
+
 #include <list>
 
 
@@ -42,40 +44,22 @@ namespace gui
 
 class BaseViewer;
 
-struct CopyScreenInfo
-{
-    void* ctx;
-    unsigned int name;
-    unsigned int target;
-    int srcX;
-    int srcY;
-    int dstX;
-    int dstY;
-    int width;
-    int height;
-};
-
-class SOFA_SOFAGUI_API BaseGUI
+class SOFA_SOFAGUI_API BaseGUI : public sofa::simulation::gui::BaseGUI
 {
 
 public:
 
     /// @name methods each GUI must implement
     /// @{
-    /// Start the GUI loop
-    virtual int mainLoop()=0;
     /// Update the GUI
     virtual void redraw()=0;
-    /// Close the GUI
-    virtual int closeGUI()=0;
-    /// Register the scene in our GUI
-    virtual void setScene(sofa::simulation::Node::SPtr groot, const char* filename=NULL, bool temporaryFile=false)=0;
-    /// Get the rootNode of the sofa scene
-    virtual sofa::simulation::Node* currentSimulation() = 0;
     /// @}
 
     /// Use a component setting to configure our GUI
     virtual void configureGUI(sofa::simulation::Node::SPtr groot);
+
+    void initialize(const char* programName) override;
+    virtual void initialize() = 0;
 
     /// @name methods to configure the GUI
     /// @{
@@ -92,7 +76,6 @@ public:
     virtual void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* /*viewerConf*/) {}
     virtual void setViewerResolution(int /* width */, int /* height */) {}
     virtual void setFullScreen() {}
-    virtual void setBackgroundColor(const defaulttype::Vector3& /*color*/) {}
     virtual void setBackgroundImage(const std::string& /*image*/) {}
 
     virtual BaseViewer* getViewer() {return NULL;}
@@ -102,28 +85,15 @@ public:
     virtual void setMouseButtonConfiguration(sofa::component::configurationsetting::MouseButtonSetting* /*button*/) {}
     /// @}
 
-    /// @name methods to communicate with the GUI
-    /// @{
-    /// Do one step of the GUI loop
-    virtual void stepMainLoop() {}
-    /// Send a (script) message
-    virtual void sendMessage(const std::string & /*msgType*/,const std::string & /*msgValue*/) {}
-    /// Force the displayed FPS value (if any)
-    virtual void showFPS(double /*fps*/) {}
-    /// Set simulation loop maximum reachable frame rate  
-    virtual void setMaxFPS(double /*fpsMaxRate*/) {}
-
-    virtual bool getCopyScreenRequest(CopyScreenInfo* /*info*/) { return false; }
-    virtual void useCopyScreen(CopyScreenInfo* /*info*/) { }
-
-    /// @}
-
     void exportGnuplot(sofa::simulation::Node* node, std::string gnuplot_directory="");
 
     static std::string& GetGUIName() { return mGuiName; }
 
     static const char* GetProgramName() { return mProgramName; }
     static void SetProgramName(const char* argv0) { if(argv0) mProgramName = argv0;}
+
+    virtual void getViewerView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori) override;
+    virtual void setViewerView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori) override;
 
 protected:
     BaseGUI();

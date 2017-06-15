@@ -128,6 +128,8 @@
 #include <sstream>
 #include <ctime>
 
+#include <sofa/simulation/common/GUIFactory.h>
+
 namespace sofa
 {
 
@@ -136,6 +138,22 @@ namespace gui
 
 namespace qt
 {
+
+class QtGUICreator : public sofa::simulation::gui::GUIFactory::Creator
+{
+public:
+    void init()
+    {
+        RealGUI::InitGUI();
+    }
+
+    sofa::simulation::gui::BaseGUI* create()
+    {
+        return RealGUI::CreateGUI();
+    }
+};
+
+int guiPluginId = sofa::simulation::gui::RegisterGUI<RealGUI, QtGUICreator>("SofaGuiQt", "SofaGUI Qt GUI").addAlias("qt");
 
 SOFA_LINK_CLASS(ImageQt)
 
@@ -189,28 +207,17 @@ const char* progname="";
 
 
 //======================= STATIC METHODS ========================= {
-int RealGUI::InitGUI ( const char* /*name*/, const std::vector<std::string>& /* options */ )
+int RealGUI::InitGUI ()
 {
     return ImageQt::Init() ? 0 : 1;
 }
 
 //------------------------------------
 
-BaseGUI* RealGUI::CreateGUI ( const char* name, const std::vector<std::string>& options, sofa::simulation::Node::SPtr root, const char* filename )
+simulation::gui::BaseGUI* RealGUI::CreateGUI ()
 {
     CreateApplication();
-
-    // create interface
-    gui = new RealGUI ( name, options );
-    if ( root )
-    {
-        gui->setScene ( root, filename );
-        gui->setWindowFilePath(QString(filename));
-    }
-
-    InitApplication(gui);
-
-    return gui;
+    return new RealGUI();
 }
 
 //------------------------------------
@@ -234,7 +241,7 @@ void RealGUI::CreateApplication(int /*_argc*/, char** /*_argv*/)
     int  *argc = new int;
     char **argv=new char*[2];
     *argc = 1;
-    argv[0] = strdup ( BaseGUI::GetProgramName() );
+    argv[0] = strdup (BaseGUI::GetProgramName());
     argv[1]=NULL;
     application = new QSOFAApplication ( *argc,argv );
 }
@@ -261,10 +268,10 @@ void RealGUI::InitApplication( RealGUI* _gui)
 
 
 //======================= CONSTRUCTOR - DESTRUCTOR ========================= {
-RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& options )
+RealGUI::RealGUI()
     :
 #ifdef SOFA_GUI_INTERACTION
-    interactionButton( NULL ),
+    interactionButton(NULL),
 #endif
 
 #ifndef SOFA_GUI_QT_NO_RECORDER
@@ -300,7 +307,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     m_displayComputationTime(false),
     m_fullScreen(false),
     mViewer(NULL),
-    currentTab ( NULL ),
+    currentTab(NULL),
     statWidget(NULL),
     timerStep(NULL),
     backgroundImage(NULL),
@@ -318,8 +325,12 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
     animateLockCounter(0),
     currentGUIMode(0)
 {
+}
+
+void RealGUI::initQt(const char* viewername)
+{
     setupUi(this);
-    parseOptionsPreInit(options);
+    parseOptionsPreInit(guiOptions);
 
     createPluginManager();
 
@@ -442,7 +453,7 @@ RealGUI::RealGUI ( const char* viewername, const std::vector<std::string>& optio
         getQtViewer()->getQWidget()->installEventFilter(this);
 #endif
 
-    parseOptionsPostInit(options);
+    parseOptionsPostInit(guiOptions);
 }
 
 //------------------------------------
@@ -733,15 +744,15 @@ int RealGUI::mainLoop()
 
 //------------------------------------
 
-int RealGUI::closeGUI()
+void RealGUI::initialize()
 {
-    delete this;
-    return 0;
+    initQt("qt");
+    InitApplication(this);
 }
 
 //------------------------------------
 
-sofa::simulation::Node* RealGUI::currentSimulation()
+sofa::simulation::Node* RealGUI::getCurrentSimulation()
 {
     return simulation::getSimulation()->GetRoot().get();
 }
@@ -771,7 +782,7 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
 
     sofa::simulation::xml::numDefault = 0;
 
-    if( currentSimulation() ) this->unloadScene();
+    if( getCurrentSimulation() ) this->unloadScene();
     simulation::Node::SPtr root = simulation::getSimulation()->load ( filename.c_str() );
     simulation::getSimulation()->init ( root.get() );
     if ( root == NULL )
@@ -931,7 +942,7 @@ void RealGUI::unloadScene(bool _withViewer)
     if(_withViewer && getViewer())
         getViewer()->unload();
 
-    simulation::getSimulation()->unload ( currentSimulation() );
+    simulation::getSimulation()->unload ( getCurrentSimulation() );
 
     if(_withViewer && getViewer())
         getViewer()->setScene(NULL);
@@ -974,7 +985,7 @@ void RealGUI::fileSave()
     if ( QMessageBox::warning ( this, "Saving the Scene",message.c_str(), QMessageBox::Yes | QMessageBox::Default, QMessageBox::No ) != QMessageBox::Yes )
         return;
 
-    fileSaveAs ( currentSimulation(), filename.c_str() );
+    fileSaveAs ( getCurrentSimulation(), filename.c_str() );
 }
 
 //------------------------------------
@@ -1079,7 +1090,7 @@ void RealGUI::GUI_usesTextLabelChanged(bool)
 
 void RealGUI::saveXML()
 {
-    simulation::getSimulation()->exportXML ( currentSimulation(), "scene.scn" );
+    simulation::getSimulation()->exportXML (getCurrentSimulation(), "scene.scn" );
 }
 
 //------------------------------------
@@ -1508,7 +1519,7 @@ void RealGUI::eventNewStep()
 {
     static ctime_t beginTime[10];
     static const ctime_t timeTicks = CTime::getRefTicksPerSec();
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
 
     if ( frameCounter==0 )
     {
@@ -1564,7 +1575,7 @@ void RealGUI::eventNewTime()
     if (recorder)
         recorder->UpdateTime(currentSimulation());
 #else
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     if (root)
     {
         if (timeLabel)
@@ -1620,7 +1631,7 @@ void RealGUI::keyPressEvent ( QKeyEvent * e )
     case Qt::Key_O:
         // --- export to OBJ
     {
-        exportOBJ ( currentSimulation() );
+        exportOBJ ( getCurrentSimulation() );
         break;
     }
 
@@ -2030,7 +2041,7 @@ void RealGUI::ActivateNode(sofa::simulation::Node* node, bool activate)
 
     if ( sofalistview == simulationGraph && activate )
     {
-        if ( node == currentSimulation() )
+        if ( node == getCurrentSimulation() )
             simulation::getSimulation()->init(node);
         else
             simulation::getSimulation()->initNode(node);
@@ -2041,7 +2052,7 @@ void RealGUI::ActivateNode(sofa::simulation::Node* node, bool activate)
 
 void RealGUI::fileSaveAs(Node *node)
 {
-    if (node == NULL) node = currentSimulation();
+    if (node == NULL) node = getCurrentSimulation();
     QString s;
     std::string filename(this->windowFilePath().ascii());
 #ifdef SOFA_PML
@@ -2091,8 +2102,8 @@ void RealGUI::playpauseGUI ( bool value )
 {
     //std::cout << "playpauseGUI(" << (value ? "ON" : "OFF") << ")" << std::endl;
     startButton->setOn ( value );
-    if ( currentSimulation() )
-        currentSimulation()->getContext()->setAnimate ( value );
+    if ( getCurrentSimulation() )
+        getCurrentSimulation()->getContext()->setAnimate ( value );
     if (value)
     {
         timerStep->start();
@@ -2156,7 +2167,7 @@ void RealGUI::step()
         return;
     }
 
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     if ( root == NULL ) return;
 
     if (currentGUIMode != 0 && !getViewer()->ready())
@@ -2220,7 +2231,7 @@ void RealGUI::step()
         if ( ( counter++ % CAPTURE_PERIOD ) ==0 )
 #endif
         {
-            exportOBJ ( currentSimulation(), false );
+            exportOBJ ( getCurrentSimulation(), false );
             ++_animationOBJcounter;
         }
     }
@@ -2228,7 +2239,7 @@ void RealGUI::step()
     stopDumpVisitor();
     if (currentGUIMode != 0)
         emit newStep();
-    if ( !currentSimulation()->getContext()->getAnimate() )
+    if ( !getCurrentSimulation()->getContext()->getAnimate() )
         startButton->setOn ( false );
 }
 
@@ -2237,7 +2248,7 @@ void RealGUI::step()
 // Set the time between each iteration of the Sofa Simulation
 void RealGUI::setDt ( double value )
 {
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     if ( value > 0.0 && root)
         root->getContext()->setDt ( value );
 }
@@ -2287,7 +2298,7 @@ void RealGUI::setMaxFPS(const QString& value)
 // Reset the simulation to t=0
 void RealGUI::resetScene()
 {
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     startDumpVisitor();
     //emit ( newScene() );
     if (root)
@@ -2357,7 +2368,7 @@ void RealGUI::Update()
 {
     if(isEmbeddedViewer())
         getQtViewer()->getQWidget()->update();;
-    statWidget->CreateStats(currentSimulation());
+    statWidget->CreateStats(getCurrentSimulation());
 }
 
 //------------------------------------
@@ -2388,8 +2399,8 @@ void RealGUI::clear()
     if (recorder)
         recorder->Clear(currentSimulation());
 #endif
-    simulationGraph->Clear(currentSimulation());
-    statWidget->CreateStats(currentSimulation());
+    simulationGraph->Clear(getCurrentSimulation());
+    statWidget->CreateStats(getCurrentSimulation());
 }
 
 //----------------------------------
@@ -2401,18 +2412,18 @@ void RealGUI::redraw()
         emit newStep();
 }
 
-bool RealGUI::getCopyScreenRequest(CopyScreenInfo* info)
+bool RealGUI::getCopyScreenRequest(CopyScreenInfo& info)
 {
     if (currentGUIMode == -1)
     {
         setGUIMode(2); // automatically switch to mode 2 when receiving the first external view request.
     }
-    return getViewer()->getCopyScreenRequest(info);
+    return getViewer()->getCopyScreenRequest(&info);
 }
 
-void RealGUI::useCopyScreen(CopyScreenInfo* info)
+void RealGUI::useCopyScreen(CopyScreenInfo& info)
 {
-    getViewer()->useCopyScreen(info);
+    getViewer()->useCopyScreen(&info);
 }
 
 //------------------------------------
@@ -2465,7 +2476,7 @@ void RealGUI::dumpState ( bool value )
 
 void RealGUI::displayComputationTime ( bool value )
 {
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     m_displayComputationTime = value;
     if ( root )
     {
@@ -2481,7 +2492,7 @@ void RealGUI::displayComputationTime ( bool value )
 
 void RealGUI::setExportGnuplot ( bool exp )
 {
-    Node* root = currentSimulation();
+    Node* root = getCurrentSimulation();
     m_exportGnuplot = exp;
     if ( exp && root )
     {
@@ -2527,7 +2538,7 @@ void RealGUI::currentTabChanged ( QWidget* widget )
     else if ( currentTab == TabGraph )
         simulationGraph->Freeze();
     else if (widget == TabStats)
-        statWidget->CreateStats(currentSimulation());
+        statWidget->CreateStats(getCurrentSimulation());
 
     currentTab = widget;
 }

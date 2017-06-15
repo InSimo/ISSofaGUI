@@ -60,9 +60,6 @@ if(Qt4_FOUND)
     
 endif(Qt4_FOUND)
 
-list(APPEND SOFAGUI_TARGETS SofaGuiMain)
-add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/SofaGuiMain ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiMain)
-
 foreach(TARGET ${SOFAGUI_TARGETS})
   # set IDE project filter
   if(MSVC)

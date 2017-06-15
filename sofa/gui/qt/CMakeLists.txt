@@ -43,6 +43,7 @@ set(HEADER_FILES
 	PickHandlerCallBacks.h
 	QMenuFilesRecentlyOpened.h
 	ImageQt.h
+	initPlugin.h
 	QModelViewTableDataContainer.h
 	)
 
@@ -80,6 +81,7 @@ set(SOURCE_FILES
 	QSofaStatWidget.cpp
 	QMenuFilesRecentlyOpened.cpp
 	ImageQt.cpp 
+	initPlugin.cpp
 	)
 	
 set(UI_FILES
