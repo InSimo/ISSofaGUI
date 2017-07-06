@@ -4,7 +4,6 @@ project(SofaGuiCommon)
 set(HEADER_FILES
     ../BaseGUI.h
     ../BaseViewer.h
-    ../BatchGUI.h
     ../ColourPickingVisitor.h
     ../MouseOperations.h
     ../OperationFactory.h
@@ -17,7 +16,6 @@ set(HEADER_FILES
 set(SOURCE_FILES
     ../BaseGUI.cpp
     ../BaseViewer.cpp
-    ../BatchGUI.cpp
     ../ColourPickingVisitor.cpp
     ../FilesRecentlyOpenedManager.cpp
     ../MouseOperations.cpp

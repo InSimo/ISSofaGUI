@@ -22,58 +22,33 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "initPlugin.h"
-#include "RealGUI.h"
+#ifndef SOFA_GUI_BATCH_INITPLUGIN_H
+#define SOFA_GUI_BATCH_INITPLUGIN_H
+
+#include "BatchGUI.h"
 
 namespace sofa
 {
 namespace gui
 {
-namespace qt
+namespace batch
 {
 
-    //Here are just several convenient functions to help user to know what contains the plugin
+extern "C" {
+    SOFA_SOFAGUIBATCH_API void initExternalModule();
+    SOFA_SOFAGUIBATCH_API const char* getModuleName();
+    SOFA_SOFAGUIBATCH_API const char* getModuleVersion();
+    SOFA_SOFAGUIBATCH_API const char* getModuleLicense();
+    SOFA_SOFAGUIBATCH_API const char* getModuleDescription();
+    SOFA_SOFAGUIBATCH_API const char* getModuleComponentList();
+}
 
 
-    void initExternalModule()
-    {
-        static bool first = true;
-        if (first)
-        {
-            first = false;
-            RealGUI::InitGUI();
-        }
+}
 
-    }
+}
 
-    const char* getModuleName()
-    {
-        return "SofaGUIQt";
-    }
-
-    const char* getModuleVersion()
-    {
-        return "0.0";
-    }
-
-    const char* getModuleLicense()
-    {
-        return "GPL";
-    }
+}
 
 
-    const char* getModuleDescription()
-    {
-        return "GUI Plugin: Qt";
-    }
-
-    const char* getModuleComponentList()
-    {
-        return "";
-    }
-
-} // namespace qt
-
-} // namespace gui
-
-} // namespace sofa
+#endif // SOFA_GUI_BATCH_INITPLUGIN_H

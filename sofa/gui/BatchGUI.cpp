@@ -39,19 +39,25 @@ namespace sofa
 namespace gui
 {
 
-int guiPluginId = sofa::simulation::gui::RegisterGUI<BatchGUI>("batch", "SofaGUI Batch GUI");
+sofa::helper::Creator<sofa::simulation::gui::GUIFactory,BatchGUI> creatorBatchGUI("batch", false, -1, "SofaGUI Batch GUI", {"SofaGuiBatch"});
 
 const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 1000;
 unsigned int BatchGUI::nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
 bool BatchGUI::logStepDuration = false;
 
-BatchGUI::BatchGUI()
-    : groot(NULL)
+BatchGUI::BatchGUI(const sofa::simulation::gui::BaseGUIArgument* a)
+: BaseGUI(a)
+, groot(NULL)
 {
 }
 
 BatchGUI::~BatchGUI()
 {
+}
+
+BatchGUI* BatchGUI::CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a)
+{
+    return new BatchGUI(a);
 }
 
 int BatchGUI::mainLoop()
@@ -192,12 +198,12 @@ sofa::simulation::Node* BatchGUI::getCurrentSimulation()
 int BatchGUI::initGUI()
 {
     setNumIterations(DEFAULT_NUMBER_OF_ITERATIONS);
-
+    auto& guiOptions = this->getGUIOptions();
     //parse options
-    for (unsigned int i=0 ; i<this->guiOptions.size() ; i++)
+    for (unsigned int i=0 ; i<guiOptions.size() ; i++)
     {
         size_t cursor = 0;
-        std::string opt = this->guiOptions[i];
+        std::string opt = guiOptions[i];
         //Set number of iterations
         //(option = "nbIterations=N where N is the number of iterations)
         if ( (cursor = opt.find("nbIterations=")) != std::string::npos )

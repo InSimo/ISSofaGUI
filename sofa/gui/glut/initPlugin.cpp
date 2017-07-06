@@ -23,13 +23,12 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include "initPlugin.h"
-#include "RealGUI.h"
 
 namespace sofa
 {
 namespace gui
 {
-namespace qt
+namespace glut
 {
 
     //Here are just several convenient functions to help user to know what contains the plugin
@@ -41,14 +40,13 @@ namespace qt
         if (first)
         {
             first = false;
-            RealGUI::InitGUI();
         }
 
     }
 
     const char* getModuleName()
     {
-        return "SofaGUIQt";
+        return "SofaGUIGlut";
     }
 
     const char* getModuleVersion()
@@ -64,7 +62,7 @@ namespace qt
 
     const char* getModuleDescription()
     {
-        return "GUI Plugin: Qt";
+        return "GUI Plugin: GLUT";
     }
 
     const char* getModuleComponentList()
@@ -72,7 +70,7 @@ namespace qt
         return "";
     }
 
-} // namespace qt
+} // namespace glut
 
 } // namespace gui
 

@@ -41,9 +41,10 @@ set(SOFA_HAVE_QWT ${Qwt_FOUND} )
 set(SOFA_HAVE_QT ${Qt4_FOUND} )
 set(SOFA_QT4 ${Qt4_FOUND} )
 
-set(SOFAGUI_TARGETS SofaGuiCommon)
+set(SOFAGUI_TARGETS SofaGuiCommon SofaGuiBatch)
 
 add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/SofaGuiCommon ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiCommon)
+add_subdirectory(${SofaGui_ACTUAL_SOURCE_DIR}/SofaGuiBatch ${CMAKE_CURRENT_BINARY_DIR}/SofaGuiBatch)
 
 if(SOFA_HAVE_GLUT)
     set(SOFA_GUI_GLUT 1)

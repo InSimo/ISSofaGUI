@@ -93,6 +93,8 @@ public:
     virtual const std::type_info& type() = 0;
     virtual const char* viewerName() = 0;
     virtual const char* acceleratedName() = 0;
+    virtual const std::string& description() const = 0;
+    virtual int priority() const { return 0; }
 };
 
 

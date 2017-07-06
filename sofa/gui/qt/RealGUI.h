@@ -117,13 +117,14 @@ class SOFA_SOFAGUIQT_API RealGUI :public Q3MainWindow, public Ui::GUI, public so
 
 //-----------------STATIC METHODS------------------------{
 public:
+    using BaseGUI::create;
     static int InitGUI();
-    static simulation::gui::BaseGUI* CreateGUI();
+    static RealGUI* CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     static void SetPixmap(std::string pixmap_filename, QPushButton* b);
 
 protected:
-    static void CreateApplication(int _argc=0, char** _argv=0l);
+    static void CreateApplication(const sofa::simulation::gui::BaseGUIArgument* a);
     static void InitApplication( RealGUI* _gui);
 //-----------------STATIC METHODS------------------------}
 
@@ -131,7 +132,7 @@ protected:
 
 //-----------------CONSTRUCTOR - DESTRUCTOR ------------------------{
 public:
-    RealGUI();
+    explicit RealGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     ~RealGUI();
 //-----------------CONSTRUCTOR - DESTRUCTOR ------------------------}

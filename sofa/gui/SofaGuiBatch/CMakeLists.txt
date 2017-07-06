@@ -1,22 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
-project(SofaGuiGlut)
+project(SofaGuiBatch)
 
 set(HEADER_FILES
-    initPlugin.h
-	SimpleGUI.h
+    ../initPlugin.h
+	../BatchGUI.h
 	)
 
 set(SOURCE_FILES
-    initPlugin.cpp
-	SimpleGUI.cpp
+    ../initPlugin.cpp
+	../BatchGUI.cpp
 	)
-
-if(SOFA_HAVE_BOOST)
-	list(APPEND HEADER_FILES MultithreadGUI.h)
-	
-	list(APPEND SOURCE_FILES MultithreadGUI.cpp)
-endif()
-
 
 
 include( CMakeDependentOption )
@@ -40,11 +33,11 @@ add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
 
-set( SOFAGUIGLUT_COMPILER_FLAGS "-DSOFA_BUILD_SOFAGUIGLUT")
+set( SOFAGUIBATCH_COMPILER_FLAGS "-DSOFA_BUILD_SOFAGUIBATCH")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${SOFAGUI_VERSION} )
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAGUIGLUT_COMPILER_FLAGS}"  )
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAGUIBATCH_COMPILER_FLAGS}"  )
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGUI_SOURCE_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGUI_BUILD_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGUI_DEPENDENCY_DIR}>")
@@ -58,7 +51,7 @@ install(TARGETS ${PROJECT_NAME}
         )
 
 if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
-install(DIRECTORY ${SofaGuiGlut_SOURCE_DIR}/ DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/SofaGuiGlut"
+install(DIRECTORY ${SofaGuiBatch_SOURCE_DIR}/ DESTINATION "${SOFAGUI_INSTALL_INCLUDE_DIR}/SofaGuiBatch"
         COMPONENT SofaGui_headers
         FILES_MATCHING
             PATTERN "*.h"

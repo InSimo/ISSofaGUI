@@ -29,13 +29,20 @@
 #include <sofa/simulation/common/Node.h>
 #include <chrono>
 
+
+#ifdef SOFA_BUILD_SOFAGUIBATCH
+#	define SOFA_SOFAGUIBATCH_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#else
+#	define SOFA_SOFAGUIBATCH_API SOFA_IMPORT_DYNAMIC_LIBRARY
+#endif
+
 namespace sofa
 {
 
 namespace gui
 {
 
-class SOFA_SOFAGUI_API BatchGUI : public BaseGUI
+class SOFA_SOFAGUIBATCH_API BatchGUI : public BaseGUI
 {
 
 public:
@@ -43,7 +50,7 @@ public:
     /// @name methods each GUI must implement
     /// @{
 
-    BatchGUI();
+    explicit BatchGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     void setScene(sofa::simulation::Node::SPtr groot, const char* filename="", bool temporaryFile=false) override;
 
@@ -63,6 +70,7 @@ public:
     /// @name registration of each GUI
     /// @{
     int initGUI();
+    static BatchGUI* CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     static const unsigned int DEFAULT_NUMBER_OF_ITERATIONS;
     /// @}

@@ -139,21 +139,12 @@ namespace gui
 namespace qt
 {
 
-class QtGUICreator : public sofa::simulation::gui::GUIFactory::Creator
-{
-public:
-    void init()
-    {
-        RealGUI::InitGUI();
-    }
 
-    sofa::simulation::gui::BaseGUI* create()
-    {
-        return RealGUI::CreateGUI();
-    }
-};
-
-int guiPluginId = sofa::simulation::gui::RegisterGUI<RealGUI, QtGUICreator>("SofaGuiQt", "SofaGUI Qt GUI").addAlias("qt");
+sofa::helper::Creator<sofa::simulation::gui::GUIFactory,RealGUI> creatorQtGUI("SofaGuiQt", false, 2, "SofaGUI Qt GUI",{"SofaGuiQt-qt","qt-qt","qt"
+#if defined(SOFA_GUI_QGLVIEWER)
+            ,"SofaGuiQt-qglviewer","qt-qglviewer","qglviewer"
+#endif
+            });
 
 SOFA_LINK_CLASS(ImageQt)
 
@@ -214,10 +205,16 @@ int RealGUI::InitGUI ()
 
 //------------------------------------
 
-simulation::gui::BaseGUI* RealGUI::CreateGUI ()
+RealGUI* RealGUI::CreateGUI (const sofa::simulation::gui::BaseGUIArgument* a)
 {
-    CreateApplication();
-    return new RealGUI();
+    CreateApplication(a);
+
+    // create interface
+    gui = new RealGUI ( a );
+
+    InitApplication(gui);
+
+    return gui;
 }
 
 //------------------------------------
@@ -236,12 +233,12 @@ void RealGUI::SetPixmap(std::string pixmap_filename, QPushButton* b)
 
 //------------------------------------
 
-void RealGUI::CreateApplication(int /*_argc*/, char** /*_argv*/)
+void RealGUI::CreateApplication(const sofa::simulation::gui::BaseGUIArgument* a)
 {
     int  *argc = new int;
     char **argv=new char*[2];
     *argc = 1;
-    argv[0] = strdup (BaseGUI::GetProgramName());
+    argv[0] = strdup (a->programName.c_str());
     argv[1]=NULL;
     application = new QSOFAApplication ( *argc,argv );
 }
@@ -268,8 +265,8 @@ void RealGUI::InitApplication( RealGUI* _gui)
 
 
 //======================= CONSTRUCTOR - DESTRUCTOR ========================= {
-RealGUI::RealGUI()
-    :
+RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
+: BaseGUI(a),
 #ifdef SOFA_GUI_INTERACTION
     interactionButton(NULL),
 #endif
@@ -325,12 +322,8 @@ RealGUI::RealGUI()
     animateLockCounter(0),
     currentGUIMode(0)
 {
-}
-
-void RealGUI::initQt(const char* viewername)
-{
     setupUi(this);
-    parseOptionsPreInit(guiOptions);
+    parseOptionsPreInit(this->getGUIOptions());
 
     createPluginManager();
 
@@ -401,7 +394,24 @@ void RealGUI::initQt(const char* viewername)
     left_stack = new QWidgetStack ( splitter2 );
     viewerMap.clear();
     if (mCreateViewersOpt)
-        createViewer(viewername, true);
+    {
+        std::string viewerName = this->getGUIName();
+        // Use any -* suffix if it exists
+        std::string::size_type pos = viewerName.find('-');
+        if (pos != std::string::npos)
+        {
+            viewerName = viewerName.substr(pos+1);
+        }
+        else if (viewerName == "SofaGuiQt")
+        { // select default viewer
+#if defined(SOFA_GUI_QGLVIEWER)
+            viewerName = "qglviewer";
+#elif defined(SOFA_GUI_QTVIEWER)
+            viewerName = "qt";
+#endif
+        }
+        createViewer(viewerName.c_str(), true);
+    }
 
     currentTabChanged ( tabs->currentPage() );
 
@@ -453,7 +463,7 @@ void RealGUI::initQt(const char* viewername)
         getQtViewer()->getQWidget()->installEventFilter(this);
 #endif
 
-    parseOptionsPostInit(guiOptions);
+    parseOptionsPostInit(this->getGUIOptions());
 }
 
 //------------------------------------
@@ -746,8 +756,6 @@ int RealGUI::mainLoop()
 
 void RealGUI::initialize()
 {
-    initQt("qt");
-    InitApplication(this);
 }
 
 //------------------------------------
@@ -1358,7 +1366,7 @@ void RealGUI::createViewer(const char* _viewerName, bool _updateViewerList/*=fal
             iter_map->second->setOn(false);
     }
 
-    mGuiName = _viewerName;
+    this->m_argument.guiName = _viewerName;
     initViewer( getViewer() );
 }
 

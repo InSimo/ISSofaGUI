@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_GUI_VIEWER_INITPLUGIN_H
-#define SOFA_GUI_VIEWER_INITPLUGIN_H
+#ifndef SOFA_GUI_QT_INITPLUGIN_H
+#define SOFA_GUI_QT_INITPLUGIN_H
 
 #include "SofaGUIQt.h"
 
@@ -51,4 +51,4 @@ extern "C" {
 }
 
 
-#endif // INITISPHYSICS_BASEPLUGIN_H
+#endif // SOFA_GUI_QT_INITPLUGIN_H

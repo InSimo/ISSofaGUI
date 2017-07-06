@@ -48,6 +48,7 @@ class SOFA_SOFAGUI_API BaseGUI : public sofa::simulation::gui::BaseGUI
 {
 
 public:
+    using sofa::simulation::gui::BaseGUI::BaseGUI; // inherit constructor(s)
 
     /// @name methods each GUI must implement
     /// @{
@@ -58,7 +59,6 @@ public:
     /// Use a component setting to configure our GUI
     virtual void configureGUI(sofa::simulation::Node::SPtr groot);
 
-    void initialize(const char* programName) override;
     virtual void initialize() = 0;
 
     /// @name methods to configure the GUI
@@ -87,21 +87,12 @@ public:
 
     void exportGnuplot(sofa::simulation::Node* node, std::string gnuplot_directory="");
 
-    static std::string& GetGUIName() { return mGuiName; }
-
-    static const char* GetProgramName() { return mProgramName; }
-    static void SetProgramName(const char* argv0) { if(argv0) mProgramName = argv0;}
-
     virtual void getViewerView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori) override;
     virtual void setViewerView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori) override;
 
 protected:
-    BaseGUI();
     /// The destructor should not be called directly. Use the closeGUI() method instead.
     virtual ~BaseGUI();
-
-    static std::string mGuiName; // would like to make it const but not possible with the current implementation of RealGUI...
-    static const char* mProgramName;
 };
 
 ////// TO declare into BaseViewer

@@ -85,7 +85,7 @@ public:
     /// @name methods each GUI must implement
     /// @{
 
-    SimpleGUI();
+    explicit SimpleGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     int mainLoop() override;
     void redraw();
@@ -102,8 +102,7 @@ public:
     /// @name registration of each GUI
     /// @{
 
-    static int InitGUI();
-    static simulation::gui::BaseGUI* CreateGUI();
+    static SimpleGUI* CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     /// @}
 

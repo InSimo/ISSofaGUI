@@ -44,23 +44,10 @@ namespace sofa
 
 namespace gui
 {
-const char* BaseGUI::mProgramName = NULL;
-std::string BaseGUI::mGuiName = "";
-
-BaseGUI::BaseGUI()
-{
-
-}
 
 BaseGUI::~BaseGUI()
 {
 
-}
-
-void BaseGUI::initialize(const char* programName)
-{
-    SetProgramName(programName);
-    initialize();
 }
 
 void BaseGUI::configureGUI(sofa::simulation::Node::SPtr groot)

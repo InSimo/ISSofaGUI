@@ -74,20 +74,7 @@ namespace gui
 namespace glut
 {
 
-class MTGUICreator : public sofa::simulation::gui::GUIFactory::Creator
-{
-public:
-    void init()
-    {
-        MultithreadGUI::InitGUI();
-    }
-
-    sofa::simulation::gui::BaseGUI* create()
-    {
-        return MultithreadGUI::CreateGUI();
-    }
-};
-int guiPluginId = sofa::simulation::gui::RegisterGUI<MultithreadGUI, MTGUICreator>("SofaGuiMultithreadedGUI", "SofaGUI MultithreadGUI");
+sofa::helper::Creator<sofa::simulation::gui::GUIFactory,MultithreadGUI> creatorMultithreadGUI("glut-mt", false, 0, "SofaGUI MultithreadGUI",{"SofaGuiGlut-MT"});
 
 using std::cout;
 using std::endl;
@@ -224,19 +211,7 @@ void MultithreadGUI::initialize()
 
 SOFA_DECL_CLASS(MultithreadGUI)
 
-namespace MultithreadGUIInternals {
-  static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
-}
-
-int MultithreadGUI::InitGUI()
-{
-    // Replace generic visual models with OglModel
-    sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
-            &MultithreadGUIInternals::classVisualModel);
-    return 0;
-}
-
-simulation::gui::BaseGUI* MultithreadGUI::CreateGUI()
+MultithreadGUI* MultithreadGUI::CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 {
     glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE );
 
@@ -271,7 +246,7 @@ simulation::gui::BaseGUI* MultithreadGUI::CreateGUI()
     glutMotionFunc ( glut_motion );
     glutPassiveMotionFunc ( glut_motion );
 
-    MultithreadGUI* gui = new MultithreadGUI();
+    MultithreadGUI* gui = new MultithreadGUI(a);
     gui->initAspects();
 
     gui->initializeGL();
@@ -358,8 +333,8 @@ void MultithreadGUI::glut_idle()
 // ---------------------------------------------------------
 // --- Constructor
 // ---------------------------------------------------------
-MultithreadGUI::MultithreadGUI()
-    : renderMsgBuffer(NULL)
+MultithreadGUI::MultithreadGUI(const sofa::simulation::gui::BaseGUIArgument* a)
+: BaseGUI(a), renderMsgBuffer(NULL)
 {
     instance = this;
 

@@ -94,7 +94,7 @@ public:
     /// @name methods each GUI must implement
     /// @{
 
-    MultithreadGUI();
+    explicit MultithreadGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     int mainLoop() override;
     void redraw();
@@ -109,8 +109,7 @@ public:
     /// @name registration of each GUI
     /// @{
 
-    static int InitGUI();
-    static simulation::gui::BaseGUI* CreateGUI();
+    static MultithreadGUI* CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a);
 
     /// @}
 
