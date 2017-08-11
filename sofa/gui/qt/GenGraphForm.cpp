@@ -72,17 +72,21 @@ GenGraphForm::GenGraphForm()
         //filt.insert("showSlaves");
         filt.insert("showBehaviorModels");
         filt.insert("showCollisionModels");
-        //filt.insert("showVisualModels");
-        //filt.insert("showMappings");
+        filt.insert("showVisualModels");
+        //filt.insert("showVisualObjects");
+        filt.insert("showMappings");
         //filt.insert("showContext");
         //filt.insert("showEngine");
         //filt.insert("showLoader");
         //filt.insert("showCollisionPipeline");
+        //filt.insert("showAnimationLoop");
+        filt.insert("showControllers");
         filt.insert("showSolvers");
         filt.insert("showMechanicalStates");
         //filt.insert("showForceFields");
         //filt.insert("showInteractionForceFields");
         //filt.insert("showConstraints");
+        //filt.insert("showProjectiveConstraints");
         //filt.insert("showMass");
         filt.insert("showTopology");
         //filt.insert("showTopologyObjects");
@@ -98,16 +102,20 @@ GenGraphForm::GenGraphForm()
         filt.insert("showBehaviorModels");
         filt.insert("showCollisionModels");
         filt.insert("showVisualModels");
+        filt.insert("showVisualObjects");
         filt.insert("showMappings");
         filt.insert("showContext");
         filt.insert("showEngine");
         filt.insert("showLoader");
         filt.insert("showCollisionPipeline");
+        filt.insert("showAnimationLoop");
+        filt.insert("showControllers");
         filt.insert("showSolvers");
         filt.insert("showMechanicalStates");
         filt.insert("showForceFields");
         filt.insert("showInteractionForceFields");
         filt.insert("showConstraints");
+        filt.insert("showProjectiveConstraints");
         filt.insert("showMass");
         filt.insert("showTopology");
         filt.insert("showTopologyObjects");
@@ -125,17 +133,32 @@ GenGraphForm::GenGraphForm()
         filt.insert("showNodes");
     }
     {
-        std::set<std::string>& filt = presetFilters["Mechanical Graph"];
+        std::set<std::string>& filt = presetFilters["Full Mechanical Graph"];
         filt = presetFilters["Full Graph"];
         filt.erase("showCollisionModels");
         filt.erase("showVisualModels");
-        filt.erase("showMappings");
+        filt.erase("showVisualObjects");
         filt.erase("showCollisionPipeline");
         filt.erase("showTopologyObjects");
+        filt.erase("showControllers");
         filt.erase("showEngine");
         filt.erase("showLoader");
         filt.erase("showSlaves");
         filt.erase("showOthers");
+    }
+    {
+        std::set<std::string>& filt = presetFilters["Full Mechanical Objects"];
+        filt = presetFilters["Full Mechanical Graph"];
+        filt.erase("showNodes");
+    }
+    {
+        std::set<std::string>& filt = presetFilters["Mechanical Graph"];
+        filt = presetFilters["Full Mechanical Graph"];
+        filt.erase("showAnimationLoop");
+        filt.erase("showContext");
+        filt.erase("showTopology");
+        filt.erase("showTopologicalMappings");
+        filt.erase("showMappings");
     }
     {
         std::set<std::string>& filt = presetFilters["Mechanical Objects"];
@@ -147,6 +170,7 @@ GenGraphForm::GenGraphForm()
         filt.insert("showNodes");
         filt.insert("showObjects");
         filt.insert("showVisualModels");
+        filt.insert("showVisualObjects");
     }
     {
         std::set<std::string>& filt = presetFilters["Visual Objects"];
@@ -172,16 +196,20 @@ GenGraphForm::GenGraphForm()
         //filt.insert("showBehaviorModels");
         filt.insert("showCollisionModels");
         //filt.insert("showVisualModels");
+        //filt.insert("showVisualObjects");
         //filt.insert("showMappings");
         //filt.insert("showContext");
         //filt.insert("showEngine");
         //filt.insert("showLoader");
         //filt.insert("showCollisionPipeline");
+        //filt.insert("showAnimationLoop");
+        //filt.insert("showControllers");
         filt.insert("showSolvers");
         filt.insert("showMechanicalStates");
         //filt.insert("showForceFields");
         filt.insert("showInteractionForceFields");
         filt.insert("showConstraints");
+        //filt.insert("showProjectiveConstraints");
         //filt.insert("showMass");
         //filt.insert("showTopology");
         //filt.insert("showTopologyObjects");
@@ -205,24 +233,30 @@ GenGraphForm::GenGraphForm()
     connect(presetFilter, SIGNAL(activated(const QString&)), this, SLOT(setFilter()));
     connect(showNodes, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showSlaves, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showBehaviorModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showCollisionModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showVisualModels, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showVisualObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showContext, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showEngine, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showLoader, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showCollisionPipeline, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showAnimationLoop, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showControllers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showSolvers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showMechanicalStates, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showInteractionForceFields, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showConstraints, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showProjectiveConstraints, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showMass, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showTopology, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showTopologyObjects, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showTopologicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showMechanicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
+    connect(showOthers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
 
 }
 
@@ -299,24 +333,52 @@ void GenGraphForm::doExport()
         qFatal("Output to %s failed.\n",(const char*)dotfile);
         return;
     }
+    std::string layout = "dot";
+    std::string rankdir;
+    if (layoutDirV->isOn() || layoutDirVG->isOn())
+    {
+        rankdir = "TB";
+    }
+    else if (layoutDirH->isOn() || layoutDirHG->isOn())
+    {
+        rankdir = "LR";
+    }
+    else if (layoutSpring->isOn())
+    {
+        layout = "neato";
+    }
+    else if (layoutRadial->isOn())
+    {
+        layout = "twopi";
+    }
+
     {
         sofa::simulation::tree::ExportDotVisitor act(sofa::core::ExecParams::defaultInstance() /* PARAMS FIRST */, &fdot);
+        act.graphAttrs["layout"] = layout;
+        if (!rankdir.empty())
+        {
+            act.graphAttrs["rankdir"] = rankdir;
+        }
         act.showNode = this->showNodes->isOn();
         act.showObject = this->showObjects->isOn();
         act.showSlaves = this->showSlaves->isOn();
         act.showBehaviorModel = this->showBehaviorModels->isOn();
+        act.showController = this->showControllers->isOn();
         act.showCollisionModel = this->showCollisionModels->isOn();
         act.showVisualModel = this->showVisualModels->isOn();
+        act.showVisualObject = this->showVisualObjects->isOn();
         act.showMapping = this->showMappings->isOn();
         act.showContext = this->showContext->isOn();
         act.showEngine = this->showEngine->isOn();
         act.showLoader = this->showLoader->isOn();
         act.showCollisionPipeline = this->showCollisionPipeline->isOn();
+        act.showAnimationLoop = this->showAnimationLoop->isOn();
         act.showSolver = this->showSolvers->isOn();
         act.showMechanicalState = this->showMechanicalStates->isOn();
         act.showForceField = this->showForceFields->isOn();
         act.showInteractionForceField = this->showInteractionForceFields->isOn();
         act.showConstraint = this->showConstraints->isOn();
+        act.showProjectiveConstraint = this->showProjectiveConstraints->isOn();
         act.showMass = this->showMass->isOn();
         act.showTopology = this->showTopology->isOn();
         act.showTopologyObject = this->showTopologyObjects->isOn();
@@ -327,20 +389,29 @@ void GenGraphForm::doExport()
         act.labelNodeClass = this->labelNodeClass->isOn();
         act.labelObjectName = this->labelObjectName->isOn();
         act.labelObjectClass = this->labelObjectClass->isOn();
+        act.showSolverGroups = layoutDirVG->isOn() || layoutDirHG->isOn();
+        {
+            std::istringstream i((const char*)this->includeNames->text());
+            i >> act.includeNames;
+        }
+        {
+            std::istringstream i((const char*)this->excludeNames->text());
+            i >> act.excludeNames;
+        }
+        {
+            std::istringstream i((const char*)this->inputLinks->text());
+            i >> act.inputLinks;
+        }
+        {
+            std::istringstream i((const char*)this->outputLinks->text());
+            i >> act.outputLinks;
+        }
         graph->executeVisitor(&act);
     }
     fdot.close();
 
     QStringList argv0;
-    if (layoutDirV->isOn())
-        argv0 << "dot" << "-Grankdir=TB";
-    else if (layoutDirH->isOn())
-        argv0 << "dot" << "-Grankdir=LR";
-    else if (layoutSpring->isOn())
-        argv0 << "neato";
-    else if (layoutRadial->isOn())
-        argv0 << "twopi";
-
+    argv0 << layout.c_str();
     bool exp = false;
 
     exportedFile = dotfile;
@@ -513,18 +584,22 @@ void GenGraphForm::setFilter()
         this->showObjects->setChecked(filt.find("showObjects")!=filt.end());
         this->showSlaves->setChecked(filt.find("showSlaves")!=filt.end());
         this->showBehaviorModels->setChecked(filt.find("showBehaviorModels")!=filt.end());
+        this->showControllers->setChecked(filt.find("showControllers")!=filt.end());
         this->showCollisionModels->setChecked(filt.find("showCollisionModels")!=filt.end());
         this->showVisualModels->setChecked(filt.find("showVisualModels")!=filt.end());
+        this->showVisualObjects->setChecked(filt.find("showVisualObjects")!=filt.end());
         this->showMappings->setChecked(filt.find("showMappings")!=filt.end());
         this->showContext->setChecked(filt.find("showContext")!=filt.end());
         this->showEngine->setChecked(filt.find("showEngine")!=filt.end());
         this->showLoader->setChecked(filt.find("showLoader")!=filt.end());
         this->showCollisionPipeline->setChecked(filt.find("showCollisionPipeline")!=filt.end());
+        this->showAnimationLoop->setChecked(filt.find("showAnimationLoop")!=filt.end());
         this->showSolvers->setChecked(filt.find("showSolvers")!=filt.end());
         this->showMechanicalStates->setChecked(filt.find("showMechanicalStates")!=filt.end());
         this->showForceFields->setChecked(filt.find("showForceFields")!=filt.end());
         this->showInteractionForceFields->setChecked(filt.find("showInteractionForceFields")!=filt.end());
         this->showConstraints->setChecked(filt.find("showConstraints")!=filt.end());
+        this->showProjectiveConstraints->setChecked(filt.find("showProjectiveConstraints")!=filt.end());
         this->showMass->setChecked(filt.find("showMass")!=filt.end());
         this->showTopology->setChecked(filt.find("showTopology")!=filt.end());
         this->showTopologyObjects->setChecked(filt.find("showTopologyObjects")!=filt.end());
@@ -549,18 +624,22 @@ std::set<std::string> GenGraphForm::getCurrentFilter()
     if (this->showObjects->isOn()) filt.insert("showObjects");
     if (this->showSlaves->isOn()) filt.insert("showSlaves");
     if (this->showBehaviorModels->isOn()) filt.insert("showBehaviorModels");
+    if (this->showControllers->isOn()) filt.insert("showControllers");
     if (this->showCollisionModels->isOn()) filt.insert("showCollisionModels");
     if (this->showVisualModels->isOn()) filt.insert("showVisualModels");
+    if (this->showVisualObjects->isOn()) filt.insert("showVisualObjects");
     if (this->showMappings->isOn()) filt.insert("showMappings");
     if (this->showContext->isOn()) filt.insert("showContext");
     if (this->showEngine->isOn()) filt.insert("showEngine");
     if (this->showLoader->isOn()) filt.insert("showLoader");
     if (this->showCollisionPipeline->isOn()) filt.insert("showCollisionPipeline");
+    if (this->showAnimationLoop->isOn()) filt.insert("showAnimationLoop");
     if (this->showSolvers->isOn()) filt.insert("showSolvers");
     if (this->showMechanicalStates->isOn()) filt.insert("showMechanicalStates");
     if (this->showForceFields->isOn()) filt.insert("showForceFields");
     if (this->showInteractionForceFields->isOn()) filt.insert("showInteractionForceFields");
     if (this->showConstraints->isOn()) filt.insert("showConstraints");
+    if (this->showProjectiveConstraints->isOn()) filt.insert("showProjectiveConstraints");
     if (this->showMass->isOn()) filt.insert("showMass");
     if (this->showTopology->isOn()) filt.insert("showTopology");
     if (this->showTopologyObjects->isOn()) filt.insert("showTopologyObjects");

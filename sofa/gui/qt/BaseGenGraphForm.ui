@@ -58,8 +58,8 @@
        <property name="title">
         <string>Layout</string>
        </property>
-       <layout class="QVBoxLayout">
-        <item>
+       <layout class="QGridLayout">
+        <item row="0" column="0">
          <widget class="QRadioButton" name="layoutDirV">
           <property name="text">
            <string>Directed Vertically</string>
@@ -69,21 +69,35 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="layoutDirVG">
+          <property name="text">
+           <string>Directed Vertically - Solver Groups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QRadioButton" name="layoutDirH">
           <property name="text">
            <string>Directed Horizontally</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="1" column="1">
+         <widget class="QRadioButton" name="layoutDirHG">
+          <property name="text">
+           <string>Directed Horizontally - Solver Groups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
          <widget class="QRadioButton" name="layoutSpring">
           <property name="text">
            <string>Undirected Spring</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="3" column="0">
          <widget class="QRadioButton" name="layoutRadial">
           <property name="text">
            <string>Undirected Radial</string>
@@ -192,6 +206,16 @@
        </item>
        <item>
         <property name="text">
+         <string>Full Mechanical Graph</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Full Mechanical Objects</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Mechanical Graph</string>
         </property>
        </item>
@@ -240,10 +264,71 @@
       <string>Filter</string>
      </property>
      <layout class="QGridLayout">
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="showSolvers">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="showNodes">
         <property name="text">
-         <string>Solvers</string>
+         <string>Nodes</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="showObjects">
+        <property name="text">
+         <string>Objects</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="showSlaves">
+        <property name="text">
+         <string>Slaves</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="showAnimationLoop">
+        <property name="text">
+         <string>Animation Loop</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="showBehaviorModels">
+        <property name="text">
+         <string>Behavior Models</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="showControllers">
+        <property name="text">
+         <string>Controllers</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="showMappings">
+        <property name="text">
+         <string>Mappings</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -251,9 +336,9 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QCheckBox" name="showMechanicalStates">
+       <widget class="QCheckBox" name="showVisualModels">
         <property name="text">
-         <string>Mechanical Models</string>
+         <string>Visual Models</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -261,9 +346,9 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QCheckBox" name="showForceFields">
+       <widget class="QCheckBox" name="showVisualObjects">
         <property name="text">
-         <string>Force Fields</string>
+         <string>Visual Objects</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -271,9 +356,9 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QCheckBox" name="showInteractionForceFields">
+       <widget class="QCheckBox" name="showCollisionModels">
         <property name="text">
-         <string>Interaction Force Fields</string>
+         <string>Collision Models</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -291,86 +376,6 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QCheckBox" name="showMass">
-        <property name="text">
-         <string>Mass</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QCheckBox" name="showMechanicalMappings">
-        <property name="text">
-         <string>Mechanical Mappings</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="showTopology">
-        <property name="text">
-         <string>Topology</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="showTopologyObjects">
-        <property name="text">
-         <string>Topology Objects</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QCheckBox" name="showTopologicalMappings">
-        <property name="text">
-         <string>Topological Mappings</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="showMappings">
-        <property name="text">
-         <string>Mappings</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="showCollisionModels">
-        <property name="text">
-         <string>Collision Models</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="showVisualModels">
-        <property name="text">
-         <string>Visual Models</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
        <widget class="QCheckBox" name="showCollisionPipeline">
         <property name="text">
          <string>Collision Pipeline</string>
@@ -380,17 +385,139 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="showSlaves">
+
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="showMechanicalMappings">
         <property name="text">
-         <string>Slaves</string>
+         <string>Mechanical Mappings</string>
         </property>
         <property name="checked">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="showMechanicalStates">
+        <property name="text">
+         <string>Mechanical Models</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="showMass">
+        <property name="text">
+         <string>Masses</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="showForceFields">
+        <property name="text">
+         <string>Force Fields</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="showInteractionForceFields">
+        <property name="text">
+         <string>Interaction Force Fields</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QCheckBox" name="showProjectiveConstraints">
+        <property name="text">
+         <string>Projective Constraints</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QCheckBox" name="showSolvers">
+        <property name="text">
+         <string>Solvers</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="showTopologicalMappings">
+        <property name="text">
+         <string>Topological Mappings</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QCheckBox" name="showTopology">
+        <property name="text">
+         <string>Topology Containers</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QCheckBox" name="showTopologyObjects">
+        <property name="text">
+         <string>Topology Objects</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QCheckBox" name="showContext">
+        <property name="text">
+         <string>Context Objects</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QCheckBox" name="showLoader">
+        <property name="text">
+         <string>Loaders</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QCheckBox" name="showEngine">
+        <property name="text">
+         <string>Engines</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
        <widget class="QCheckBox" name="showOthers">
         <property name="text">
          <string>Others</string>
@@ -400,63 +527,73 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="showBehaviorModels">
+      
+      <item row="7" column="0">
+       <widget class="QLabel" name="includeLabel">
         <property name="text">
-         <string>Behavior Models</string>
+         <string>Include patterns</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="wordWrap">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="showContext">
+      <item row="7" column="1">
+       <widget class="QLabel" name="excludeLabel">
         <property name="text">
-         <string>Context</string>
+         <string>Exclude patterns</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="wordWrap">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="8" column="0">
-       <widget class="QCheckBox" name="showLoader">
+       <widget class="QTextEdit" name="includeNames">
         <property name="text">
-         <string>Loader</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>ExportGraph</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
-       <widget class="QCheckBox" name="showEngine">
+      <item row="8" column="1">
+       <widget class="QTextEdit" name="excludeNames">
         <property name="text">
-         <string>Engine</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>NoExportGraph</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="showObjects">
+      <item row="7" column="2">
+       <widget class="QLabel" name="inputLinksLabel">
         <property name="text">
-         <string>Objects</string>
+         <string>Input Links</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="wordWrap">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="showNodes">
+      <item row="7" column="3">
+       <widget class="QLabel" name="outputLinksLabel">
         <property name="text">
-         <string>Nodes</string>
+         <string>Output Links</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QTextEdit" name="inputLinks">
+        <property name="text">
+          <string>rigidState
+projectionState</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="3">
+       <widget class="QTextEdit" name="outputLinks">
+        <property name="text">
+         <string>rigidForceField</string>
         </property>
        </widget>
       </item>
@@ -599,35 +736,48 @@
   <tabstop>filename</tabstop>
   <tabstop>browseButton</tabstop>
   <tabstop>layoutDirV</tabstop>
+  <tabstop>layoutDirVG</tabstop>
   <tabstop>layoutDirH</tabstop>
+  <tabstop>layoutDirHG</tabstop>
   <tabstop>layoutSpring</tabstop>
   <tabstop>layoutRadial</tabstop>
   <tabstop>genPNG</tabstop>
   <tabstop>genPS</tabstop>
   <tabstop>genPDF</tabstop>
   <tabstop>genSVG</tabstop>
+
   <tabstop>showNodes</tabstop>
   <tabstop>showObjects</tabstop>
   <tabstop>showSlaves</tabstop>
+  <tabstop>showAnimationLoop</tabstop>
   <tabstop>showBehaviorModels</tabstop>
-  <tabstop>showCollisionModels</tabstop>
-  <tabstop>showVisualModels</tabstop>
+  <tabstop>showControllers</tabstop>
+
   <tabstop>showMappings</tabstop>
-  <tabstop>showContext</tabstop>
-  <tabstop>showEngine</tabstop>
-  <tabstop>showLoader</tabstop>
+  <tabstop>showVisualModels</tabstop>
+  <tabstop>showVisualObjects</tabstop>
+  <tabstop>showCollisionModels</tabstop>
+  <tabstop>showConstraints</tabstop>
   <tabstop>showCollisionPipeline</tabstop>
-  <tabstop>showSolvers</tabstop>
+
+  <tabstop>showMechanicalMappings</tabstop>
   <tabstop>showMechanicalStates</tabstop>
+  <tabstop>showMass</tabstop>
   <tabstop>showForceFields</tabstop>
   <tabstop>showInteractionForceFields</tabstop>
-  <tabstop>showConstraints</tabstop>
-  <tabstop>showMass</tabstop>
+  <tabstop>showProjectiveConstraints</tabstop>
+  <tabstop>showSolvers</tabstop>
+
+  <tabstop>showTopologicalMappings</tabstop>
   <tabstop>showTopology</tabstop>
   <tabstop>showTopologyObjects</tabstop>
-  <tabstop>showTopologicalMappings</tabstop>
-  <tabstop>showMechanicalMappings</tabstop>
+  <tabstop>showEngine</tabstop>
+  <tabstop>showLoader</tabstop>
+  <tabstop>showContext</tabstop>
   <tabstop>showOthers</tabstop>
+
+  <tabstop>includeNames</tabstop>
+  <tabstop>ExcludeNames</tabstop>
   <tabstop>labelNodeName</tabstop>
   <tabstop>labelNodeClass</tabstop>
   <tabstop>labelObjectName</tabstop>
@@ -641,6 +791,22 @@
    <sender>showObjects</sender>
    <signal>toggled(bool)</signal>
    <receiver>showBehaviorModels</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showObjects</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showControllers</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -673,6 +839,22 @@
    <sender>showObjects</sender>
    <signal>toggled(bool)</signal>
    <receiver>showVisualModels</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showObjects</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showVisualObjects</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -753,6 +935,22 @@
    <sender>showObjects</sender>
    <signal>toggled(bool)</signal>
    <receiver>showCollisionPipeline</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showObjects</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showAnimationLoop</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -865,6 +1063,22 @@
    <sender>showObjects</sender>
    <signal>toggled(bool)</signal>
    <receiver>showConstraints</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showObjects</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showProjectiveConstraints</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1038,6 +1252,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>showControllers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>presetFilter</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>showCollisionModels</sender>
    <signal>toggled(bool)</signal>
    <receiver>presetFilter</receiver>
@@ -1055,6 +1285,22 @@
   </connection>
   <connection>
    <sender>showVisualModels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>presetFilter</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showVisualObjects</sender>
    <signal>toggled(bool)</signal>
    <receiver>presetFilter</receiver>
    <slot>clearEditText()</slot>
@@ -1135,6 +1381,22 @@
   </connection>
   <connection>
    <sender>showCollisionPipeline</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>presetFilter</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showAnimationLoop</sender>
    <signal>toggled(bool)</signal>
    <receiver>presetFilter</receiver>
    <slot>clearEditText()</slot>
@@ -1247,6 +1509,22 @@
   </connection>
   <connection>
    <sender>showConstraints</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>presetFilter</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showProjectiveConstraints</sender>
    <signal>toggled(bool)</signal>
    <receiver>presetFilter</receiver>
    <slot>clearEditText()</slot>
