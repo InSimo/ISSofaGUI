@@ -50,7 +50,7 @@
       </widget>
      </item>
       <item row="2" column="0">
-        <widget class="QLabel" name="filenameLabel">
+        <widget class="QLabel" name="graphvizdirLabel">
           <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>1</horstretch>
@@ -810,13 +810,15 @@ projectionState</string>
   <tabstop>showOthers</tabstop>
 
   <tabstop>includeNames</tabstop>
-  <tabstop>ExcludeNames</tabstop>
+  <tabstop>excludeNames</tabstop>
   <tabstop>labelNodeName</tabstop>
   <tabstop>labelNodeClass</tabstop>
   <tabstop>labelObjectName</tabstop>
   <tabstop>labelObjectClass</tabstop>
   <tabstop>displayButton</tabstop>
   <tabstop>exportButton</tabstop>
+
+  <tabstop>graphvizdir</tabstop>
  </tabstops>
  <resources/>
  <connections>
