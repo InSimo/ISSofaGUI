@@ -60,6 +60,7 @@ public:
 public slots:
     virtual void change();
     virtual void doBrowse();
+    virtual void doBrowseGraphviz();
     virtual void doExport();
     virtual void doDisplay();
     virtual void doClose();

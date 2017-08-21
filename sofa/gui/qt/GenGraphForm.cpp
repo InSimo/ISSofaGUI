@@ -24,6 +24,8 @@
 ******************************************************************************/
 #include "GenGraphForm.h"
 #include <sofa/simulation/tree/ExportDotVisitor.h>
+#include <sofa/helper/system/SetDirectory.h>
+#include <sofa/helper/system/FileSystem.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -226,6 +228,7 @@ GenGraphForm::GenGraphForm()
 
     // signals and slots connections
     connect(browseButton, SIGNAL(clicked()), this, SLOT(doBrowse()));
+    connect(browseGraphvizButton, SIGNAL(clicked()), this, SLOT(doBrowseGraphviz()));
     connect(exportButton, SIGNAL(clicked()), this, SLOT(doExport()));
     connect(displayButton, SIGNAL(clicked()), this, SLOT(doDisplay()));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(doClose()));
@@ -257,7 +260,28 @@ GenGraphForm::GenGraphForm()
     connect(showTopologicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showMechanicalMappings, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
     connect(showOthers, SIGNAL(toggled(bool)), this, SLOT(changeFilter()));
-
+#ifdef WIN32
+    std::string pfdir = "C:\\Program Files (x86)";
+    if (!sofa::helper::system::FileSystem::exists(pfdir))
+    {
+        pfdir = "C:\\Program Files (x86)";
+    }
+    std::vector<std::string> dirs;
+    sofa::helper::system::FileSystem::listDirectory(pfdir, dirs);
+    for(const std::string& s : dirs)
+    {
+        if (s.substr(0, 8) == "Graphviz")
+        {
+            std::string gdir = pfdir + std::string("\\") + s + std::string("\\bin");
+            if (sofa::helper::system::FileSystem::exists(gdir + std::string("\\dot.exe")))
+            {
+                graphvizdir->setText(gdir.c_str());
+                break;
+            }
+            //graphvizdir->setText("C:\\Program Files (x86)\\Graphviz2.38\\bin");
+        }
+    }
+#endif
 }
 
 void GenGraphForm::change()
@@ -310,6 +334,19 @@ void GenGraphForm::doBrowse()
     }
 }
 
+void GenGraphForm::doBrowseGraphviz()
+{
+    QString s = Q3FileDialog::getExistingDirectory(
+        graphvizdir->text(),
+        this,
+        "Graphviz bin directory dialog",
+        "Choose the directory where Graphviz executables are installed");
+    if (s.length()>0)
+    {
+        graphvizdir->setText(s);
+    }
+}
+
 void GenGraphForm::doExport()
 {
     if (!tasks.empty())
@@ -320,6 +357,11 @@ void GenGraphForm::doExport()
     if (filename->text()==QString("")) return;
 
     QString dotfile = filename->text();
+
+    if (!sofa::helper::system::SetDirectory::IsAbsolute(dotfile.ascii()))
+    {
+        dotfile = QString(sofa::helper::system::SetDirectory::GetRelativeFromDir(dotfile.ascii(), sofa::helper::system::SetDirectory::GetCurrentDir().c_str()).c_str());
+    }
 
     QString basefile = removeFileExt(dotfile);
 
@@ -411,7 +453,20 @@ void GenGraphForm::doExport()
     fdot.close();
 
     QStringList argv0;
-    argv0 << layout.c_str();
+    QString gvdir = graphvizdir->text();
+    if (!gvdir.isEmpty())
+    {
+#ifdef WIN32
+        QString executable = gvdir + QString("\\") + QString(layout.c_str()) + QString(".exe");
+#else
+        QString executable = gvdir + QString("/") + QString(layout.c_str());
+#endif
+        argv0 << executable;
+    }
+    else
+    {
+        argv0 << layout.c_str();
+    }
     bool exp = false;
 
     exportedFile = dotfile;
