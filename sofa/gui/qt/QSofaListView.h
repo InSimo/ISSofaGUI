@@ -111,6 +111,7 @@ public Q_SLOTS:
 	void setFilter( const QString & );
 	void setSearchName( bool );
 	void setSearchType( bool );
+    void setActivatedFilter(bool);
 	void setDisplayChildrenWhenParentMatches( bool );
 Q_SIGNALS:
     void Close();
@@ -173,6 +174,7 @@ protected:
 	QString	filter_;
 	bool searchName_;
 	bool searchType_;
+    bool activatedFilter_;
 	bool displayChildrenWhenParentMatches_;
 
 };

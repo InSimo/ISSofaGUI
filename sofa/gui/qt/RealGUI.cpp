@@ -1935,6 +1935,7 @@ void RealGUI::createSimulationGraph()
 	connect ( GraphFilter, SIGNAL( textChanged(const QString &) ), simulationGraph, SLOT( setFilter( const QString & ) ) );
 	connect ( SearchNamesCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setSearchName( bool ) ) );
 	connect ( SearchTypesCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setSearchType( bool ) ) );
+    connect(ActivatedCheckbox, SIGNAL(toggled(bool)), simulationGraph, SLOT(setActivatedFilter(bool)));
 	connect ( DisplayChildrenCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setDisplayChildrenWhenParentMatches( bool ) ) );
 //	connect ( SearchNamesCheckbox, SIGNAL( clicked() ), GraphFilter, SLOT( setFocus() ) );
 //	connect ( SearchTypesCheckbox, SIGNAL( clicked() ), GraphFilter, SLOT( setFocus() ) );

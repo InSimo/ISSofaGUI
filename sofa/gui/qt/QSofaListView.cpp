@@ -94,6 +94,7 @@ QSofaListView::QSofaListView(const SofaListViewAttribute& attribute,
 
 	searchName_ = true;
 	searchType_ = true;
+    activatedFilter_ = true;
 	displayChildrenWhenParentMatches_ = true;
 
     setRootIsDecorated(true);
@@ -217,7 +218,7 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
 {
 	emit Lock(true);
 
-	bool noOption = !searchName_ && !searchType_; // No option activated : ignore filter and display node anyway
+	bool noOption = !searchName_ && !searchType_ ; // No option activated : ignore filter and display node anyway
 
     bool display = noOption || filter_.isEmpty() ||
         (parentMatched && displayChildrenWhenParentMatches_);
@@ -229,7 +230,31 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
         display = true;
         for (int fl = 0; fl < filterList.size(); ++fl)
         {
-            display &= nameMatchesFilter(item, filterList.at(fl), bIsNode) || typeMatchesFilter(item, filterList.at(fl), bIsNode);
+            QString str = filterList.at(fl);
+            if (str.contains("/"))
+            {
+                if (bIsNode)
+                {
+                    str = str.remove(QChar('/'));
+                    display &= nameMatchesFilter(item, str, bIsNode) || typeMatchesFilter(item, str, bIsNode);
+                }
+                else
+                    display = false;
+            }
+            else if (str.contains("!"))
+            {
+                Base* base = graphListener_->findObject(item);
+                Node* node = Node::DynamicCast(base);
+                BaseObject * bo = dynamic_cast<BaseObject *>(base);
+                bool warn = node;
+                warn |= (bo && bo->getWarnings().empty());
+                                
+                display = !warn;
+            }
+            else
+            {
+                display &= nameMatchesFilter(item, str, bIsNode) || typeMatchesFilter(item, str, bIsNode);
+            }
         }
     }
 
@@ -264,9 +289,14 @@ bool QSofaListView::fillFilteredList(MatchingNodesList& nodesList, Q3ListViewIte
 
 		if (shouldDisplayNode(item, parentMatched, isItemANode(item)))
 		{
-			itemDisplayValue.second = true; // setVisible value
-			fillFilteredList(nodesList, item->firstChild(), true);
-			hasVisibleItem = true;
+            Base* base = graphListener_->findObject(item);
+            Node* node = Node::DynamicCast(base);
+            if (!node || (node->isActive() || !activatedFilter_))
+            {
+                itemDisplayValue.second = true; // setVisible value
+                fillFilteredList(nodesList, item->firstChild(), true);
+                hasVisibleItem = true;
+            }
 		}
 		else
 		{
@@ -700,6 +730,19 @@ void QSofaListView::setSearchType(bool value)
 		applyFilter();
 
 	emit Lock(false);
+}
+
+void QSofaListView::setActivatedFilter(bool value)
+{
+    emit Lock(true);
+    bool oldValue = activatedFilter_;
+
+    activatedFilter_ = value;
+
+    if (oldValue != activatedFilter_)
+        applyFilter();
+
+    emit Lock(false);
 }
 
 void QSofaListView::setDisplayChildrenWhenParentMatches(bool value)
