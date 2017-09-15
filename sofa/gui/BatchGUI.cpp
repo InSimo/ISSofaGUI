@@ -26,12 +26,14 @@
 #include <sofa/simulation/common/Simulation.h>
 #include <sofa/simulation/common/UpdateContextVisitor.h>
 #include <sofa/simulation/common/GUIFactory.h>
+#include <sofa/core/objectmodel/IdleEvent.h>
 #ifdef SOFA_SMP
 #include <athapascan-1>
 #endif
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <thread>
 
 namespace sofa
 {
@@ -41,13 +43,15 @@ namespace gui
 
 sofa::helper::Creator<sofa::simulation::gui::GUIFactory,BatchGUI> creatorBatchGUI("batch", false, -1, "SofaGUI Batch GUI", {"SofaGuiBatch"});
 
-const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 1000;
-unsigned int BatchGUI::nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
-bool BatchGUI::logStepDuration = false;
+const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 0;
+unsigned int BatchGUI::m_nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
+bool BatchGUI::m_exitWhenPaused = false;
+double BatchGUI::m_idleEventFreq = 100; //Hz
+bool BatchGUI::m_logStepDuration = false;
 
 BatchGUI::BatchGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 : BaseGUI(a)
-, groot(NULL)
+, m_groot(NULL)
 {
 }
 
@@ -62,48 +66,91 @@ BatchGUI* BatchGUI::CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 
 int BatchGUI::mainLoop()
 {
-    if (groot)
+    if (m_groot)
     {
-        typedef std::chrono::steady_clock::time_point time_point;
-        sofa::simulation::getSimulation()->animate(groot.get());
-        //As no visualization is done by the Batch GUI, this line is not necessary.
-        sofa::simulation::getSimulation()->updateVisual(groot.get());
-        std::cout << "Computing "<<nbIter<<" iterations." << std::endl;
+        // It makes no sense to start without animating in this GUI, so animate by default
+        m_groot->setAnimate(true);
 
-        if (!logStepDuration)
+        // Note: As no visualization is done by the Batch GUI, calling updateVisual() is not necessary if nothing else needs the VisualModels to be updated.
+        if (m_nbIter != 0) // benchmark mode
         {
-            const time_point startT = std::chrono::steady_clock::now();
+            typedef std::chrono::steady_clock::time_point time_point;
+            sofa::simulation::getSimulation()->animate(m_groot.get());
+            sofa::simulation::getSimulation()->updateVisual(m_groot.get());
 
-            for (unsigned int i = 0; i < nbIter; i++)
+            std::cout << "Computing " << m_nbIter << " iterations." << std::endl;
+
+            if (!m_logStepDuration)
             {
-                sofa::simulation::getSimulation()->animate(groot.get());
-                //As no visualization is done by the Batch GUI, this line is not necessary.
-                sofa::simulation::getSimulation()->updateVisual(groot.get());
+                const time_point startT = std::chrono::steady_clock::now();
+
+                for (unsigned int i = 0; i < m_nbIter; ++i)
+                {
+                    if (!step())
+                    {
+                        break;
+                    }
+                }
+                const std::chrono::duration<double> duration = std::chrono::steady_clock::now() - startT;
+
+                std::cout << m_nbIter << " iterations done in " << duration.count() << " s ( " << m_nbIter / duration.count() << " FPS)." << std::endl;
             }
+            else
+            {
+                sofa::helper::vector< std::chrono::duration<double, std::milli> > stepDurationVec;
+                stepDurationVec.reserve(m_nbIter);
+                time_point previousT = std::chrono::steady_clock::now();
 
-            const std::chrono::duration<double> duration = std::chrono::steady_clock::now() - startT;
+                for (unsigned int i = 0; i < m_nbIter; ++i)
+                {
+                    if (!step())
+                    {
+                        break;
+                    }
+                    const time_point currentT = std::chrono::steady_clock::now();
+                    stepDurationVec.push_back(currentT - previousT);
+                    previousT = currentT;
+                }
 
-            std::cout << nbIter << " iterations done in " << duration.count() << " s ( " << nbIter / duration.count() << " FPS)." << std::endl;
+                saveStepDurationLog(stepDurationVec);
+            }
         }
-        else
+        else // daemon-like mode
         {
-            sofa::helper::vector< std::chrono::duration<double, std::milli> > stepDurationVec;
-            stepDurationVec.reserve(nbIter);
-            time_point previousT = std::chrono::steady_clock::now();
-            for (unsigned int i = 0; i < nbIter; i++)
-            {
-                sofa::simulation::getSimulation()->animate(groot.get());
-                //As no visualization is done by the Batch GUI, this line is not necessary.
-                sofa::simulation::getSimulation()->updateVisual(groot.get());
-                const time_point currentT = std::chrono::steady_clock::now();
-                stepDurationVec.push_back(currentT - previousT);
-                previousT = currentT;
-            }
-
-            saveStepDurationLog(stepDurationVec);
+            while (step()) {}
         }
     }
     return 0;
+}
+
+bool BatchGUI::step()
+{
+    if (m_groot->getAnimate())
+    {
+        sofa::simulation::getSimulation()->animate(m_groot.get());
+        sofa::simulation::getSimulation()->updateVisual(m_groot.get());
+    }
+    else
+    {
+        if (m_exitWhenPaused)
+        {
+            return false;
+        }
+
+        // Yield to avoid unnecessary cpu work
+        if (std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - m_lastIdleEventTime).count() < 1. / m_idleEventFreq)
+        {
+            std::this_thread::yield(); // must yield instead of sleep in case the frequency is very low as not to block unpausing the simulation
+            return true;
+        }
+
+        // Propagate idle event
+        m_lastIdleEventTime = std::chrono::high_resolution_clock::now();
+        sofa::core::objectmodel::IdleEvent ie;
+        getCurrentSimulation()->propagateEvent(sofa::core::ExecParams::defaultInstance(), &ie);
+    }
+
+    return true;
 }
 
 void BatchGUI::redraw()
@@ -117,8 +164,8 @@ void BatchGUI::initialize()
 
 void BatchGUI::setScene(sofa::simulation::Node::SPtr groot, const char* filename, bool )
 {
-    this->groot = groot;
-    this->filename = (filename?filename:"");
+    this->m_groot = groot;
+    this->m_filename = (filename?filename:"");
 
     resetScene();
 }
@@ -191,23 +238,23 @@ void BatchGUI::saveStepDurationLog(const sofa::helper::vector<std::chrono::durat
 
 sofa::simulation::Node* BatchGUI::getCurrentSimulation()
 {
-    return groot.get();
+    return m_groot.get();
 }
 
 
 int BatchGUI::initGUI()
 {
-    setNumIterations(DEFAULT_NUMBER_OF_ITERATIONS);
     auto& guiOptions = this->getGUIOptions();
     //parse options
     for (unsigned int i=0 ; i<guiOptions.size() ; i++)
     {
         size_t cursor = 0;
         std::string opt = guiOptions[i];
-        //Set number of iterations
-        //(option = "nbIterations=N where N is the number of iterations)
-        if ( (cursor = opt.find("nbIterations=")) != std::string::npos )
+        std::istringstream iss;
+        if ((cursor = opt.find("nbIterations=")) != std::string::npos)
         {
+            //Set number of iterations
+            //(option = "nbIterations=N where N is the number of iterations)
             unsigned int nbIterations;
             std::istringstream iss;
             iss.str(opt.substr(cursor+std::string("nbIterations=").length(), std::string::npos));
@@ -216,8 +263,18 @@ int BatchGUI::initGUI()
         }
         else if (opt.find("logStepDuration") != std::string::npos)
         {
-            logStepDuration = true;
+            m_logStepDuration = true;
         }
+        else if ((cursor = opt.find("exitWhenPaused")) != std::string::npos)
+        {
+            m_exitWhenPaused = true;
+        }
+        else if ((cursor = opt.find("idleEventFreq=")) != std::string::npos)
+        {
+            iss.str(opt.substr(cursor + std::string("idleEventFreq=").length(), std::string::npos));
+            iss >> m_idleEventFreq;
+        }
+
     }
     return 0;
 }

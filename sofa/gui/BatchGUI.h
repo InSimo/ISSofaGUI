@@ -57,9 +57,10 @@ public:
     void resetScene();
 
     int mainLoop() override;
+    bool step();
     void redraw();
 
-    static void setNumIterations(unsigned int n) {nbIter=n;};
+    static void setNumIterations(unsigned int n) {m_nbIter=n;};
     sofa::simulation::Node* getCurrentSimulation() override;
     
     void initialize() override;
@@ -86,10 +87,14 @@ protected:
 
     std::ostringstream m_dumpVisitorStream;
 
-    sofa::simulation::Node::SPtr groot;
-    std::string filename;
-    static unsigned int nbIter;
-    static bool logStepDuration;
+    sofa::simulation::Node::SPtr m_groot;
+    std::string m_filename;
+    static unsigned int m_nbIter;
+    static bool m_exitWhenPaused;
+    static double m_idleEventFreq;
+
+    std::chrono::high_resolution_clock::time_point m_lastIdleEventTime;
+    static bool m_logStepDuration;
 };
 
 } // namespace gui
