@@ -67,9 +67,19 @@ CaptureOptionsWidget::CaptureOptionsWidget( QWidget * parent)
     HLayoutFrameskip->addWidget (labelFrameskip);
     HLayoutFrameskip->addWidget (frameskipSpinBox);
 
+    QHBoxLayout *HLayoutFrameskip0 = new QHBoxLayout();
+    QLabel *labelFrameskip0=new QLabel(QString("Skip initial frames before capture: "), this);
+    frameskip0SpinBox = new QSpinBox(this);
+    frameskip0SpinBox->setMinValue(0);
+    frameskip0SpinBox->setMaxValue(1000000);
+    frameskip0SpinBox->setValue(0);
+    HLayoutFrameskip0->addWidget (labelFrameskip0);
+    HLayoutFrameskip0->addWidget (frameskip0SpinBox);
+
     layout->addLayout(HLayoutFramerate);
     layout->addWidget(realtimeCheckBox);
     layout->addLayout(HLayoutFrameskip);
+    layout->addLayout(HLayoutFrameskip0);
 
     //this->addLayout(layout);
 }
@@ -146,7 +156,12 @@ unsigned int SofaVideoRecorderManager::getFramerate()
 
 void SofaVideoRecorderManager::setFrameskip(unsigned int skip)
 {
-    captureOptionsWidget->framerateSpinBox->setValue(skip);
+    captureOptionsWidget->frameskipSpinBox->setValue(skip);
+}
+
+void SofaVideoRecorderManager::setFrameskip0(unsigned int skip)
+{
+    captureOptionsWidget->frameskip0SpinBox->setValue(skip);
 }
 
 unsigned int SofaVideoRecorderManager::getBitrate()
@@ -164,6 +179,10 @@ unsigned int SofaVideoRecorderManager::getFrameskip()
     return captureOptionsWidget->frameskipSpinBox->value();
 }
 
+unsigned int SofaVideoRecorderManager::getFrameskip0()
+{
+    return captureOptionsWidget->frameskip0SpinBox->value();
+}
 
 void SofaVideoRecorderManager::updateContent()
 {

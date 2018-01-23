@@ -59,6 +59,7 @@ public:
     QSpinBox* framerateSpinBox;
     QCheckBox* realtimeCheckBox;
     QSpinBox* frameskipSpinBox;
+    QSpinBox* frameskip0SpinBox;
 };
 
 class MovieOptionsWidget : public QWidget
@@ -106,6 +107,8 @@ public:
     bool realtime();
     unsigned int getFrameskip();
     void setFrameskip(unsigned int skip);
+    unsigned int getFrameskip0();
+    void setFrameskip0(unsigned int skip);
     RecordingType getRecordingType() { return currentRecordingType; }
 
     //helper function

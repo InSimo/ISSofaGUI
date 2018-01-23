@@ -1862,6 +1862,27 @@ void RealGUI::parseOptionsPostInit(const std::vector<std::string>& options)
                 }
             }
         }
+        else if ( (cursor = opt.find("videoStart=")) != std::string::npos )
+        {
+            unsigned int skip;
+            std::istringstream iss;
+            iss.str(opt.substr(cursor+std::string("videoStart=").length(), std::string::npos));
+            iss >> skip;
+            std::cout << "Sofa GUI: setting video capture starting after " << skip << " frames" << std::endl;
+            if(getViewer())
+            {
+                SofaVideoRecorderManager::getInstance()->setFrameskip0(skip-1);
+            }
+        }
+        else if ((cursor = opt.find("videoPrefix=")) != std::string::npos)
+        {
+            std::string prefix = opt.substr(cursor + std::string("videoPrefix=").length());
+            std::cout << "Sofa GUI: setting video capture prefix to " << prefix << std::endl;
+            if (getViewer())
+            {
+                getViewer()->setVideoPrefix(prefix);
+            }
+        }
     }
 }
 

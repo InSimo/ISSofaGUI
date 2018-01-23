@@ -412,7 +412,13 @@ void SofaViewer::captureEvent()
     {
         bool skip = false;
         unsigned int frameskip = SofaVideoRecorderManager::getInstance()->getFrameskip();
-        if (frameskip)
+        unsigned int frameskip0 = SofaVideoRecorderManager::getInstance()->getFrameskip0();
+        if (frameskip0)
+        {
+            SofaVideoRecorderManager::getInstance()->setFrameskip0(frameskip0-1);
+            skip = true;
+        }
+        else if (frameskip)
         {
             static unsigned int skipcounter = 0;
             if (skipcounter < frameskip)

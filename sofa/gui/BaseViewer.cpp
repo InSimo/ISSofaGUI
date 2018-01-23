@@ -80,20 +80,23 @@ void BaseViewer::setSceneFileName(const std::string &f)
 
 void BaseViewer::setScene(sofa::simulation::Node::SPtr scene, const char* filename /* = NULL */, bool /* = false */)
 {
-    std::string file =
-        filename ? sofa::helper::system::SetDirectory::GetFileNameWithoutExtension(
+    if (_videoPrefix.empty())
+    {
+        std::string file =
+            filename ? sofa::helper::system::SetDirectory::GetFileNameWithoutExtension(
                 filename) : std::string();
-    std::string screenshotPrefix =
-        sofa::helper::system::SetDirectory::GetParentDir(
+        std::string screenshotPrefix =
+            sofa::helper::system::SetDirectory::GetParentDir(
                 sofa::helper::system::DataRepository.getFirstPath().c_str())
-        + std::string("/share/screenshots/") + file
-        + std::string("_");
+            + std::string("/share/screenshots/") + file
+            + std::string("_");
 #ifndef SOFA_NO_OPENGL
-    capture.setPrefix(screenshotPrefix);
+        capture.setPrefix(screenshotPrefix);
 #endif
 #ifdef SOFA_HAVE_FFMPEG
-    videoRecorder.setPrefix(screenshotPrefix);
+        videoRecorder.setPrefix(screenshotPrefix);
 #endif //SOFA_HAVE_FFMPEG
+    }
     sceneFileName = filename ? filename : std::string("default.scn");
     groot = scene;
     initTexturesDone = false;
@@ -230,6 +233,17 @@ void BaseViewer::setVideoRecording(bool enable)
 bool BaseViewer::isVideoRecording() const
 {
     return _video;
+}
+
+void BaseViewer::setVideoPrefix(const std::string& prefix)
+{
+    _videoPrefix = prefix;
+#ifndef SOFA_NO_OPENGL
+    capture.setPrefix(prefix);
+#endif
+#ifdef SOFA_HAVE_FFMPEG
+    videoRecorder.setPrefix(prefix);
+#endif //SOFA_HAVE_FFMPEG
 }
 
 void BaseViewer::setBackgroundColour(float r, float g, float b)
