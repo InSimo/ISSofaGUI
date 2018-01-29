@@ -233,6 +233,7 @@ void PickHandler::deactivateRay()
         operations[MIDDLE]->endOperation();
         operations[RIGHT]->endOperation();
 
+        interaction->mouseInteractor->cleanup();
         interaction->detach();
         if( pickingMethod == SELECTION_BUFFER)
         {
@@ -264,6 +265,7 @@ void PickHandler::setCompatibleInteractor()
             if (instanceComponents[i] != interaction &&
                 instanceComponents[i]->isCompatible(lastPicked.body->getContext()))
             {
+                interaction->mouseInteractor->cleanup();
                 interaction->detach();
                 interaction = instanceComponents[i];
                 interaction->attach(mouseNode.get());
@@ -278,6 +280,7 @@ void PickHandler::setCompatibleInteractor()
             if (instanceComponents[i] != interaction &&
                 instanceComponents[i]->isCompatible(lastPicked.mstate->getContext()))
             {
+                interaction->mouseInteractor->cleanup();
                 interaction->detach();
                 interaction = instanceComponents[i];
                 interaction->attach(mouseNode.get());
