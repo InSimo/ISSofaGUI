@@ -33,6 +33,7 @@
 #include <sofa/helper/fixed_array.h>
 #include <sofa/simulation/common/Node.h>
 #include "WDoubleLineEdit.h"
+#include "QSofaListView.h"
 
 #ifdef SOFA_QT4
 #include <QDialog>
@@ -150,6 +151,7 @@ public:
             Q3ListViewItem* item_clicked,
             QWidget* parent,
             const ModifyObjectFlags& dialogFlags,
+            const std::map<core::objectmodel::Base*, Q3ListViewItem* >& items,
             const char* name= 0,
             bool  modal= FALSE,
             Qt::WFlags f= 0 );
@@ -201,6 +203,8 @@ protected:
     QString parseDataModified();
     void* Id_;
     Q3ListViewItem* item_;
+    const std::map<core::objectmodel::Base*, Q3ListViewItem* >& items_;
+
     core::objectmodel::Base* node;
     core::objectmodel::BaseData* data_;
     const ModifyObjectFlags dialogFlags_;
@@ -227,7 +231,7 @@ protected:
     //Visual Flags
 
     std::vector< QTabulationModifyObject* > m_tabs;
-
+    QSofaListView* listview;
 };
 
 

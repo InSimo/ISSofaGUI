@@ -50,7 +50,7 @@ QTabulationModifyObject::QTabulationModifyObject(QWidget* parent,
     layout->setSpacing(0);
 }
 
-void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags)
+void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference, QSofaListView* listView)
 {
 
     if (  (!data->isDisplayed()) && flags.HIDE_FLAG )
@@ -68,7 +68,7 @@ void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, c
     data->setDisplayed(true);
 
     const std::string name=data->getName();
-    QDisplayDataWidget* displaydatawidget = new QDisplayDataWidget(this,data,flags);
+    QDisplayDataWidget* displaydatawidget = new QDisplayDataWidget(this,data,flags,componentReference,listView);
     this->layout()->add(displaydatawidget);
 
     size += displaydatawidget->getNumWidgets();
@@ -85,14 +85,13 @@ void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, c
 }
 
 
-void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags)
+void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference, QSofaListView* listView)
 {
     //if (  (!link->isDisplayed()) && flags.HIDE_FLAG ) return;
 
     //link->setDisplayed(true);
-
     const std::string name=link->getName();
-    QDisplayLinkWidget* displaylinkwidget = new QDisplayLinkWidget(this,link,flags);
+    QDisplayLinkWidget* displaylinkwidget = new QDisplayLinkWidget(this,link,flags,componentReference, listView);
     this->layout()->add(displaylinkwidget);
 
     size += displaylinkwidget->getNumWidgets();

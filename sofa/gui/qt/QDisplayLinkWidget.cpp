@@ -32,11 +32,14 @@
 #include <Q3GroupBox>
 #include <QLabel>
 #include <QValidator>
+#include <QPushButton>
+
 #else
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qvalidator.h>
+#include <qpushbutton.h>
 #endif
 
 #define TEXTSIZE_THRESHOLD 45
@@ -54,7 +57,9 @@ namespace qt
 
 QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
         BaseLink* link,
-        const ModifyObjectFlags& flags)
+        const ModifyObjectFlags& flags,
+        Q3ListViewItem* componentReference,
+        QSofaListView* listView)
     : Q3GroupBox(parent),
       link_(link),
       linkinfowidget_(NULL),
@@ -78,7 +83,6 @@ QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
         numWidgets_ += linkinfowidget_->getNumLines()/3;
 
     }
-
     const std::string valuetype = link_->getValueTypeString();
     if (!valuetype.empty())
         setToolTip(valuetype.c_str());
@@ -93,7 +97,7 @@ QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
 
     if (linkwidget_ == 0)
     {
-        linkwidget_ = new QLinkSimpleEdit(this,dwarg.link->getName().c_str(), dwarg.link);
+        linkwidget_ = new QLinkSimpleEdit(this,dwarg.link->getName().c_str(), dwarg.link, componentReference, listView);
         linkwidget_->createWidgets();
         linkwidget_->setEnabled(!(dwarg.readOnly));
         assert(linkwidget_ != NULL);
@@ -123,8 +127,22 @@ void QDisplayLinkWidget::showHelp(bool)
 {
 }
 
-QLinkSimpleEdit::QLinkSimpleEdit(QWidget* parent, const char* name, BaseLink* link)
-    : LinkWidget(parent,name,link)
+void QLinkSimpleEdit::openLink()
+{
+    if (componentReference_ != NULL)
+    {
+        Q3ListViewItem* item = listView_->currentItem();
+        listView_->setCurrentItem(componentReference_);
+        listView_->updateMatchingObjectmodel(componentReference_);
+        listView_->RunSofaDoubleClicked(componentReference_);
+        listView_->setCurrentItem(item);
+    }
+}
+
+QLinkSimpleEdit::QLinkSimpleEdit(QWidget* parent, const char* name, BaseLink* link, Q3ListViewItem* componentReference, QSofaListView* listView)
+    : LinkWidget(parent,name,link),
+    listView_(listView),
+    componentReference_(componentReference)
 {
 }
 
@@ -144,8 +162,14 @@ bool QLinkSimpleEdit::createWidgets()
         innerWidget_.type = LINEEDIT;
         innerWidget_.widget.lineEdit  = new QLineEdit(this);
         innerWidget_.widget.lineEdit->setText(str);
-        connect( innerWidget_.widget.lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT( update() ) );
+        connect(innerWidget_.widget.lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(update()));
         layout->add(innerWidget_.widget.lineEdit);
+    }
+    if (getBaseLink()->getValueString() != "")
+    {
+        innerWidget_.reference = new QPushButton("&Link", this);
+        connect(innerWidget_.reference, SIGNAL(clicked()), this, SLOT(openLink()));
+        layout->add(innerWidget_.reference);
     }
 
     return true;

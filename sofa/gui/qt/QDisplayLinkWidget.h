@@ -26,12 +26,14 @@
 #define SOFA_GUI_QT_DISPLAYLINKWIDGET_H
 
 #include "LinkWidget.h"
+#include "QSofaListView.h"
 #ifdef SOFA_QT4
 #include <QWidget>
 #include <QLineEdit>
 #include <QTextEdit>
 #include <Q3GroupBox>
 #include <QSlider>
+#include <Q3ListViewItem>
 #else
 #include <qslider.h>
 #include <qwidget.h>
@@ -64,13 +66,16 @@ class QDisplayLinkWidget : public Q3GroupBox
 public:
     QDisplayLinkWidget(QWidget* parent,
             core::objectmodel::BaseLink* link,
-            const ModifyObjectFlags& flags);
+            const ModifyObjectFlags& flags,
+            Q3ListViewItem* componentReference,
+            QSofaListView* listView);
     unsigned int getNumWidgets() const { return numWidgets_;};
 
 public slots:
     void UpdateLink();              //QWidgets ---> BaseLink
     void UpdateWidgets();           //BaseLink ---> QWidget
     void showHelp(bool);
+
 signals:
     void WidgetDirty(bool);
     void WidgetUpdate();
@@ -81,7 +86,6 @@ protected:
     QDisplayLinkInfoWidget*  linkinfowidget_;
     LinkWidget* linkwidget_;
     unsigned int numWidgets_;
-
 };
 
 
@@ -100,16 +104,23 @@ class QLinkSimpleEdit : public LinkWidget
     {
         QEditType type;
         QEditWidgetPtr widget;
+        QPushButton* reference;
     } QSimpleEdit;
 public :
-    QLinkSimpleEdit(QWidget*, const char* name, core::objectmodel::BaseLink*);
+    QLinkSimpleEdit(QWidget*, const char* name, core::objectmodel::BaseLink*, Q3ListViewItem* componentReference, QSofaListView* listView);
     virtual unsigned int numColumnWidget() {return 3;}
     virtual unsigned int sizeWidget() {return 1;}
     virtual bool createWidgets();
+    
+public slots:
+    void openLink();
+
 protected:
     virtual void readFromLink();
     virtual void writeToLink();
     QSimpleEdit innerWidget_;
+    Q3ListViewItem* componentReference_;
+    QSofaListView* listView_;
 };
 
 } // namespace qt

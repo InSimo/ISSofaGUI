@@ -663,8 +663,7 @@ void QSofaListView::Modify()
             return;
         }
 
-
-        dialogModifyObject = new ModifyObject(current_Id_modifyDialog,currentItem(),this,dialogFlags,currentItem()->text(0));
+        dialogModifyObject = new ModifyObject(current_Id_modifyDialog,currentItem(),this,dialogFlags,graphListener_->items,currentItem()->text(0));
         if(object_.type == typeData)
             dialogModifyObject->createDialog(object_.ptr.Data);
         if(object_.type == typeNode)

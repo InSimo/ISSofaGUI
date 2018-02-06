@@ -28,6 +28,7 @@
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/core/objectmodel/BaseLink.h>
 #include <sofa/simulation/common/Node.h>
+#include "QSofaListView.h"
 
 
 #ifdef SOFA_QT4
@@ -68,8 +69,8 @@ public:
             unsigned int idx=1);
 
     void externalWidgetAddition(int num) {size+=num;}
-    void addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags);
-    void addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags);
+    void addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference = nullptr, QSofaListView* listView = nullptr);
+    void addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference, QSofaListView* listView);
     void addStretch();
 
     unsigned int getIndex() const {return index;};

@@ -71,7 +71,9 @@ class QDisplayDataWidget : public Q3GroupBox
 public:
     QDisplayDataWidget(QWidget* parent,
             core::objectmodel::BaseData* data,
-            const ModifyObjectFlags& flags);
+            const ModifyObjectFlags& flags, 
+            Q3ListViewItem* componentReference = nullptr,
+            QSofaListView* listView = nullptr);
     unsigned int getNumWidgets() const { return numWidgets_;}
 
     ModifyObjectFlags flag() {return flags_;}
@@ -80,6 +82,8 @@ public slots:
     void UpdateData();              //QWidgets ---> BaseData
     void UpdateWidgets();           //BaseData ---> QWidget
     void showHelp(bool);
+    void openLink();
+
 signals:
     void WidgetDirty(bool);
     void WidgetUpdate();
@@ -93,7 +97,8 @@ protected:
     QDisplayDataInfoWidget*  datainfowidget_;
     DataWidget* datawidget_;
     unsigned int numWidgets_;
-
+    Q3ListViewItem* componentReference_;
+    QSofaListView* listView_;
 };
 
 
@@ -124,7 +129,7 @@ protected:
     virtual void writeToData();
     virtual bool checkDirty();
     QSimpleEdit innerWidget_;
-    QString lastValue;    
+    QString lastValue;
 };
 
 class QPoissonRatioWidget : public TDataWidget<double>

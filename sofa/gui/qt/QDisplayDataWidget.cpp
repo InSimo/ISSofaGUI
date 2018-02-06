@@ -53,13 +53,16 @@ namespace qt
 {
 QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
         BaseData* data,
-        const ModifyObjectFlags& flags):Q3GroupBox(parent),
+        const ModifyObjectFlags& flags,
+        Q3ListViewItem* componentReference, 
+        QSofaListView* listView):Q3GroupBox(parent),
     data_(data),
     flags_(flags),
     datainfowidget_(NULL),
     datawidget_(NULL),
-    numWidgets_(0)
-
+    numWidgets_(0),
+    listView_(listView),
+    componentReference_(componentReference)
 {
     setAutoFillBackground(true);
 
@@ -141,8 +144,14 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
         datawidget_->setReadOnly(dwarg.readOnly);
         assert(datawidget_ != NULL);
     }
-
     datawidget_->setContentsMargins(0, 0, 0, 0);
+
+    if (componentReference != nullptr)
+    {
+        QPushButton *link = new QPushButton("&Link", this);
+        this->layout()->add(link);
+        connect(link, SIGNAL(clicked()), this, SLOT(openLink()));
+    }
 
     //std::cout << "WIDGET created for data " << dwarg.data << " : " << dwarg.name << " : " << dwarg.data->getValueTypeString() << std::endl;
     numWidgets_ += datawidget_->sizeWidget();
@@ -218,6 +227,18 @@ void QDisplayDataWidget::showHelp(bool v)
         setToolTip(popup_text.c_str());
 
     this->adjustSize();
+}
+
+void QDisplayDataWidget::openLink()
+{
+    if (componentReference_ != nullptr && listView_ != nullptr)
+    {
+        Q3ListViewItem* item = listView_->currentItem();
+        listView_->setCurrentItem(componentReference_);
+        listView_->updateMatchingObjectmodel(componentReference_);
+        listView_->RunSofaDoubleClicked(componentReference_);
+        listView_->setCurrentItem(item);
+    }
 }
 
 QDataSimpleEdit::QDataSimpleEdit(QWidget* parent, const char* name, BaseData* data):

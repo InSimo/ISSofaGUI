@@ -69,11 +69,13 @@ ModifyObject::ModifyObject(
     Q3ListViewItem* item_clicked,
     QWidget* parent,
     const ModifyObjectFlags& dialogFlags,
+    const std::map<core::objectmodel::Base*, Q3ListViewItem* >& items,
     const char* name,
     bool modal, Qt::WFlags f )
     :QDialog(parent, name, modal, f),
      Id_(Id),
      item_(item_clicked),
+     items_(items),
      node(NULL),
      data_(NULL),
      dialogFlags_(dialogFlags),
@@ -88,6 +90,7 @@ ModifyObject::ModifyObject(
 #endif
 {
     setCaption(name);
+    listview = dynamic_cast<QSofaListView*>(parent);
 }
 
 void ModifyObject::createDialog(core::objectmodel::Base* base)
@@ -175,7 +178,8 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
 
         for( sofa::core::objectmodel::Base::VecData::const_iterator it = fields.begin(); it!=fields.end(); ++it)
         {
-            core::objectmodel::BaseData* data=*it;
+            core::objectmodel::BaseData* data = *it;
+            Q3ListViewItem* componentReference = nullptr;
             if (!data)
             {
                 std::cerr << "ERROR: NULL Data in " << node->getName() << std::endl;
@@ -183,7 +187,18 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             }
 
             if (data->getName().empty()) continue; // ignore unnamed data
-
+            auto links = data->getLinkPath();
+            auto parent = data->getParent();
+            if (parent)
+            {
+                for (std::map<core::objectmodel::Base*, Q3ListViewItem* >::const_iterator it2 = items_.begin(); it2 != items_.end(); ++it2)
+                {
+                    if ((*it2).first == parent->getOwner())
+                    {
+                        componentReference = (*it2).second;
+                    }
+                }
+            }
             if (!data->getGroup())
             {
                 std::cerr << "ERROR: NULL group for Data " << data->getName() << " in " << node->getName() << std::endl;
@@ -211,7 +226,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
                 tabs.push_back(m_tabs.back());
             }
             currentTab = tabs.back();
-            currentTab->addData(data, getFlags());
+            currentTab->addData(data, getFlags(), componentReference, listview);
             if (newTab)
             {
                 connect(buttonUpdate,   SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
@@ -234,7 +249,14 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         for( sofa::core::objectmodel::Base::VecLink::const_iterator it = links.begin(); it!=links.end(); ++it)
         {
             core::objectmodel::BaseLink* link=*it;
-
+            Q3ListViewItem* componentReference = nullptr;
+            for (std::map<core::objectmodel::Base*, Q3ListViewItem* >::const_iterator it2 = items_.begin(); it2 != items_.end(); ++it2)
+            {
+                if ((*it2).first == link->getLinkedBase()  )
+                {
+                    componentReference = (*it2).second;
+                }
+            }
             if (link->getName().empty()) continue; // ignore unnamed links
             if (!link->storePath() && link->getSize() == 0) continue; // ignore empty links
 
@@ -257,7 +279,7 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             }
             currentTab = tabs.back();
 
-            currentTab->addLink(link, getFlags());
+            currentTab->addLink(link, getFlags(), componentReference, listview);
             connect(buttonUpdate,   SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
             connect(buttonOk,       SIGNAL(clicked() ),          currentTab, SLOT( updateDataValue() ) );
             connect(this,           SIGNAL(updateDataWidgets()), currentTab, SLOT( updateWidgetValue()) );

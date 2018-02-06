@@ -113,6 +113,10 @@ public Q_SLOTS:
 	void setSearchType( bool );
     void setActivatedFilter(bool);
 	void setDisplayChildrenWhenParentMatches( bool );
+    void updateMatchingObjectmodel(Q3ListViewItem* item);
+    void Modify();
+    void RunSofaDoubleClicked(Q3ListViewItem*);
+
 Q_SIGNALS:
     void Close();
     void Lock(bool);
@@ -135,16 +139,13 @@ protected Q_SLOTS:
     void modifyUnlock(void* Id);
     void RaiseAddObject();
     void RemoveNode();
-    void Modify();
     void HideDatas();
     void ShowDatas();
     void DeactivateNode();
     void ActivateNode();
     void loadObject ( std::string path, double dx, double dy, double dz,  double rx, double ry, double rz,double scale );
 
-    void updateMatchingObjectmodel(Q3ListViewItem* item);
     void RunSofaRightClicked( Q3ListViewItem *item, const QPoint& point, int index );
-    void RunSofaDoubleClicked( Q3ListViewItem*);
 
     void nodeNameModification( simulation::Node*);
     void focusObject();
