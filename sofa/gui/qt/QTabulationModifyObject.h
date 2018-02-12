@@ -70,7 +70,7 @@ public:
 
     void externalWidgetAddition(int num) {size+=num;}
     void addData(sofa::core::objectmodel::BaseData *data, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference = nullptr, QSofaListView* listView = nullptr);
-    void addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference, QSofaListView* listView);
+    void addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, sofa::helper::vector<Q3ListViewItem*> componentReference, QSofaListView* listView);
     void addStretch();
 
     unsigned int getIndex() const {return index;};

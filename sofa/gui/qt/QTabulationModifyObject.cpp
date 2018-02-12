@@ -85,7 +85,7 @@ void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, c
 }
 
 
-void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, Q3ListViewItem* componentReference, QSofaListView* listView)
+void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, const ModifyObjectFlags& flags, sofa::helper::vector<Q3ListViewItem*> componentReference, QSofaListView* listView)
 {
     //if (  (!link->isDisplayed()) && flags.HIDE_FLAG ) return;
 

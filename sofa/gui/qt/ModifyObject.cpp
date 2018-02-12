@@ -249,12 +249,15 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
         for( sofa::core::objectmodel::Base::VecLink::const_iterator it = links.begin(); it!=links.end(); ++it)
         {
             core::objectmodel::BaseLink* link=*it;
-            Q3ListViewItem* componentReference = nullptr;
+            sofa::helper::vector<Q3ListViewItem*> componentReference;
             for (std::map<core::objectmodel::Base*, Q3ListViewItem* >::const_iterator it2 = items_.begin(); it2 != items_.end(); ++it2)
             {
-                if ((*it2).first == link->getLinkedBase()  )
+                for (unsigned i = 0; i < link->getSize() ; ++i)
                 {
-                    componentReference = (*it2).second;
+                    if ((*it2).first == link->getLinkedBase(i))
+                    {
+                        componentReference.push_back((*it2).second);
+                    }
                 }
             }
             if (link->getName().empty()) continue; // ignore unnamed links

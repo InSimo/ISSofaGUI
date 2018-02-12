@@ -67,7 +67,7 @@ public:
     QDisplayLinkWidget(QWidget* parent,
             core::objectmodel::BaseLink* link,
             const ModifyObjectFlags& flags,
-            Q3ListViewItem* componentReference,
+            sofa::helper::vector<Q3ListViewItem*> componentReference,
             QSofaListView* listView);
     unsigned int getNumWidgets() const { return numWidgets_;};
 
@@ -107,7 +107,7 @@ class QLinkSimpleEdit : public LinkWidget
         QPushButton* reference;
     } QSimpleEdit;
 public :
-    QLinkSimpleEdit(QWidget*, const char* name, core::objectmodel::BaseLink*, Q3ListViewItem* componentReference, QSofaListView* listView);
+    QLinkSimpleEdit(QWidget*, const char* name, core::objectmodel::BaseLink*, sofa::helper::vector<Q3ListViewItem*> componentReference, QSofaListView* listView);
     virtual unsigned int numColumnWidget() {return 3;}
     virtual unsigned int sizeWidget() {return 1;}
     virtual bool createWidgets();
@@ -119,7 +119,7 @@ protected:
     virtual void readFromLink();
     virtual void writeToLink();
     QSimpleEdit innerWidget_;
-    Q3ListViewItem* componentReference_;
+    sofa::helper::vector<Q3ListViewItem*> m_componentReference;
     QSofaListView* listView_;
 };
 

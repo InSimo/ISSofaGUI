@@ -58,7 +58,7 @@ namespace qt
 QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
         BaseLink* link,
         const ModifyObjectFlags& flags,
-        Q3ListViewItem* componentReference,
+        sofa::helper::vector<Q3ListViewItem*> componentReference,
         QSofaListView* listView)
     : Q3GroupBox(parent),
       link_(link),
@@ -99,7 +99,7 @@ QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
     {
         linkwidget_ = new QLinkSimpleEdit(this,dwarg.link->getName().c_str(), dwarg.link, componentReference, listView);
         linkwidget_->createWidgets();
-        linkwidget_->setEnabled(!(dwarg.readOnly));
+        //linkwidget_->setEnabled(!(dwarg.readOnly));
         assert(linkwidget_ != NULL);
     }
 
@@ -129,20 +129,24 @@ void QDisplayLinkWidget::showHelp(bool)
 
 void QLinkSimpleEdit::openLink()
 {
-    if (componentReference_ != NULL)
+    if (!m_componentReference.empty())
     {
-        Q3ListViewItem* item = listView_->currentItem();
-        listView_->setCurrentItem(componentReference_);
-        listView_->updateMatchingObjectmodel(componentReference_);
-        listView_->RunSofaDoubleClicked(componentReference_);
-        listView_->setCurrentItem(item);
+        for (auto compRef : m_componentReference)
+        {
+            Q3ListViewItem* item = listView_->currentItem();
+            listView_->setCurrentItem(compRef);
+            listView_->updateMatchingObjectmodel(compRef);
+            listView_->RunSofaDoubleClicked(compRef);
+            listView_->setCurrentItem(item);
+        }
     }
 }
 
-QLinkSimpleEdit::QLinkSimpleEdit(QWidget* parent, const char* name, BaseLink* link, Q3ListViewItem* componentReference, QSofaListView* listView)
+
+QLinkSimpleEdit::QLinkSimpleEdit(QWidget* parent, const char* name, BaseLink* link, sofa::helper::vector<Q3ListViewItem*> componentReference, QSofaListView* listView)
     : LinkWidget(parent,name,link),
     listView_(listView),
-    componentReference_(componentReference)
+    m_componentReference(componentReference)
 {
 }
 
@@ -154,20 +158,25 @@ bool QLinkSimpleEdit::createWidgets()
     {
         innerWidget_.type = TEXTEDIT;
         innerWidget_.widget.textEdit = new QTextEdit(this); innerWidget_.widget.textEdit->setText(str);
+        innerWidget_.widget.textEdit->setEnabled(false);
         connect(innerWidget_.widget.textEdit , SIGNAL( textChanged() ), this, SLOT ( update() ) );
         layout->add(innerWidget_.widget.textEdit);
+
     }
     else
     {
         innerWidget_.type = LINEEDIT;
         innerWidget_.widget.lineEdit  = new QLineEdit(this);
         innerWidget_.widget.lineEdit->setText(str);
+        innerWidget_.widget.lineEdit->setEnabled(false);
         connect(innerWidget_.widget.lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(update()));
         layout->add(innerWidget_.widget.lineEdit);
     }
-    if (getBaseLink()->getValueString() != "")
+
+    if (str.length() > 0)
     {
         innerWidget_.reference = new QPushButton("&Link", this);
+        innerWidget_.reference->setEnabled(true);
         connect(innerWidget_.reference, SIGNAL(clicked()), this, SLOT(openLink()));
         layout->add(innerWidget_.reference);
     }
