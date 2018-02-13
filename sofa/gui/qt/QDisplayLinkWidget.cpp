@@ -99,7 +99,6 @@ QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
     {
         linkwidget_ = new QLinkSimpleEdit(this,dwarg.link->getName().c_str(), dwarg.link, componentReference, listView);
         linkwidget_->createWidgets();
-        //linkwidget_->setEnabled(!(dwarg.readOnly));
         assert(linkwidget_ != NULL);
     }
 
