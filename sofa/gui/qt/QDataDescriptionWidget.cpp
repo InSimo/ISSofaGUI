@@ -88,14 +88,10 @@ QDataDescriptionWidget::QDataDescriptionWidget(QWidget* parent, core::objectmode
                     suffix += std::to_string(pos.second);
                 }
             }
-            std::string text = filename + suffix;
-            if (path != filename)
-            {
-                text += '\n';
-                text += path;
-                text += suffix;
-            }
-            (new QLabel(QString(text.c_str()), box))->setMinimumWidth(20);
+            QLabel* txtLab = new QLabel(QString(""), box);
+            txtLab->setText("<a href=\"file:///" + QString(path.c_str()) + "\"> "+ QString(path.c_str()) + "</a> L" + QString(suffix.c_str()));
+            txtLab->setOpenExternalLinks(true);
+            txtLab->setMinimumWidth(20);
         }
 
         tabLayout->addWidget( box );
