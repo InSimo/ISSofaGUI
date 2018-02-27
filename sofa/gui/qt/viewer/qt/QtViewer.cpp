@@ -1783,6 +1783,8 @@ QString QtViewer::helpString()
 <li><b>Shift & Left Button</b>: TO PICK OBJECTS<br></li>\
 <li><b>Shift & Ctrl & F</b>: ADD NO PICKING TAG TO MODEL<br></li>\
 <li><b>Shift & Ctrl & C</b>: CLEAR NO PICKING TAGS ADDED TO MODELS<br></li>\
+<li><b>Shift & Ctrl & D</b>: DISABLE COLLISION MODEL<br></li>\
+<li><b>Shift & Ctrl & E</b>: ENABLE ALL PREVIOUSLY DISABLED COLLISION MODELS<br></li>\
 <li><b>B</b>: TO CHANGE THE BACKGROUND<br></li>\
 <li><b>C</b>: TO SWITCH INTERACTION MODE: press the KEY C.<br>\
 Allow or not the navigation with the mouse.<br></li>\
