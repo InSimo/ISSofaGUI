@@ -179,6 +179,8 @@ protected:
     void keyReleaseEvent(QKeyEvent * e);
     bool eventFilter(QObject *obj, QEvent *event);
 #endif
+    void startIdle();
+    void stopIdle();
 
 #ifndef SOFA_GUI_QT_NO_RECORDER
     QSofaRecorder* recorder;
@@ -240,6 +242,7 @@ protected:
     QWidget* currentTab;
     QSofaStatWidget* statWidget;
     QTimer* timerStep;
+    QTimer* timerIdle;
     WDoubleLineEdit *background[3];
     QLineEdit *backgroundImage;
     /// Stack viewer widget
@@ -256,6 +259,7 @@ protected:
 
     double maxFPS;
     sofa::helper::system::thread::ctime_t throttle_lastframe; // only used if maxFPS > 0
+    double idleFrequency = 0.0;
 
 private:
     //currently unused: scale is experimental
@@ -429,6 +433,7 @@ public slots:
     virtual void playpauseGUI(bool value);
     virtual void interactionGUI(bool value);
     virtual void step();
+    virtual void idle();
     virtual void setDt(double);
     virtual void setDt(const QString&);
     virtual void setMaxFPS(double);

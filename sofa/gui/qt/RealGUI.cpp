@@ -307,6 +307,7 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     currentTab(NULL),
     statWidget(NULL),
     timerStep(NULL),
+    timerIdle(NULL),
     backgroundImage(NULL),
     left_stack(NULL),
     pluginManager_dialog(NULL),
@@ -332,6 +333,8 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 
     timerStep = new QTimer(this);
     connect ( timerStep, SIGNAL ( timeout() ), this, SLOT ( step() ) );
+    timerIdle = new QTimer(this);
+    connect ( timerIdle, SIGNAL ( timeout() ), this, SLOT ( idle() ) );
     connect(this, SIGNAL(quit()), this, SLOT(fileExit()));
     connect ( startButton, SIGNAL ( toggled ( bool ) ), this , SLOT ( playpauseGUI ( bool ) ) );
     connect ( ResetSceneButton, SIGNAL ( clicked() ), this, SLOT ( resetScene() ) );
@@ -2154,11 +2157,15 @@ void RealGUI::playpauseGUI ( bool value )
         getCurrentSimulation()->getContext()->setAnimate ( value );
     if (value)
     {
+        stopIdle();
         timerStep->start();
         throttle_lastframe = CTime::getRefTime(); // reset throttling
     }
     else
+    {
         timerStep->stop();
+        startIdle();
+    }
 }
 
 //------------------------------------
@@ -2289,6 +2296,61 @@ void RealGUI::step()
         emit newStep();
     if ( !getCurrentSimulation()->getContext()->getAnimate() )
         startButton->setOn ( false );
+}
+
+void RealGUI::idle()
+{
+    if (animateLockCounter>0)
+    {
+        std::cerr << "Idle blocked by GUI Graph edit" << std::endl;
+        return;
+    }
+
+    Node* root = getCurrentSimulation();
+    if ( root == NULL ) return;
+
+    if (currentGUIMode != 0 && !getViewer()->ready())
+    {
+        return;
+    }
+
+    simulation::getSimulation()->idle ( root );
+
+    if ( getCurrentSimulation()->getContext()->getAnimate() )
+        startButton->setOn ( true );
+    else
+    {
+        double freq = simulation::getSimulation()->getIdleFrequency(root);
+        if (freq != idleFrequency) {
+            startIdle();
+        }
+    }
+}
+
+void RealGUI::startIdle()
+{
+    Node* root = getCurrentSimulation();
+    if ( root == NULL ) return;
+    idleFrequency = simulation::getSimulation()->getIdleFrequency(root);
+    if (idleFrequency <= 0.0)
+    {
+        if (timerIdle->isActive())
+        {
+            timerIdle->stop();
+        }
+    }
+    else
+    {
+        timerIdle->start((int)(1000.0/idleFrequency));
+    }
+}
+
+void RealGUI::stopIdle()
+{
+    if (timerIdle->isActive())
+    {
+        timerIdle->stop();
+    }
 }
 
 //------------------------------------
