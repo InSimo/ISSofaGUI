@@ -46,7 +46,6 @@ sofa::helper::Creator<sofa::simulation::gui::GUIFactory,BatchGUI> creatorBatchGU
 const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 0;
 unsigned int BatchGUI::m_nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
 bool BatchGUI::m_exitWhenPaused = false;
-double BatchGUI::m_idleEventFreq = 100; //Hz
 bool BatchGUI::m_logStepDuration = false;
 
 BatchGUI::BatchGUI(const sofa::simulation::gui::BaseGUIArgument* a)
@@ -137,8 +136,10 @@ bool BatchGUI::step()
             return false;
         }
 
+        const double idleFrequency = sofa::simulation::getSimulation()->getIdleFrequency(m_groot.get());
+
         // Yield to avoid unnecessary cpu work
-        if (std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - m_lastIdleEventTime).count() < 1. / m_idleEventFreq)
+        if (idleFrequency <= 0. || std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - m_lastIdleEventTime).count() < 1. / idleFrequency)
         {
             std::this_thread::yield(); // must yield instead of sleep in case the frequency is very low as not to block unpausing the simulation
             return true;
@@ -146,8 +147,7 @@ bool BatchGUI::step()
 
         // Propagate idle event
         m_lastIdleEventTime = std::chrono::high_resolution_clock::now();
-        sofa::core::objectmodel::IdleEvent ie;
-        getCurrentSimulation()->propagateEvent(sofa::core::ExecParams::defaultInstance(), &ie);
+        simulation::getSimulation()->idle(m_groot.get());
     }
 
     return true;
@@ -250,7 +250,6 @@ int BatchGUI::initGUI()
     {
         size_t cursor = 0;
         std::string opt = guiOptions[i];
-        std::istringstream iss;
         if ((cursor = opt.find("nbIterations=")) != std::string::npos)
         {
             //Set number of iterations
@@ -265,14 +264,9 @@ int BatchGUI::initGUI()
         {
             m_logStepDuration = true;
         }
-        else if ((cursor = opt.find("exitWhenPaused")) != std::string::npos)
+        else if (opt.find("exitWhenPaused") != std::string::npos)
         {
             m_exitWhenPaused = true;
-        }
-        else if ((cursor = opt.find("idleEventFreq=")) != std::string::npos)
-        {
-            iss.str(opt.substr(cursor + std::string("idleEventFreq=").length(), std::string::npos));
-            iss >> m_idleEventFreq;
         }
 
     }

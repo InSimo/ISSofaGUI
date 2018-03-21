@@ -91,7 +91,6 @@ protected:
     std::string m_filename;
     static unsigned int m_nbIter;
     static bool m_exitWhenPaused;
-    static double m_idleEventFreq;
 
     std::chrono::high_resolution_clock::time_point m_lastIdleEventTime;
     static bool m_logStepDuration;
