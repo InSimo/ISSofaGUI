@@ -335,6 +335,7 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     connect ( timerStep, SIGNAL ( timeout() ), this, SLOT ( step() ) );
     timerIdle = new QTimer(this);
     connect ( timerIdle, SIGNAL ( timeout() ), this, SLOT ( idle() ) );
+    timerIdle->start();
     connect(this, SIGNAL(quit()), this, SLOT(fileExit()));
     connect ( startButton, SIGNAL ( toggled ( bool ) ), this , SLOT ( playpauseGUI ( bool ) ) );
     connect ( ResetSceneButton, SIGNAL ( clicked() ), this, SLOT ( resetScene() ) );
