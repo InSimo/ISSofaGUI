@@ -793,12 +793,19 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile )
     if( getCurrentSimulation() ) this->unloadScene();
     simulation::Node::SPtr root = simulation::getSimulation()->load ( filename.c_str() );
     simulation::getSimulation()->init ( root.get() );
+
     if ( root == NULL )
     {
         std::cerr<<"Failed to load "<<filename.c_str()<<std::endl;
         return;
     }
     setScene ( root, filename.c_str(), temporaryFile );
+
+    simulation::getSimulation()->resetTime(root.get());
+    frameCounter = 0;
+    eventNewTime();
+    emit newStep();
+
     configureGUI(root.get());
 
     this->setWindowFilePath(filename.c_str());
@@ -938,7 +945,7 @@ void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFi
             getQtViewer()->getQWidget()->update();
         }
 
-        resetScene();
+        //resetScene();
 		simulationGraph->applyFilter();
     }
 }
