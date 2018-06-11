@@ -275,7 +275,7 @@ private:
 
 //-----------------METHODS------------------------{
 public :
-    void stepMainLoop ();
+    bool stepMainLoop ();
 
     int mainLoop() override;
     void initialize() override;

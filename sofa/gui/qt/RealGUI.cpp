@@ -320,6 +320,7 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     frameCounter(0),
     stopAfterStep(0),
     animateLockCounter(0),
+    viewerShareRenderingContext(0),
     currentGUIMode(0)
 {
     setupUi(this);
@@ -492,6 +493,13 @@ RealGUI::~RealGUI()
 #endif
 
     removeViewer();
+
+    // Clean up the application now otherwise it may be destroyed at exit
+    // in a different thread than the one which created it, which creates asserts
+    // in Qt when running in debug mode.
+    this->close();
+    delete application;
+    application = NULL;
 }
 //======================= CONSTRUCTOR - DESTRUCTOR ========================= }
 
@@ -730,9 +738,9 @@ void RealGUI::lmlOpen ( const char* filename )
 
 //======================= METHODS ========================= {
 
-void RealGUI::stepMainLoop () {
-    //QCoreApplication::sendPostedEvents ( application, 0 );
+bool RealGUI::stepMainLoop () {
     application->processEvents();
+    return application->mainWidget()->isShown();
 }
 
 int RealGUI::mainLoop()
