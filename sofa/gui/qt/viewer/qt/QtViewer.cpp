@@ -553,7 +553,7 @@ void QtViewer::DrawBox(SReal* minBBox, SReal* maxBBox, SReal r)
 void QtViewer::DrawXYPlane(double zo, double xmin, double xmax, double ymin,
         double ymax, double step)
 {
-    register double x, y;
+    double x, y;
 
     Enable<GL_DEPTH_TEST> depth;
 
@@ -581,7 +581,7 @@ void QtViewer::DrawXYPlane(double zo, double xmin, double xmax, double ymin,
 void QtViewer::DrawYZPlane(double xo, double ymin, double ymax, double zmin,
         double zmax, double step)
 {
-    register double y, z;
+    double y, z;
     Enable<GL_DEPTH_TEST> depth;
 
     glBegin(GL_LINES);
@@ -609,7 +609,7 @@ void QtViewer::DrawYZPlane(double xo, double ymin, double ymax, double zmin,
 void QtViewer::DrawXZPlane(double yo, double xmin, double xmax, double zmin,
         double zmax, double step)
 {
-    register double x, z;
+    double x, z;
     Enable<GL_DEPTH_TEST> depth;
 
     glBegin(GL_LINES);

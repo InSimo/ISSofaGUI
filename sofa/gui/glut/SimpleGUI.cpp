@@ -733,7 +733,7 @@ void SimpleGUI::DrawBox(SReal* minBBox, SReal* maxBBox, double r)
 void SimpleGUI::DrawXYPlane(double zo, double xmin, double xmax, double ymin,
         double ymax, double step)
 {
-    register double x, y;
+    double x, y;
 
     Enable<GL_DEPTH_TEST> depth;
 
@@ -762,7 +762,7 @@ void SimpleGUI::DrawXYPlane(double zo, double xmin, double xmax, double ymin,
 void SimpleGUI::DrawYZPlane(double xo, double ymin, double ymax, double zmin,
         double zmax, double step)
 {
-    register double y, z;
+    double y, z;
     Enable<GL_DEPTH_TEST> depth;
 
     glBegin(GL_LINES);
@@ -791,7 +791,7 @@ void SimpleGUI::DrawYZPlane(double xo, double ymin, double ymax, double zmin,
 void SimpleGUI::DrawXZPlane(double yo, double xmin, double xmax, double zmin,
         double zmax, double step)
 {
-    register double x, z;
+    double x, z;
     Enable<GL_DEPTH_TEST> depth;
 
     glBegin(GL_LINES);
