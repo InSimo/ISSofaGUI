@@ -404,19 +404,19 @@
                  </property>
                 </widget>
                </item>
-                <item row="3" column="0">
-                  <widget class="QCheckBox" name="ActivatedCheckbox">
-                    <property name="toolTip">
-                      <string>Filter unactivate</string>
-                    </property>
-                    <property name="text">
-                      <string>Filter unactivate</string>
-                    </property>
-                    <property name="checked">
-                      <bool>true</bool>
-                    </property>
-                  </widget>
-                </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="ActivatedCheckbox">
+                 <property name="toolTip">
+                  <string>Filter unactivate</string>
+                 </property>
+                 <property name="text">
+                  <string>Filter unactivate</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="0" colspan="3">
                 <widget class="QLabel" name="GraphFilterLabel">
                  <property name="sizePolicy">
@@ -516,7 +516,16 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="margin">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
                <number>0</number>
               </property>
               <item>
@@ -603,16 +612,10 @@
                 <height>32767</height>
                </size>
               </property>
-              <property name="resizePolicy">
-               <enum>Q3ScrollView::Manual</enum>
-              </property>
-              <property name="text">
+              <property name="text" stdset="0">
                <string/>
               </property>
-              <property name="wordWrap">
-               <enum>Q3TextEdit::WidgetWidth</enum>
-              </property>
-              <property name="readOnly">
+              <property name="readOnly" stdset="0">
                <bool>true</bool>
               </property>
              </widget>
@@ -620,6 +623,85 @@
            </layout>
           </widget>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="QLabel" name="viewPlayback">
+            <property name="text">
+             <string>Frame:</string>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout">
+            <item>
+             <widget class="QSpinBox" name="visualBufferSize">
+              <property name="maximum">
+               <number>49</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="FrameBackButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Previous frame</string>
+              </property>
+              <property name="text">
+               <string>&lt;</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="FramePlayButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Current view</string>
+              </property>
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="FrameFwdButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Next frame</string>
+              </property>
+              <property name="text">
+               <string>&gt;</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="disabled" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QHBoxLayout">
@@ -1153,6 +1235,7 @@
    <class>Q3TextEdit</class>
    <extends>Q3Frame</extends>
    <header>q3textedit.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -1180,7 +1263,7 @@
   <tabstop>textEdit1</tabstop>
  </tabstops>
  <includes>
-  <include>sofa/gui/qt/SofaGUIQt.h</include>
+  <include location="local">sofa/gui/qt/SofaGUIQt.h</include>
  </includes>
  <resources/>
  <connections>

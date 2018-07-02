@@ -63,6 +63,8 @@
 #include <sofa/simulation/common/SceneLoaderFactory.h>
 #include <sofa/simulation/common/ExportGnuplotVisitor.h>
 
+#include "viewer/qt/QtViewer.h"
+
 #ifdef SOFA_QT4
 #   include <QApplication>
 #   include <Q3TextDrag>
@@ -278,6 +280,8 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     timeLabel(NULL),
 #endif
     guimodeSignalMapper(NULL),
+    frameSignalMapper(NULL),
+    m_frame(0),
 
 #ifdef SOFA_GUI_INTERACTION
     m_interactionActived(false),
@@ -347,6 +351,8 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     connect ( exportGnuplotFilesCheckbox, SIGNAL ( toggled ( bool ) ), this, SLOT ( setExportGnuplot ( bool ) ) );
     connect ( tabs, SIGNAL ( currentChanged ( QWidget* ) ), this, SLOT ( currentTabChanged ( QWidget* ) ) );
 
+    connect(visualBufferSize, SIGNAL(valueChanged(int)), this, SLOT(updateVisualBufferSize(int)));
+
     guimodeSignalMapper = new QSignalMapper(this);
     connect ( GUIMode0Button, SIGNAL ( clicked() ), guimodeSignalMapper , SLOT ( map() ) );
     guimodeSignalMapper->setMapping(GUIMode0Button, 0);
@@ -358,6 +364,16 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     guimodeSignalMapper->setMapping(GUIMode3Button, 3);
     connect ( guimodeSignalMapper, SIGNAL ( mapped ( int ) ), this , SLOT ( setGUIMode ( int ) ) );
     setGUIMode(-1); // mode 1, but switch to mode 2 when we receive the first external image
+
+    frameSignalMapper = new QSignalMapper(this);
+    connect(FramePlayButton, SIGNAL(clicked()), frameSignalMapper, SLOT(map()));
+    frameSignalMapper->setMapping(FramePlayButton, 0);
+    connect(FrameBackButton, SIGNAL(clicked()), frameSignalMapper, SLOT(map()));
+    frameSignalMapper->setMapping(FrameBackButton, -1);
+    connect(FrameFwdButton, SIGNAL(clicked()), frameSignalMapper, SLOT(map()));
+    frameSignalMapper->setMapping(FrameFwdButton, 1);
+    connect(frameSignalMapper, SIGNAL(mapped(int)), this, SLOT(setFrameDisplay(int)));
+    FramePlayButton->setChecked(true);
     
     // create a Dock Window to receive the Sofa Recorder
 #ifndef SOFA_GUI_QT_NO_RECORDER
@@ -565,6 +581,47 @@ void RealGUI::setGUIMode( int mode )
         emit newStep();
     }
 
+}
+
+void RealGUI::updateVisualBufferSize(int bufferNewSize)
+{
+    sofa::gui::qt::viewer::qt::QtViewer* qtViewer = dynamic_cast<sofa::gui::qt::viewer::qt::QtViewer*>(mViewer);
+
+    qtViewer->updateVisualBuffer(bufferNewSize);
+
+    this->setFrameDisplay(0);
+}
+
+void RealGUI::setFrameDisplay(int frame)
+{
+    sofa::gui::qt::viewer::qt::QtViewer* qtViewer = dynamic_cast<sofa::gui::qt::viewer::qt::QtViewer*>(mViewer);
+
+    if (frame == 0)
+    {
+        m_frame = 0;
+    }
+    else
+    {
+        m_frame = (m_frame+frame) % qtViewer->m_maxBuffer;
+    }
+
+    FramePlayButton->setChecked(m_frame == 0);
+    FrameBackButton->setChecked(m_frame < 0);
+    FrameFwdButton->setDisabled(m_frame == 0);
+
+    std::stringstream textBack;
+    textBack << "< (dt" << m_frame << ")";
+    FrameBackButton->setText(textBack.str().c_str());
+
+    if (m_frame == 0)
+        qtViewer->m_displayPastView = false;
+    else
+    {
+        qtViewer->m_displayPastView = true;
+        qtViewer->m_viewFrame = m_frame;
+    }
+
+    qtViewer->update();
 }
 
 //------------------------------------
@@ -1591,6 +1648,7 @@ void RealGUI::eventNewStep()
         emit(quit());
     }
 
+    getViewer()->recordFrame();
 }
 
 void RealGUI::showFPS(double fps)
@@ -2205,6 +2263,8 @@ void RealGUI::playpauseGUI ( bool value )
         timerStep->stop();
         startIdle();
     }
+
+    this->setFrameDisplay(0);
 }
 
 //------------------------------------
@@ -2335,6 +2395,9 @@ void RealGUI::step()
         emit newStep();
     if ( !getCurrentSimulation()->getContext()->getAnimate() )
         startButton->setOn ( false );
+
+
+    this->setFrameDisplay(0);
 }
 
 void RealGUI::idle()

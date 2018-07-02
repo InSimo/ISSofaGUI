@@ -168,7 +168,8 @@ public slots:
 	virtual void changeHtmlPage( const QUrl&);
 	virtual void setGUIMode( int );
 
-
+    virtual void updateVisualBufferSize(int bufferNewSize);
+    virtual void setFrameDisplay(int);
 
 protected:
 #ifdef SOFA_GUI_INTERACTION
@@ -191,6 +192,9 @@ protected:
 #endif
     QSignalMapper* guimodeSignalMapper;
     int currentGUIMode; ///< If -1, switch to mode 2 automatically if the application provides external image
+
+    QSignalMapper* frameSignalMapper; //map ability to view previous frame
+    int m_frame;
 
 private:
 #ifndef SOFA_QT4

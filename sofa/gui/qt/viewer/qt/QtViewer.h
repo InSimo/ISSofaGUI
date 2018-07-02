@@ -297,6 +297,16 @@ private:
     virtual void mouseMoveEvent ( QMouseEvent * e );
     virtual void wheelEvent ( QWheelEvent* e);
     virtual bool mouseEvent ( QMouseEvent * e );
+
+public:
+    virtual void recordFrame() override;
+    virtual void updateVisualBuffer(int bufferSize) override;
+
+    bool m_displayPastView;
+    int m_recFrame;
+    int m_viewFrame;
+    int m_maxBuffer;
+    std::vector<GLvoid *> m_view;
 };
 
 } // namespace qt

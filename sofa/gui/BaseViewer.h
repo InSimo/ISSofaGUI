@@ -156,6 +156,9 @@ public:
     /// the rendering pass is done here (have to be called in a loop)
     virtual void drawScene(void) = 0;
 
+    virtual void recordFrame(void) = 0;
+    virtual void updateVisualBuffer(int bufferSize) = 0;
+
 protected:
     /// internally called while the actual viewer needs a redraw (ie the camera changed)
     virtual void redraw() = 0;

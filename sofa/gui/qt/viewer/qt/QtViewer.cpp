@@ -122,6 +122,10 @@ QGLFormat QtViewer::setupGLFormat()
 // ---------------------------------------------------------
 QtViewer::QtViewer(QWidget* parent, const char* name, void* shareRenderingContext)
     : QGLWidget(setupGLFormat(), parent, name)
+    , m_recFrame(0)
+    , m_viewFrame(0)
+    , m_maxBuffer(1)
+    , m_displayPastView(false)
 {
 #if defined(QT_VERSION) && QT_VERSION >= 0x040700
     std::cout << "QtViewer: OpenGL " << format().majorVersion() << "." << format().minorVersion() << " context created. " << shareRenderingContext << std::endl;
@@ -187,6 +191,12 @@ QtViewer::QtViewer(QWidget* parent, const char* name, void* shareRenderingContex
     copyscreen_view_width = 0;
     copyscreen_view_height = 0;
 
+    m_view.resize(m_maxBuffer);
+    for (auto& it : m_view)
+    {
+        it = malloc(4 * GetWidth() * GetHeight()); //RGBA * Width * height
+    }
+
     connect( &captureTimer, SIGNAL(timeout()), this, SLOT(captureEvent()) );
 }
 
@@ -195,6 +205,11 @@ QtViewer::QtViewer(QWidget* parent, const char* name, void* shareRenderingContex
 // ---------------------------------------------------------
 QtViewer::~QtViewer()
 {
+    for (auto& it : m_view)
+    {
+        free(it);
+		it = nullptr;
+    }
 }
 
 // -----------------------------------------------------------------
@@ -1086,7 +1101,19 @@ void QtViewer::drawScene(void)
             glDisable(GL_STENCIL_TEST);
         }
     }
+
+    if (m_displayPastView)
+    {
+        glDrawPixels(GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[(m_recFrame + m_viewFrame+ m_maxBuffer) % m_maxBuffer]);
+    }
+
     DisplayMenu(); // always needs to be the last object being drawn
+}
+
+void QtViewer::recordFrame()
+{
+    glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
+    m_recFrame = (m_recFrame + 1) % m_maxBuffer;
 }
 
 
@@ -1108,6 +1135,11 @@ void QtViewer::resizeGL(int width, int height)
     this->resize(width, height);
     emit( resizeW(_W));
     emit( resizeH(_H));
+
+    for (unsigned int i = 0 ; i < m_view.size(); ++i)
+    {
+        m_view[i] = realloc(m_view[i], 4 * GetWidth() * GetHeight());
+    }
 }
 
 // ---------------------------------------------------------
@@ -1359,6 +1391,32 @@ void QtViewer::keyPressEvent(QKeyEvent * e)
                 _mouseInteractorTranslationMode = false;
                 _mouseInteractorRotationMode = false;
             }
+            break;
+        }
+        case Qt::Key_0:
+        {
+            std::cout << "record" << m_recFrame << std::endl;
+            glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
+            m_recFrame = (m_recFrame + 1) % m_maxBuffer;
+            std::cout << "recorded " << m_recFrame << std::endl;
+            break;
+        }
+        case Qt::Key_1:
+        {
+            m_displayPastView = !m_displayPastView;
+            std::cout << "play" << m_displayPastView << std::endl;
+            break;
+        }
+        case Qt::Key_4:
+        {
+            std::cout << "play frame fwd " << m_viewFrame << std::endl;
+            m_viewFrame = (m_viewFrame + 1) % m_maxBuffer;
+            break;
+        }
+        case Qt::Key_6:
+        {
+            std::cout << "play frame bwd " << m_viewFrame << std::endl;
+            m_viewFrame = (m_viewFrame + m_maxBuffer - 1) % m_maxBuffer;
             break;
         }
         default:
@@ -1716,6 +1774,30 @@ void QtViewer::moveRayPickInteractor(int eventX, int eventY)
     direction = transform * Vec4d(0, 0, 1, 0);
     direction.normalize();
     getPickHandler()->updateRay(position, direction);
+}
+
+// -------------------------------------------------------------------
+// ---
+// -------------------------------------------------------------------
+void QtViewer::updateVisualBuffer(int bufferSize)
+{
+    for (int i = bufferSize; i < m_maxBuffer; ++i)
+    {
+        if (m_view[i])
+        {
+            free(m_view[i]);
+            m_view[i] = nullptr;
+        }
+    }
+
+    int oldBufferSize = m_maxBuffer;
+    m_maxBuffer = bufferSize;
+    m_view.resize(m_maxBuffer);
+    
+    for (int i = oldBufferSize; i < m_maxBuffer; ++i)
+    {
+        m_view[i] = malloc(4 * GetWidth() * GetHeight()); //RGBA * Width * height
+    }
 }
 
 // -------------------------------------------------------------------
