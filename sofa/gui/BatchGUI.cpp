@@ -46,6 +46,7 @@ sofa::helper::Creator<sofa::simulation::gui::GUIFactory,BatchGUI> creatorBatchGU
 const unsigned int BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS = 0;
 unsigned int BatchGUI::m_nbIter = BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
 bool BatchGUI::m_exitWhenPaused = false;
+bool BatchGUI::m_startPaused = false;
 bool BatchGUI::m_logStepDuration = false;
 
 BatchGUI::BatchGUI(const sofa::simulation::gui::BaseGUIArgument* a)
@@ -67,8 +68,7 @@ int BatchGUI::mainLoop()
 {
     if (m_groot)
     {
-        // It makes no sense to start without animating in this GUI, so animate by default
-        m_groot->setAnimate(true);
+        m_groot->setAnimate(!m_startPaused);
 
         // Note: As no visualization is done by the Batch GUI, calling updateVisual() is not necessary if nothing else needs the VisualModels to be updated.
         if (m_nbIter != 0) // benchmark mode
@@ -268,7 +268,10 @@ int BatchGUI::initGUI()
         {
             m_exitWhenPaused = true;
         }
-
+        else if (opt.find("startPaused") != std::string::npos)
+        {
+            m_startPaused = true;
+        }
     }
     return 0;
 }
