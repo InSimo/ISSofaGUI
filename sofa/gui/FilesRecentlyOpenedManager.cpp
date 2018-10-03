@@ -45,7 +45,7 @@ FilesRecentlyOpenedManager::FilesRecentlyOpenedManager(const std::string &config
 void FilesRecentlyOpenedManager::setPath(const std::string &configFile)
 {
     path=configFile;
-    if ( !sofa::helper::system::DataRepository.findFile ( path ) )
+    if (!sofa::helper::system::DataRepository.findFile(path, "", nullptr))
     {
         path = sofa::helper::system::DataRepository.getFirstPath() + "/" + configFile;
 
@@ -76,7 +76,7 @@ void FilesRecentlyOpenedManager::openFile(const std::string &file)
 {
     //Verify the existence of the file
     std::string fileLoaded(file);
-    if (file.empty() || !sofa::helper::system::DataRepository.findFile(fileLoaded))
+    if (file.empty() || !sofa::helper::system::DataRepository.findFile(fileLoaded, "", nullptr))
         return;
 
     fileLoaded=sofa::helper::system::DataRepository.getFile(file);

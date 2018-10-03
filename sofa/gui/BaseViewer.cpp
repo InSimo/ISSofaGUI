@@ -258,7 +258,7 @@ void BaseViewer::setBackgroundImage(std::string imageFileName)
 {
     _background = 0;
 
-    if( sofa::helper::system::DataRepository.findFile(imageFileName) )
+    if (sofa::helper::system::DataRepository.findFile(imageFileName, "", nullptr))
     {
         backgroundImageFile = sofa::helper::system::DataRepository.getFile(imageFileName);
 #ifndef SOFA_NO_OPENGL
