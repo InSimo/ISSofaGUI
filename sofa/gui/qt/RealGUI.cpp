@@ -828,24 +828,27 @@ void RealGUI::fileOpen()
 {
     std::string filename(this->windowFilePath().ascii());
 
-    // build the filter with the SceneLoaderFactory
     std::string filter;
-    SceneLoaderFactory::SceneLoaderList* loaders = SceneLoaderFactory::getInstance()->getEntries();
-    for (SceneLoaderFactory::SceneLoaderList::iterator it=loaders->begin(); it!=loaders->end(); ++it)
+    std::map<std::string, std::vector<std::string>> extensionsAndKeys = SceneLoaderFactory::getInstance()->getSupportedExtensionsMap();
+
+
+    for (auto it = extensionsAndKeys.begin(); it != extensionsAndKeys.end(); ++it)
     {
-        if (it!=loaders->begin()) filter +=";;";
-        filter += (*it)->getFileTypeDesc();
+        filter += it->first;
         filter += " (";
-        SceneLoader::ExtensionList extensions;
-        (*it)->getExtensionList(&extensions);
-        for (SceneLoader::ExtensionList::iterator itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
+        std::size_t nOfAliases = it->second.size();
+        for (int n = 0; n < nOfAliases; n++ )
         {
-            if (itExt!=extensions.begin()) filter +=" ";
-            filter+="*.";
-            filter+=(*itExt);       
+            filter += "*.";
+            filter += it->second[n];
+            if (nOfAliases > 1 && n+1 != nOfAliases) { filter += " "; }
         }
-        filter+=")";
+
+        filter += ")";
+        filter += ";;";
     }
+
+
 #ifdef SOFA_PML
 //            "Scenes (*.scn *.xml);;Simulation (*.simu);;Php Scenes (*.pscn);;Pml Lml (*.pml *.lml);;All (*)",
     filter += ";;Simulation (*.simu);;Pml Lml (*.pml *.lml);;All (*)";

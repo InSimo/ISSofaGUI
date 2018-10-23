@@ -95,6 +95,7 @@ public:
     virtual const char* acceleratedName() = 0;
     virtual const std::string& description() const = 0;
     virtual int priority() const { return 0; }
+    virtual const std::vector<std::string>& aliases() const = 0;
 };
 
 
