@@ -2710,9 +2710,13 @@ std::string getFormattedLocalTime()
 //------------------------------------
 void RealGUI::appendToDataLogFile(QString dataModifiedString)
 {
-    const std::string filename = std::string(this->windowFilePath()) + std::string(".log");
+    const std::string filename = std::string(this->windowFilePath());
+    const std::string logFile     = std::string("./") + 
+                                    sofa::helper::system::SetDirectory::GetFileNameWithoutExtension(filename.c_str() ) + 
+                                    std::string(".log");
+    const std::string logFileName = sofa::helper::system::SetDirectory::GetRelativeFromProcess(logFile.c_str());
 
-    std::ofstream ofs( filename.c_str(), std::ofstream::out | std::ofstream::app );
+    std::ofstream ofs(logFileName.c_str(), std::ofstream::out | std::ofstream::app );
 
     if (ofs.good())
     {
