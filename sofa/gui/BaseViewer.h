@@ -131,6 +131,7 @@ public:
     virtual void setVideoRecording(bool enable);
     bool isVideoRecording() const;
     virtual void setVideoPrefix(const std::string& prefix);
+    virtual void setVideoLinkPrefix(const std::string& link);
 
     virtual void setBackgroundColour(float r, float g, float b);
     virtual void setBackgroundImage(std::string imageFileName = std::string("textures/SOFA_logo.bmp"));
@@ -176,6 +177,7 @@ protected:
 
     bool _video;
     std::string _videoPrefix;
+    std::string _videoPrefixLink;
     bool _axis;
     bool _fullScreen;
     int _background;

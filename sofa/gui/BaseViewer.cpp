@@ -246,6 +246,12 @@ void BaseViewer::setVideoPrefix(const std::string& prefix)
 #endif //SOFA_HAVE_FFMPEG
 }
 
+void BaseViewer::setVideoLinkPrefix(const std::string& link)
+{
+    _videoPrefixLink = link;
+}
+
+
 void BaseViewer::setBackgroundColour(float r, float g, float b)
 {
     _background = 2;

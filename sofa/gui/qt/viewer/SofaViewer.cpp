@@ -428,6 +428,40 @@ bool SofaViewer::mouseEvent(QMouseEvent *e)
 
 void SofaViewer::captureEvent()
 {
+    if (!_videoPrefixLink.empty())
+    {
+        Node* root = this->getScene();
+        sofa::core::objectmodel::BaseData* ptr = NULL;
+        sofa::core::objectmodel::BaseLink* lptr = NULL;
+        if (root->findDataLinkDest(ptr, _videoPrefixLink, lptr))
+        {
+            std::string value = ptr->getValueString();
+            if (value.empty())
+            {
+                if (captureTimer.isActive())
+                {
+                    captureTimer.stop();
+                    _video = false;
+                }
+            }
+            else
+            {
+                if (capture.getPrefix() != value)
+                {
+                    capture.setPrefix(value);
+                    capture.setCounter();
+                    _video = true;
+                    captureTimer.start();
+                }
+            }
+        }
+        else
+        {
+            std::cerr<<"Data link nor found "<<std::endl;
+            _videoPrefixLink.clear();
+        }
+
+    }
     if (_video)
     {
         bool skip = false;

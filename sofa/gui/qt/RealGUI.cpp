@@ -1905,6 +1905,16 @@ void RealGUI::parseOptionsPostInit(const std::vector<std::string>& options)
                 getViewer()->setVideoPrefix(prefix);
             }
         }
+        else if ((cursor = opt.find("videoPrefixLink=")) != std::string::npos)
+        {
+            std::string link = opt.substr(cursor + std::string("videoPrefixLink=").length());
+            std::cout << "Sofa GUI: setting video capture prefix link to data " << link << std::endl;
+            if (getViewer())
+            {
+                getViewer()->setVideoLinkPrefix(link);
+
+            }
+        }
     }
 }
 
