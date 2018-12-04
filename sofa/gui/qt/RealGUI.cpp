@@ -1990,6 +1990,7 @@ void RealGUI::createSimulationGraph()
     connect(simulationGraph, SIGNAL( RequestSaving(sofa::simulation::Node*) ), this, SLOT( fileSaveAs(sofa::simulation::Node*) ) );
     connect(simulationGraph, SIGNAL( RequestExportOBJ(sofa::simulation::Node*, bool) ), this, SLOT( exportOBJ(sofa::simulation::Node*, bool) ) );
     connect(simulationGraph, SIGNAL( RequestActivation(sofa::simulation::Node*, bool) ), this, SLOT( ActivateNode(sofa::simulation::Node*, bool) ) );
+    connect(simulationGraph, SIGNAL( requestDrawActivation(sofa::simulation::Node*, bool)), this, SLOT(setDrawStatus(sofa::simulation::Node*, bool)));
     connect(simulationGraph, SIGNAL( Updated() ), this, SLOT( redraw() ) );
     connect(simulationGraph, SIGNAL( NodeAdded() ), this, SLOT( Update() ) );
     connect(simulationGraph, SIGNAL( dataModified( QString ) ), this, SLOT( appendToDataLogFile(QString ) ) );
@@ -2121,6 +2122,16 @@ void RealGUI::fileSaveAs(Node *node)
     if ( s.length() >0 )
         fileSaveAs ( node,s );
 #endif
+}
+
+// ----------------------------------
+
+void RealGUI::setDrawStatus(sofa::simulation::Node* node, bool status)
+{
+    if (node)
+    {
+        node->setDrawStatus(status);
+    }
 }
 
 //------------------------------------

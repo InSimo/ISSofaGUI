@@ -502,6 +502,11 @@ void QSofaListView::RunSofaRightClicked( Q3ListViewItem *item,
         contextMenu->insertSeparator ();
         /*****************************************************************************************************************/
 
+        contextMenu->insertItem("Enable Draw", this, SLOT(enableDraw()));
+        contextMenu->insertItem("Disable Draw", this, SLOT(disableDraw()));
+
+        contextMenu->insertSeparator();
+
         contextMenu->insertItem ( "Save Node", this, SLOT ( SaveNode() ) );
         contextMenu->insertItem ( "Export OBJ", this, SLOT ( exportOBJ() ) );
 
@@ -569,6 +574,16 @@ void QSofaListView::DeactivateNode()
 void QSofaListView::ActivateNode()
 {
     emit RequestActivation(object_.ptr.Node,true);
+}
+
+void QSofaListView::enableDraw()
+{
+    emit requestDrawActivation(object_.ptr.Node, true);
+}
+
+void QSofaListView::disableDraw()
+{
+    emit requestDrawActivation(object_.ptr.Node, false);
 }
 
 void QSofaListView::SaveNode()

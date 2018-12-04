@@ -130,6 +130,7 @@ Q_SIGNALS:
     void focusChanged(sofa::core::objectmodel::BaseObject*);
     void focusChanged(sofa::core::objectmodel::BaseNode*);
     void dataModified( QString );
+    void requestDrawActivation(sofa::simulation::Node*, bool status);
 
 protected Q_SLOTS:
     void SaveNode();
@@ -143,6 +144,8 @@ protected Q_SLOTS:
     void ShowDatas();
     void DeactivateNode();
     void ActivateNode();
+    void enableDraw();
+    void disableDraw();
     void loadObject ( std::string path, double dx, double dy, double dz,  double rx, double ry, double rz,double scale );
 
     void RunSofaRightClicked( Q3ListViewItem *item, const QPoint& point, int index );
