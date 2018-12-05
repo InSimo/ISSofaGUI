@@ -450,7 +450,7 @@ void SimpleGUI::initializeGL(void)
             std::cerr << "Error: GL_ARB_multitexture not supported\n";
 #endif
 
-        _clearBuffer = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+        _clearBuffer = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
         _lightModelTwoSides = false;
 
         glDepthFunc(GL_LEQUAL);

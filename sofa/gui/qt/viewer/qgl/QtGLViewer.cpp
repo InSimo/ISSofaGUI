@@ -199,7 +199,7 @@ void QtGLViewer::init(void)
         glewInit();
 #endif
 
-        _clearBuffer = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+        _clearBuffer = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
         _lightModelTwoSides = false;
 
         glDepthFunc(GL_LEQUAL);
