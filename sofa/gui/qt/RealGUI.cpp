@@ -1205,6 +1205,8 @@ void RealGUI::setViewerResolution ( int w, int h )
 #endif
 
         resize(winSize.width() - viewSize.width() + w, winSize.height() - viewSize.height() + h);
+        getViewer()->setSizeW(w);
+        getViewer()->setSizeH(h);
         //std::cout<<"winSize.width() - viewSize.width() + w = "<< winSize.width()<<"-"<< viewSize.width()<<"+"<<w<<std::endl;
         //std::cout<<"winSize.height() - viewSize.height() + h = "<< winSize.height()<<"-"<< viewSize.height()<<"+"<<h<<std::endl;
         //std::cout << "Setting windows dimension to " << size().width() << " x " << size().height() << std::endl;
