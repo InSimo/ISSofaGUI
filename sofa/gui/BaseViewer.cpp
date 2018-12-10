@@ -56,8 +56,9 @@ BaseViewer::BaseViewer()
 
 BaseViewer::~BaseViewer()
 {
+    delete pick;
 #ifndef SOFA_NO_OPENGL
-   if(texLogo)
+    if (texLogo)
     {
         delete texLogo;
         texLogo = NULL;
