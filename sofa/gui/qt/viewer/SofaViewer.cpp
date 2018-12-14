@@ -457,7 +457,7 @@ void SofaViewer::captureEvent()
         }
         else
         {
-            std::cerr<<"Data link nor found "<<std::endl;
+            std::cerr<<"Data link not found "<<std::endl;
             _videoPrefixLink.clear();
         }
 
