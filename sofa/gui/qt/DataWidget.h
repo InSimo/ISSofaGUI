@@ -169,7 +169,7 @@ public:
     inline const core::objectmodel::BaseData* getBaseData() const { return baseData; }
     inline core::objectmodel::BaseData* getBaseData() { return baseData; }
 
-    void updateVisibility();
+    virtual void updateVisibility();
     
     inline bool isDirty() { return dirty && !readOnly && checkDirty(); }
 

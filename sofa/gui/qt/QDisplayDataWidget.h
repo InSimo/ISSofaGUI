@@ -27,6 +27,7 @@
 
 #include "DataWidget.h"
 #include "ModifyObject.h"
+#include <sofa/core/dataparser/JsonDataParser.h>
 
 #ifdef SOFA_QT4
 #include <QWidget>
@@ -83,6 +84,7 @@ public slots:
     void UpdateWidgets();           //BaseData ---> QWidget
     void showHelp(bool);
     void openLink();
+    void openJsonWidget();
 
 signals:
     void WidgetDirty(bool);
@@ -130,6 +132,38 @@ protected:
     virtual bool checkDirty();
     QSimpleEdit innerWidget_;
     QString lastValue;
+};
+
+
+class QDataJsonEdit : public DataWidget
+{
+    Q_OBJECT
+    typedef enum QEditType { TEXTEDIT, LINEEDIT } QEditType;
+    typedef union QEditWidgetPtr
+    {
+        QLineEdit* lineEdit;
+        QTextEdit* textEdit;
+    } QEditWidgetPtr;
+
+    typedef struct QSimpleEdit
+    {
+        QEditType type;
+        QEditWidgetPtr widget;
+    } QSimpleEdit;
+public :
+    QDataJsonEdit(QWidget*, const char* name, core::objectmodel::BaseData*);
+    virtual unsigned int numColumnWidget() {return 3;}
+    virtual unsigned int sizeWidget() {return 1;}
+    virtual bool createWidgets();
+    virtual void updateVisibility();
+protected:
+    virtual void setDataReadOnly(bool readOnly);
+    virtual void readFromData();
+    virtual void writeToData();
+    virtual bool checkDirty();
+    QSimpleEdit innerWidget_;
+    QString lastValue;
+    sofa::core::dataparser::JsonDataParser* m_parser;
 };
 
 class QPoissonRatioWidget : public TDataWidget<double>

@@ -153,6 +153,16 @@ QDisplayDataWidget::QDisplayDataWidget(QWidget* parent,
         connect(link, SIGNAL(clicked()), this, SLOT(openLink()));
     }
 
+    const sofa::defaulttype::AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
+    if (typeinfo->ValidInfo())
+    {
+        QPushButton *json_widget = new QPushButton("", this);
+        json_widget->setPixmap(style()->standardPixmap(QStyle::SP_FileDialogDetailedView));
+        json_widget->setFixedSize(QSize(30, 30));
+        this->datawidget_->layout()->add(json_widget);
+        connect(json_widget, SIGNAL(clicked()), this, SLOT(openJsonWidget()));
+    }
+
     //std::cout << "WIDGET created for data " << dwarg.data << " : " << dwarg.name << " : " << dwarg.data->getValueTypeString() << std::endl;
     numWidgets_ += datawidget_->sizeWidget();
     connect(datawidget_,SIGNAL(WidgetDirty(bool)), this, SIGNAL ( WidgetDirty(bool) ) );
@@ -241,6 +251,20 @@ void QDisplayDataWidget::openLink()
     }
 }
 
+void QDisplayDataWidget::openJsonWidget()
+{
+    QDataJsonEdit* jsonWidget = new QDataJsonEdit(NULL, this->data_->getName().c_str(), this->data_);
+    jsonWidget->createWidgets();
+    connect(jsonWidget,SIGNAL(WidgetDirty(bool)), this, SIGNAL ( WidgetDirty(bool) ) );
+    connect(this, SIGNAL( WidgetUpdate() ), jsonWidget, SLOT( updateWidgetValue() ) );
+    connect(jsonWidget,SIGNAL(DataOwnerDirty(bool)),this,SIGNAL(DataOwnerDirty(bool)) );
+    connect(jsonWidget,SIGNAL(dataValueChanged(QString)),this,SIGNAL(dataValueChanged(QString)) );
+    connect(this, SIGNAL(destroyed()), jsonWidget, SLOT(close()));
+
+    jsonWidget->setWindowTitle((this->data_->getOwner()->getName() + "  " + this->data_->getName()).c_str());
+    jsonWidget->show();
+}
+
 QDataSimpleEdit::QDataSimpleEdit(QWidget* parent, const char* name, BaseData* data):
     DataWidget(parent,name,data)
 {
@@ -314,6 +338,112 @@ void QDataSimpleEdit::writeToData()
 }
 
 bool QDataSimpleEdit::checkDirty()
+{
+    if( innerWidget_.type == TEXTEDIT)
+    {
+        return lastValue != innerWidget_.widget.textEdit->text();
+    }
+    else if( innerWidget_.type == LINEEDIT)
+    {
+        return lastValue != innerWidget_.widget.lineEdit->text();
+    }
+    return false;
+}
+
+/*json widget */
+QDataJsonEdit::QDataJsonEdit(QWidget* parent, const char* name, BaseData* data)
+   : DataWidget(parent,name,data)
+{
+    m_parser =  new sofa::core::dataparser::JsonDataParser(data->getName());
+}
+
+void QDataJsonEdit::updateVisibility()
+{
+}
+
+bool QDataJsonEdit::createWidgets()
+{
+    const sofa::defaulttype::AbstractTypeInfo *typeinfo = getBaseData()->getValueTypeInfo();
+    const void* valueVoidPtr = getBaseData()->getValueVoidPtr();
+    std::string output;
+    m_parser->fromData(output, valueVoidPtr, typeinfo);
+    lastValue = QString( output.c_str() );
+    QLayout* layout = new QHBoxLayout(this);
+    if( lastValue.length() > TEXTSIZE_THRESHOLD )
+    {
+        innerWidget_.type = TEXTEDIT;
+        innerWidget_.widget.textEdit = new QTextEdit(this); innerWidget_.widget.textEdit->setText(lastValue);
+        connect(innerWidget_.widget.textEdit , SIGNAL( textChanged() ), this, SLOT ( setWidgetDirty() ) );
+        layout->add(innerWidget_.widget.textEdit);
+    }
+    else
+    {
+        innerWidget_.type = LINEEDIT;
+        innerWidget_.widget.lineEdit  = new QLineEdit(this);
+        innerWidget_.widget.lineEdit->setText(lastValue);
+        connect( innerWidget_.widget.lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT( setWidgetDirty() ) );
+        layout->add(innerWidget_.widget.lineEdit);
+    }
+
+    QPushButton* button = new QPushButton( this, "buttonEdit" );
+    button->setText("&Edit");
+    this->layout()->add(button);
+    connect(button, SIGNAL(clicked()), this, SLOT(updateDataValue()));
+
+    return true;
+}
+
+void QDataJsonEdit::setDataReadOnly(bool readOnly)
+{
+    if(innerWidget_.type == TEXTEDIT)
+    {
+        innerWidget_.widget.textEdit->setReadOnly(readOnly);
+    }
+    else if(innerWidget_.type == LINEEDIT)
+    {
+        innerWidget_.widget.lineEdit->setReadOnly(readOnly);
+    }
+}
+
+void QDataJsonEdit::readFromData()
+{
+    const sofa::defaulttype::AbstractTypeInfo *typeinfo = getBaseData()->getValueTypeInfo();
+    const void* valueVoidPtr = getBaseData()->getValueVoidPtr();
+    std::string output;
+    m_parser->fromData(output, valueVoidPtr, typeinfo);
+    lastValue = QString( output.c_str() );
+
+    if(innerWidget_.type == TEXTEDIT)
+    {
+        innerWidget_.widget.textEdit->setText(lastValue);
+    }
+    else if(innerWidget_.type == LINEEDIT)
+    {
+        innerWidget_.widget.lineEdit->setText(lastValue);
+    }
+}
+
+void QDataJsonEdit::writeToData()
+{
+    if(getBaseData())
+    {
+        if( innerWidget_.type == TEXTEDIT)
+        {
+            lastValue = innerWidget_.widget.textEdit->text().ascii();
+        }
+        else if( innerWidget_.type == LINEEDIT)
+        {
+            lastValue = innerWidget_.widget.lineEdit->text().ascii();
+        }
+        std::string value = lastValue.ascii();
+        const sofa::defaulttype::AbstractTypeInfo *typeinfo = getBaseData()->getValueTypeInfo();
+        void* editVoidPtr = getBaseData()->beginEditVoidPtr();
+        m_parser->toData(value, editVoidPtr, typeinfo);
+        getBaseData()->endEditVoidPtr();
+    }
+}
+
+bool QDataJsonEdit::checkDirty()
 {
     if( innerWidget_.type == TEXTEDIT)
     {
