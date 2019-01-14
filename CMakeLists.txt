@@ -33,7 +33,10 @@ set(SOFAGUI_DEPENDENCY_DIR ${SofaGeneral_INCLUDE_DIRS})
 
 set(QT_USE_IMPORTED_TARGETS 1)
 set(QT4_NO_LINK_QTMAIN 1)
-find_package(Qt4 COMPONENTS qtcore qtgui qtopengl qtxml qt3support)
+set(QT_COMPONENTS_LIST QtCore QtGui QtOpenGL QtXml Qt3Support)
+find_package(Qt4 COMPONENTS ${QT_COMPONENTS_LIST})
+# Qt3Support needs QtSql and QtNetwork, so we will embed the associated DLLs too
+set(QT_LIBS_LIST ${QT_COMPONENTS_LIST} QtNetwork QtSql)
 
 find_package(Qwt)
 
@@ -53,6 +56,35 @@ if(SOFA_HAVE_GLUT)
 endif()
 
 if(Qt4_FOUND)
+    if (WIN32)
+        # Install the Qt DLLs directly in the binaries dir
+        get_filename_component(QT_DLL_DIR ${QT_QMAKE_EXECUTABLE} PATH)
+        foreach(qtlib ${QT_LIBS_LIST})
+            install(FILES ${QT_DLL_DIR}/${qtlib}d4.dll
+                    DESTINATION ${DEFAULT_BIN_INSTALL} CONFIGURATIONS Debug)
+            install(FILES ${QT_DLL_DIR}/${qtlib}4.dll
+                    DESTINATION ${DEFAULT_BIN_INSTALL} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+        endforeach(qtlib)
+    else()
+        # Install the Qt DLLs in the lib dir.
+        foreach(qtlib ${QT_LIBS_LIST})
+            string(TOUPPER ${qtlib} upper_qtlib)
+            # Example for QtCore: QT_QTCORE_LIBRARY_DEBUG/RELEASE should be like
+            # "/usr/lib/x86_64-linux-gnu/libQtCore.so", which is a symlink.
+            # Let's search all the files related to the corresponding lib
+            # (actual lib file + symlinks) with a simple GLOB pattern, to be able
+            # to install them all together (just the .so symlink and its target
+            # is not enough... for example libQtCore.so points to libQtCore.so.4.8.7,
+            # but libQt3Support.so.4.8.7 needs the libQtCore.so.4 symlink).
+            file(GLOB lib_file_and_symlinks_debug "" "${QT_${upper_qtlib}_LIBRARY_DEBUG}*")
+            install(FILES ${lib_file_and_symlinks_debug}
+                    DESTINATION ${DEFAULT_LIB_INSTALL} CONFIGURATIONS Debug)
+            file(GLOB lib_file_and_symlinks_release "" "${QT_${upper_qtlib}_LIBRARY_RELEASE}*")
+            install(FILES ${lib_file_and_symlinks_release}
+                    DESTINATION ${DEFAULT_LIB_INSTALL} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+        endforeach(qtlib)
+    endif()
+
     set(SOFA_GUI_QT 1)
 
     list(APPEND SOFAGUI_TARGETS SofaGuiQt)
