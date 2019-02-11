@@ -258,6 +258,7 @@ public:
 
     void* _shareRenderingContext;
 
+    void setSelectedComponent(sofa::core::objectmodel::Base* selected) override;
 
     QString helpString();
 

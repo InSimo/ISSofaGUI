@@ -461,6 +461,7 @@ public slots:
     virtual void setExportGnuplot(bool);
     virtual void setExportVisitor(bool);
     virtual void currentTabChanged(QWidget*);
+    virtual void setSelectedComponent(sofa::core::objectmodel::Base*);
 
 protected slots:
     /// Allow to dynamicly change viewer. Called when click on another viewer in GUI Qt viewer list (see viewerMap).

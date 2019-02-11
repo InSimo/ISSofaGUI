@@ -127,6 +127,7 @@ Q_SIGNALS:
     void NodeRemoved();
     void Updated();
     void NodeAdded();
+    void selectedComponentChanged(sofa::core::objectmodel::Base*);
     void focusChanged(sofa::core::objectmodel::BaseObject*);
     void focusChanged(sofa::core::objectmodel::BaseNode*);
     void dataModified( QString );
@@ -173,6 +174,7 @@ protected:
     std::vector< std::string > list_object;
     AddObject* AddObjectDialog_;
     ObjectModel object_;
+    sofa::core::objectmodel::Base::SPtr selectedComponent_;
     SofaListViewAttribute attribute_;
 
 	QString	filter_;

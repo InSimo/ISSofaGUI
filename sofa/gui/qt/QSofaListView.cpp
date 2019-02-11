@@ -104,10 +104,12 @@ QSofaListView::QSofaListView(const SofaListViewAttribute& attribute,
     connect(this,SIGNAL(rightButtonClicked(Q3ListViewItem*,const QPoint&, int)) ,this,SLOT(RunSofaRightClicked(Q3ListViewItem*,const QPoint&, int)) );
     connect(this,SIGNAL(doubleClicked(Q3ListViewItem*) ), this, SLOT(RunSofaDoubleClicked(Q3ListViewItem*)) );
     connect(this,SIGNAL(clicked(Q3ListViewItem*) ), this, SLOT(updateMatchingObjectmodel(Q3ListViewItem*)) );
+    connect(this,SIGNAL(selectionChanged(Q3ListViewItem*)), this, SLOT(updateMatchingObjectmodel(Q3ListViewItem*)));
 #else
     connect(this,SIGNAL(rightButtonClicked(QListViewItem*,const QPoint&, int)) ,this,SLOT(RunSofaRightClicked(QListViewItem*,const QPoint&, int)) );
     connect(this,SIGNAL(doubleClicked(QListViewItem*) ), this, SLOT(RunSofaDoubleClicked(QListViewItem*)) );
     connect(this,SIGNAL(clicked(QListViewItem*) ), this, SLOT(updateMatchingObjectmodel(QListViewItem*)) );
+    connect(this,SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(updateMatchingObjectmodel(QListViewItem*)));
 
 #endif
 }
@@ -410,22 +412,29 @@ void QSofaListView::updateMatchingObjectmodel(Q3ListViewItem* item)
             assert(data);
             object_.ptr.Data = data;
             object_.type = typeData;
-            return;
-        }
-        node = Node::DynamicCast(base);
-        if( node == NULL)
-        {
-            object = BaseObject::DynamicCast(base);
-            object_.ptr.Object = object;
-            object_.type = typeObject;
+            base = data->getOwner();
         }
         else
         {
-            object_.ptr.Node = node;
-            object_.type = typeNode;
+            node = Node::DynamicCast(base);
+            if (node == NULL)
+            {
+                object = BaseObject::DynamicCast(base);
+                object_.ptr.Object = object;
+                object_.type = typeObject;
+            }
+            else
+            {
+                object_.ptr.Node = node;
+                object_.type = typeNode;
+            }
         }
     }
-
+    if (base != selectedComponent_.get())
+    {
+        selectedComponent_ = base;
+        emit selectedComponentChanged(base);
+    }
 }
 
 void QSofaListView::updateMatchingObjectmodel()

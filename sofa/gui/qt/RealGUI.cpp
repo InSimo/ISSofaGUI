@@ -2006,8 +2006,14 @@ void RealGUI::createSimulationGraph()
     connect(simulationGraph, SIGNAL( Updated() ), this, SLOT( redraw() ) );
     connect(simulationGraph, SIGNAL( NodeAdded() ), this, SLOT( Update() ) );
     connect(simulationGraph, SIGNAL( dataModified( QString ) ), this, SLOT( appendToDataLogFile(QString ) ) );
+    connect(simulationGraph, SIGNAL( selectedComponentChanged(sofa::core::objectmodel::Base*)), this, SLOT(setSelectedComponent(sofa::core::objectmodel::Base*)));
     connect(this, SIGNAL( newScene() ), simulationGraph, SLOT( CloseAllDialogs() ) );
     connect(this, SIGNAL( newStep() ), simulationGraph, SLOT( UpdateOpenedDialogs() ) );
+}
+
+void RealGUI::setSelectedComponent(sofa::core::objectmodel::Base* selected)
+{
+    getViewer()->setSelectedComponent(selected);
 }
 
 //------------------------------------

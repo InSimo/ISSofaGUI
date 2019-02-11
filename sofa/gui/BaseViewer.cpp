@@ -103,6 +103,16 @@ void BaseViewer::setScene(sofa::simulation::Node::SPtr scene, const char* filena
     initTexturesDone = false;
 }
 
+void BaseViewer::setSelectedComponent(sofa::core::objectmodel::Base* selected)
+{
+    currentSelectedComponent.reset(selected);
+}
+
+sofa::core::objectmodel::Base* BaseViewer::getSelectedComponent() const
+{
+    return currentSelectedComponent.get();
+}
+
 void BaseViewer::setCameraMode(core::visual::VisualParams::CameraType mode)
 {
     currentCamera->setCameraType(mode);

@@ -753,9 +753,28 @@ void QtViewer::DisplayOBJs()
         if (_axis)
         {
             DrawAxis(0.0, 0.0, 0.0, 10.0);
-            if (vparams->sceneBBox().minBBox().x() < vparams->sceneBBox().maxBBox().x())
-                DrawBox(vparams->sceneBBox().minBBoxPtr(),
-                        vparams->sceneBBox().maxBBoxPtr());
+            sofa::defaulttype::BoundingBox bbox = vparams->sceneBBox();
+            sofa::core::objectmodel::Base* selection = getSelectedComponent();
+            if (selection)
+            {
+                if (auto o = sofa::core::objectmodel::BaseObject::DynamicCast(selection))
+                {
+                    o->computeBBox(vparams);
+                    bbox = o->f_bbox.getValue();
+                }
+                else if (auto n = sofa::simulation::Node::DynamicCast(selection))
+                {
+                    sofa::simulation::getSimulation()->computeTotalBBox(n, bbox.minBBoxPtr(), bbox.maxBBoxPtr());
+                }
+            }
+            if (bbox.isValid())
+            {
+                DrawBox(bbox.minBBoxPtr(), bbox.maxBBoxPtr());
+            }
+            else
+            {
+                std::cerr << "Invalid bbox: " << bbox << std::endl;
+            }
         }
     }
 
@@ -1775,6 +1794,13 @@ void QtViewer::setSizeH(int size)
 {
     resizeGL(_W, size);
     updateGL();
+}
+
+void QtViewer::setSelectedComponent(sofa::core::objectmodel::Base* selected)
+{
+    std::cout << "Graph selection changed: " << (selected ? selected->getName() : "null") << std::endl;
+    SofaViewer::setSelectedComponent(selected);
+    update();
 }
 
 QString QtViewer::helpString()

@@ -91,7 +91,8 @@ public:
     virtual void setSceneFileName(const std::string &f);
     virtual void setScene(sofa::simulation::Node::SPtr scene, const char* filename = NULL, bool /*keepParams*/= false);
     virtual void setCameraMode(core::visual::VisualParams::CameraType);
-
+    virtual void setSelectedComponent(sofa::core::objectmodel::Base* selected);
+    virtual sofa::core::objectmodel::Base* getSelectedComponent() const;
     virtual void setGUIMode(int);
 
     using CopyScreenInfo = simulation::gui::BaseGUI::CopyScreenInfo;
@@ -163,6 +164,8 @@ protected:
     sofa::simulation::Node::SPtr groot;
 
     sofa::component::visualmodel::BaseCamera::SPtr currentCamera;
+
+    sofa::core::objectmodel::Base::SPtr currentSelectedComponent;
 
     std::string sceneFileName;
 
