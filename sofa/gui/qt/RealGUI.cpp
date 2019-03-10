@@ -841,7 +841,7 @@ void RealGUI::fileOpen()
         filter += it->first;
         filter += " (";
         std::size_t nOfAliases = it->second.size();
-        for (int n = 0; n < nOfAliases; n++ )
+        for (unsigned int n = 0; n < nOfAliases; n++ )
         {
             filter += "*.";
             filter += it->second[n];
@@ -1353,6 +1353,8 @@ void RealGUI::setRecordPath(const std::string & path)
 #ifndef SOFA_GUI_QT_NO_RECORDER
     if (recorder)
         recorder->SetRecordDirectory(path);
+#else
+    SOFA_UNUSED(path);
 #endif
 }
 

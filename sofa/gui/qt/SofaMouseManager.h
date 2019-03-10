@@ -44,7 +44,7 @@ namespace qt
 class SofaMouseManager : public QDialog
 {
     Q_OBJECT
-    std::auto_ptr<Ui_MouseManager> gui;
+    std::unique_ptr<Ui_MouseManager> gui;
 public:
 
     SofaMouseManager();

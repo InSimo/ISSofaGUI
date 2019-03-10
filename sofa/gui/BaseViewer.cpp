@@ -123,12 +123,12 @@ void BaseViewer::setGUIMode(int mode)
     _currentGUIMode = mode;
 }
 
-bool BaseViewer::getCopyScreenRequest(CopyScreenInfo* info)
+bool BaseViewer::getCopyScreenRequest(CopyScreenInfo* /*info*/)
 {
     return false;
 }
 
-void BaseViewer::useCopyScreen(CopyScreenInfo* info)
+void BaseViewer::useCopyScreen(CopyScreenInfo* /*info*/)
 {
 }
 

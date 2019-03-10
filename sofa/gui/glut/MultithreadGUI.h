@@ -54,6 +54,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <fstream>
+#include <memory>
 
 
 #ifdef SOFA_BUILD_SOFAGUIGLUT
@@ -143,7 +144,7 @@ private:
     bool processMessages();
     void releaseAspect(int aspect);
 
-    std::auto_ptr<boost::thread> simuThread;
+    std::unique_ptr<boost::thread> simuThread;
     AspectPool aspectPool;
     AspectRef glAspect;
     AspectRef simuAspect;
