@@ -498,12 +498,19 @@ RealGUI::~RealGUI()
 
     removeViewer();
 
+#ifdef WIN32
     // Clean up the application now otherwise it may be destroyed at exit
     // in a different thread than the one which created it, which creates asserts
-    // in Qt when running in debug mode.
+    // in Qt when running in debug mode on windows.
+    //
+    // NOTE: On linux however, this causes a crash!
+    //
+    // This hack is likely only necessary due to running Qt in a non-main thread
+    // which generally is not well supported.
     this->close();
     delete application;
     application = NULL;
+#endif
 }
 //======================= CONSTRUCTOR - DESTRUCTOR ========================= }
 
