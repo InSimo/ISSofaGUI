@@ -61,9 +61,9 @@ if(Qt4_FOUND)
         get_filename_component(QT_DLL_DIR ${QT_QMAKE_EXECUTABLE} PATH)
         foreach(qtlib ${QT_LIBS_LIST})
             install(FILES ${QT_DLL_DIR}/${qtlib}d4.dll
-                    DESTINATION ${DEFAULT_BIN_INSTALL} CONFIGURATIONS Debug)
+                    DESTINATION ${SOFAGUI_INSTALL_BIN_DIR} CONFIGURATIONS Debug)
             install(FILES ${QT_DLL_DIR}/${qtlib}4.dll
-                    DESTINATION ${DEFAULT_BIN_INSTALL} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+                    DESTINATION ${SOFAGUI_INSTALL_BIN_DIR} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
         endforeach(qtlib)
     else()
         # Install the Qt DLLs in the lib dir.
@@ -78,10 +78,10 @@ if(Qt4_FOUND)
             # but libQt3Support.so.4.8.7 needs the libQtCore.so.4 symlink).
             file(GLOB lib_file_and_symlinks_debug "" "${QT_${upper_qtlib}_LIBRARY_DEBUG}*")
             install(FILES ${lib_file_and_symlinks_debug}
-                    DESTINATION ${DEFAULT_LIB_INSTALL} CONFIGURATIONS Debug)
+                    DESTINATION ${SOFAGUI_INSTALL_LIB_DIR} CONFIGURATIONS Debug)
             file(GLOB lib_file_and_symlinks_release "" "${QT_${upper_qtlib}_LIBRARY_RELEASE}*")
             install(FILES ${lib_file_and_symlinks_release}
-                    DESTINATION ${DEFAULT_LIB_INSTALL} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+                    DESTINATION ${SOFAGUI_INSTALL_LIB_DIR} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
         endforeach(qtlib)
     endif()
 
