@@ -64,6 +64,14 @@ if(Qt4_FOUND)
                     DESTINATION ${SOFAGUI_INSTALL_BIN_DIR} CONFIGURATIONS Debug)
             install(FILES ${QT_DLL_DIR}/${qtlib}4.dll
                     DESTINATION ${SOFAGUI_INSTALL_BIN_DIR} CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+            # Also copy Qt DLLs to the build directory
+            foreach( CONFIG ${CMAKE_CONFIGURATION_TYPES} )
+                if(CONFIG MATCHES Debug)
+                    file( COPY ${QT_DLL_DIR}/${qtlib}d4.dll DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}" )
+                else()
+                    file( COPY ${QT_DLL_DIR}/${qtlib}4.dll DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}" )
+                endif()
+            endforeach()
         endforeach(qtlib)
     else()
         # Install the Qt DLLs in the lib dir.
