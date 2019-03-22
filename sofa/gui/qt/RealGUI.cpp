@@ -54,6 +54,10 @@
 #include "viewer/SofaViewer.h"
 
 #include "../BaseViewer.h"
+#include <sofa/helper/system/glut.h>
+#ifdef FREEGLUT
+#include <GL/freeglut_ext.h>
+#endif
 #include <sofa/simulation/common/xml/XML.h>
 #include <sofa/simulation/common/DeactivatedNodeVisitor.h>
 #include <SofaBaseVisual/VisualStyle.h>
@@ -237,12 +241,15 @@ void RealGUI::SetPixmap(std::string pixmap_filename, QPushButton* b)
 
 void RealGUI::CreateApplication(const sofa::simulation::gui::BaseGUIArgument* a)
 {
-    int  *argc = new int;
-    char **argv=new char*[2];
-    *argc = 1;
-    argv[0] = strdup (a->programName.c_str());
-    argv[1]=NULL;
-    application = new QSOFAApplication ( *argc,argv );
+    static int argc = 1;
+    static char *argv[2] = { strdup(a->programName.c_str()), nullptr };
+#ifdef FREEGLUT
+    if (!glutGet(GLUT_INIT_STATE))
+#endif
+    {
+        glutInit(&argc, argv);
+    }
+    application = new QSOFAApplication ( argc,argv );
 }
 
 //------------------------------------

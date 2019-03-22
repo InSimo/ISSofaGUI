@@ -37,6 +37,10 @@
 #include <string.h>
 #include <math.h>
 
+#include <sofa/helper/system/glut.h>
+#ifdef FREEGLUT
+#include <GL/freeglut_ext.h>
+#endif
 #include <sofa/helper/gl/glfont.h>
 #include <sofa/helper/gl/RAII.h>
 #include <sofa/helper/io/ImageBMP.h>
@@ -181,6 +185,15 @@ SOFA_DECL_CLASS(SimpleGUI)
 
 SimpleGUI* SimpleGUI::CreateGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 {
+
+#ifdef FREEGLUT
+    if (!glutGet(GLUT_INIT_STATE))
+#endif
+    {
+        char *argv[1] = { (char *)("Sofa") };
+        int argc = 1;
+        glutInit(&argc, argv);
+    }
 
     glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE );
 
