@@ -497,6 +497,20 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 
 RealGUI::~RealGUI()
 {
+    std::fstream fs("GraphFilterTmp.txt", std::ios::out);
+    if (fs)
+    {
+        std::string line;
+        size_t maxSavedItem = std::min(GraphFilter->count(), 10);
+        for (unsigned int i = 0; i < maxSavedItem; ++i)
+        {
+            line = GraphFilter->itemText(i).toStdString();
+            if(!line.empty())
+                fs << line << std::endl;
+        }
+        fs.close();
+    }
+
 #ifdef SOFA_PML
     if ( pmlreader )
     {
@@ -2065,6 +2079,21 @@ void RealGUI::createSimulationGraph()
 {
     simulationGraph = new QSofaListView(SIMULATION,TabGraph,"SimuGraph");
     ((QVBoxLayout*)TabGraph->layout())->addWidget(simulationGraph);
+
+    GraphFilter->setMaxVisibleItems(10);
+    GraphFilter->setInsertPolicy(QComboBox::InsertAtTop);
+
+    std::fstream fs("GraphFilterTmp.txt", std::ios::in);
+    if (fs)
+    {
+        std::string line;
+        while (std::getline(fs, line))
+        {
+            GraphFilter->addItem(QString(line.c_str()));
+        }
+        GraphFilter->clearEdit();
+        fs.close();
+    }
 
 	connect ( GraphFilter, SIGNAL( textChanged(const QString &) ), simulationGraph, SLOT( setFilter( const QString & ) ) );
 	connect ( SearchNamesCheckbox, SIGNAL( toggled( bool ) ), simulationGraph, SLOT( setSearchName( bool ) ) );
