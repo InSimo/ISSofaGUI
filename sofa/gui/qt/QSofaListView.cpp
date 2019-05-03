@@ -511,6 +511,8 @@ void QSofaListView::RunSofaRightClicked( Q3ListViewItem *item,
         contextMenu->insertSeparator ();
         /*****************************************************************************************************************/
 
+        contextMenu->insertItem("Set filter on node", this, SLOT(setFilterOnNode()));
+
         contextMenu->insertItem("Enable Draw", this, SLOT(enableDraw()));
         contextMenu->insertItem("Disable Draw", this, SLOT(disableDraw()));
 
@@ -583,6 +585,11 @@ void QSofaListView::DeactivateNode()
 void QSofaListView::ActivateNode()
 {
     emit RequestActivation(object_.ptr.Node,true);
+}
+
+void QSofaListView::setFilterOnNode()
+{
+    setFilter(QString(object_.ptr.Node->getName().c_str()));
 }
 
 void QSofaListView::enableDraw()

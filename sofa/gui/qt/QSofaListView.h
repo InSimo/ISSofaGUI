@@ -145,6 +145,7 @@ protected Q_SLOTS:
     void ShowDatas();
     void DeactivateNode();
     void ActivateNode();
+    void setFilterOnNode();
     void enableDraw();
     void disableDraw();
     void loadObject ( std::string path, double dx, double dy, double dz,  double rx, double ry, double rz,double scale );
