@@ -351,7 +351,7 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     connect ( ResetSceneButton, SIGNAL ( clicked() ), this, SLOT ( resetScene() ) );
     connect ( dtEdit, SIGNAL ( textChanged ( const QString& ) ), this, SLOT ( setDt ( const QString& ) ) );
     connect ( stepButton, SIGNAL ( clicked() ), this, SLOT ( step() ) );
-    connect ( maxfpsEdit, SIGNAL ( textChanged ( const QString& ) ), this, SLOT ( setMaxFPS ( const QString& ) ) );
+    connect ( maxfpsEdit, SIGNAL ( textEdited ( const QString& ) ), this, SLOT ( setMaxFPS ( const QString& ) ) );
     connect ( dumpStateCheckBox, SIGNAL ( toggled ( bool ) ), this, SLOT ( dumpState ( bool ) ) );
     connect ( displayComputationTimeCheckBox, SIGNAL ( toggled ( bool ) ), this, SLOT ( displayComputationTime ( bool ) ) );
     connect ( exportGnuplotFilesCheckbox, SIGNAL ( toggled ( bool ) ), this, SLOT ( setExportGnuplot ( bool ) ) );
@@ -2523,6 +2523,11 @@ void RealGUI::setMaxFPS(double value)
         throttle_lastframe = CTime::getRefTime(); // reset throttling
     }
     this->maxFPS = value;
+    if (value > 0) // do not set the text if value is not invalid
+    {
+        // ensure the text shown in the GUI is kept up-to-date with the actual value
+        maxfpsEdit->setText(QString::number(value));
+    }
     // TODO: not precise enough in Qt4. Qt5 has Qt::PreciseTimer, could be used later
     //timerStep->setInterval(maxFPS <= 0.0 ? 0 : (int)(1000.0/this->maxFPS));
     if (value <= 0.0 || value >= 1000.0)
