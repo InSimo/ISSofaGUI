@@ -669,6 +669,8 @@ void QSofaListView::Modify()
         dialogFlags.setFlagsForSofa();
         ModifyObject* dialogModifyObject = NULL;
 
+        QString title = currentItem()->text(0);
+
         if (object_.type == typeData)       //user clicked on a data
         {
             current_Id_modifyDialog = object_.ptr.Data;
@@ -680,6 +682,15 @@ void QSofaListView::Modify()
         if(object_.type == typeObject)
         {
             current_Id_modifyDialog = object_.ptr.Object;
+
+            sofa::core::objectmodel::BaseObject* baseObj = sofa::core::objectmodel::BaseObject::DynamicCast(object_.ptr.Object);
+            if (baseObj)
+            {
+                sofa::core::objectmodel::BaseContext* context = baseObj->getContext();
+                sofa::core::objectmodel::BaseNode * bn = sofa::core::objectmodel::BaseNode::DynamicCast(baseObj->getContext());
+                if (bn && !bn->getPathName().empty())
+                    title = title + QString(" (") + QString(bn->getPathName().c_str()) + QString(")");
+            }
         }
         assert(current_Id_modifyDialog != NULL);
 
@@ -694,7 +705,7 @@ void QSofaListView::Modify()
             return;
         }
 
-        dialogModifyObject = new ModifyObject(current_Id_modifyDialog,currentItem(),this,dialogFlags,graphListener_->items,currentItem()->text(0));
+        dialogModifyObject = new ModifyObject(current_Id_modifyDialog,currentItem(),this, dialogFlags, graphListener_->items, title);
         if(object_.type == typeData)
             dialogModifyObject->createDialog(object_.ptr.Data);
         if(object_.type == typeNode)
