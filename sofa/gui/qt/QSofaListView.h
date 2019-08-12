@@ -156,8 +156,8 @@ protected Q_SLOTS:
     void focusObject();
     void focusNode();
 protected:
-	bool nameMatchesFilter(Q3ListViewItem*, QString, bool);
-	bool typeMatchesFilter(Q3ListViewItem*, QString, bool);
+	bool nameMatchesFilter(Q3ListViewItem*, QString, bool, bool);
+	bool typeMatchesFilter(Q3ListViewItem*, QString, bool, bool);
 	bool isItemANode(Q3ListViewItem*);
 	bool shouldDisplayNode(Q3ListViewItem*, bool, bool);
 	bool fillFilteredList(std::vector< std::pair<Q3ListViewItem*, bool> >&, Q3ListViewItem*, bool);

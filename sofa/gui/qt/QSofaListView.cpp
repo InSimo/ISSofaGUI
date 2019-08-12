@@ -169,7 +169,7 @@ void QSofaListView::modifyUnlock(void* Id)
     map_modifyObjectWindow.erase( Id );
 }
 
-bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode)
+bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode, bool exactMatch = false)
 {
     if (!searchName_) return false;
 
@@ -179,7 +179,14 @@ bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool
 
     if (bIsNode)
     {
-        match = item->text(0).contains(filter, Qt::CaseInsensitive);
+        if (exactMatch)
+        {
+            match = (item->text(0).compare(filter, Qt::CaseInsensitive)) == 0;
+        }
+        else
+        {
+            match = item->text(0).contains(filter, Qt::CaseInsensitive);
+        }
     }
     else
     {
@@ -188,7 +195,14 @@ bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool
         if (list.size() >= 2)
         {
             list.pop_front();
-            match = list.join(" ").contains(filter, Qt::CaseInsensitive);
+            if (exactMatch)
+            {
+                match = (item->text(0).compare(filter, Qt::CaseInsensitive)) == 0;
+            }
+            else
+            {
+                match = list.join(" ").contains(filter, Qt::CaseInsensitive);
+            }
         }
 
     }
@@ -198,7 +212,7 @@ bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool
     return match;
 }
 
-bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode)
+bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, QString filter, bool bIsNode, bool exactMatch = false)
 {
     if (bIsNode || !searchType_) return false;
 
@@ -211,7 +225,16 @@ bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, QString filter, bool
     emit Lock(false);
 
     if (!list.isEmpty())
-        match = list.front().contains(filter, Qt::CaseInsensitive);
+    {
+        if (exactMatch)
+        {
+            match = (item->text(0).compare(filter, Qt::CaseInsensitive)) == 0;
+        }
+        else
+        {
+            match = list.front().contains(filter, Qt::CaseInsensitive);
+        }
+    }
 
     return match;
 }
@@ -233,12 +256,20 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
         for (int fl = 0; fl < filterList.size(); ++fl)
         {
             QString str = filterList.at(fl);
+
+            bool exactMatch = false;
+            if (str.contains("\"")) //search for exact match
+            {
+                str = str.remove(QChar('"'));
+                exactMatch = true;
+            }
+
             if (str.contains("/"))
             {
                 if (bIsNode)
                 {
                     str = str.remove(QChar('/'));
-                    display &= nameMatchesFilter(item, str, bIsNode) || typeMatchesFilter(item, str, bIsNode);
+                    display &= nameMatchesFilter(item, str, bIsNode, exactMatch) || typeMatchesFilter(item, str, bIsNode, exactMatch);
                 }
                 else
                     display = false;
@@ -250,12 +281,12 @@ bool QSofaListView::shouldDisplayNode(Q3ListViewItem* item, bool parentMatched, 
                 BaseObject * bo = dynamic_cast<BaseObject *>(base);
                 bool warn = node;
                 warn |= (bo && bo->getWarnings().empty());
-                                
+
                 display = !warn;
             }
             else
             {
-                display &= nameMatchesFilter(item, str, bIsNode) || typeMatchesFilter(item, str, bIsNode);
+                display &= nameMatchesFilter(item, str, bIsNode, exactMatch) || typeMatchesFilter(item, str, bIsNode, exactMatch);
             }
         }
     }
@@ -589,7 +620,7 @@ void QSofaListView::ActivateNode()
 
 void QSofaListView::setFilterOnNode()
 {
-    setFilter(QString(object_.ptr.Node->getName().c_str()));
+    setFilter(QString("\"") + QString(object_.ptr.Node->getName().c_str()));
 }
 
 void QSofaListView::enableDraw()
