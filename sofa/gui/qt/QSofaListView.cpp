@@ -197,7 +197,7 @@ bool QSofaListView::nameMatchesFilter(Q3ListViewItem* item, QString filter, bool
             list.pop_front();
             if (exactMatch)
             {
-                match = (item->text(0).compare(filter, Qt::CaseInsensitive)) == 0;
+                match = (list.back().compare(filter, Qt::CaseInsensitive)) == 0;
             }
             else
             {
@@ -228,7 +228,7 @@ bool QSofaListView::typeMatchesFilter(Q3ListViewItem* item, QString filter, bool
     {
         if (exactMatch)
         {
-            match = (item->text(0).compare(filter, Qt::CaseInsensitive)) == 0;
+            match = (list.front().compare(filter, Qt::CaseInsensitive)) == 0;
         }
         else
         {
