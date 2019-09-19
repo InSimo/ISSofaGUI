@@ -1880,7 +1880,7 @@ void QtViewer::setSizeH(int size)
 
 void QtViewer::setSelectedComponent(sofa::core::objectmodel::Base* selected)
 {
-    std::cout << "Graph selection changed: " << (selected ? selected->getName() : "null") << std::endl;
+    //std::cout << "Graph selection changed: " << (selected ? selected->getName() : "null") << std::endl;
     SofaViewer::setSelectedComponent(selected);
     update();
 }
