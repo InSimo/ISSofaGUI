@@ -98,7 +98,7 @@ private:
 
 
     QTimer* timerAnimate;
-    int				_W, _H;
+    int				_W = 0, _H = 0;
     int				_clearBuffer;
     bool			_lightModelTwoSides;
     float			_lightPosition[4];
