@@ -162,7 +162,7 @@ DataWidget::updateWidgetValue()
 {
     if(!isDirty())
     {
-        if(counter != baseData->getCounter())
+        if(counter != baseData->getCounter() && this->parentWidget()->isVisible())
         {
             readFromData();
             this->update();
