@@ -686,7 +686,6 @@ void QSofaListView::Modify()
             sofa::core::objectmodel::BaseObject* baseObj = sofa::core::objectmodel::BaseObject::DynamicCast(object_.ptr.Object);
             if (baseObj)
             {
-                sofa::core::objectmodel::BaseContext* context = baseObj->getContext();
                 sofa::core::objectmodel::BaseNode * bn = sofa::core::objectmodel::BaseNode::DynamicCast(baseObj->getContext());
                 if (bn && !bn->getPathName().empty())
                     title = title + QString(" (") + QString(bn->getPathName().c_str()) + QString(")");
