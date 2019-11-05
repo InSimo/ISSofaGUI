@@ -12,9 +12,9 @@ set(SOURCE_FILES
 	)
 
 if(SOFA_HAVE_BOOST)
-	list(APPEND HEADER_FILES MultithreadGUI.h)
-	
-	list(APPEND SOURCE_FILES MultithreadGUI.cpp)
+#	list(APPEND HEADER_FILES MultithreadGUI.h)
+#	
+#	list(APPEND SOURCE_FILES MultithreadGUI.cpp)
 endif()
 
 
