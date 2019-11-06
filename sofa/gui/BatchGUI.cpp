@@ -129,6 +129,10 @@ bool BatchGUI::step()
         sofa::simulation::getSimulation()->animate(m_groot.get());
         sofa::simulation::getSimulation()->updateVisual(m_groot.get());
     }
+    else if (sofa::simulation::getSimulation()->getExitStatus(m_groot.get()))
+    {
+        return false;
+    }
     else
     {
         if (m_exitWhenPaused)

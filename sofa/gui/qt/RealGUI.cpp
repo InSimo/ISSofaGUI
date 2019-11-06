@@ -2453,11 +2453,11 @@ void RealGUI::step()
     }
 
     stopDumpVisitor();
+    if (sofa::simulation::getSimulation()->getExitStatus(this->getCurrentSimulation())) emit(quit());
     if (currentGUIMode != 0)
         emit newStep();
     if ( !getCurrentSimulation()->getContext()->getAnimate() )
         startButton->setOn ( false );
-
 
     this->setFrameDisplay(0);
 }
@@ -2473,6 +2473,7 @@ void RealGUI::idle()
     Node* root = getCurrentSimulation();
     if ( root == NULL ) return;
 
+    if (sofa::simulation::getSimulation()->getExitStatus(this->getCurrentSimulation())) emit(quit());
     if (currentGUIMode != 0 && !getViewer()->ready())
     {
         return;
