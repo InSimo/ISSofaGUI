@@ -496,20 +496,27 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
 
 //------------------------------------
 
+static constexpr const char* graphFilterFileName = "GraphFilterTmp.txt";
+
 RealGUI::~RealGUI()
 {
-    std::fstream fs("GraphFilterTmp.txt", std::ios::out);
-    if (fs)
+    std::fstream fs(graphFilterFileName, std::ios::in);
+    if (fs) // only write if the file already exists
     {
-        std::string line;
-        size_t maxSavedItem = std::min(GraphFilter->count(), 10);
-        for (unsigned int i = 0; i < maxSavedItem; ++i)
-        {
-            line = GraphFilter->itemText(i).toStdString();
-            if(!line.empty())
-                fs << line << std::endl;
-        }
         fs.close();
+        fs.open(graphFilterFileName, std::ios::out);
+        if (fs)
+        {
+            std::string line;
+            size_t maxSavedItem = std::min(GraphFilter->count(), 10);
+            for (unsigned int i = 0; i < maxSavedItem; ++i)
+            {
+                line = GraphFilter->itemText(i).toStdString();
+                if(!line.empty())
+                    fs << line << std::endl;
+            }
+            fs.close();
+        }
     }
 
 #ifdef SOFA_PML
@@ -2100,7 +2107,7 @@ void RealGUI::createSimulationGraph()
     GraphFilter->setMaxVisibleItems(10);
     GraphFilter->setInsertPolicy(QComboBox::InsertAtTop);
 
-    std::fstream fs("GraphFilterTmp.txt", std::ios::in);
+    std::fstream fs(graphFilterFileName, std::ios::in);
     if (fs)
     {
         std::string line;
