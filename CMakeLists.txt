@@ -128,6 +128,7 @@ set(SOFAGUI_INCLUDE_DIR "${SOFAGUI_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaGuiConfig.cmake.in
                               ${SOFAGUI_BUILD_CMAKE_DIR}/SofaGuiConfig.cmake
                               INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAGUI_INCLUDE_DIR)
 
 # SofaGuiConfig.cmake (installed)
