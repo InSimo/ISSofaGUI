@@ -1822,7 +1822,7 @@ void QtViewer::resetView()
 
     //if there is no .view file , look at the center of the scene bounding box
     // and with a Up vector in the same axis as the gravity
-    if (!fileRead)
+    if (!fileRead && currentCamera && !(currentCamera->p_distance.isSet()))
     {
         newView();
     }
