@@ -839,6 +839,11 @@ bool RealGUI::stepMainLoop () {
         startButton->blockSignals(false);
     }
 
+    if( sim->getAnimate() ) {
+        eventNewStep();
+        eventNewTime();
+    }
+
     application->processEvents();
     return application->mainWidget()->isShown();
 }
