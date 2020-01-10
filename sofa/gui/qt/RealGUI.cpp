@@ -333,7 +333,8 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     stopAfterStep(0),
     animateLockCounter(0),
     viewerShareRenderingContext(0),
-    currentGUIMode(0)
+    currentGUIMode(0),
+    externalStepping(false)
 {
     setupUi(this);
     parseOptionsPreInit(this->getGUIOptions());
@@ -827,6 +828,17 @@ void RealGUI::lmlOpen ( const char* filename )
 //======================= METHODS ========================= {
 
 bool RealGUI::stepMainLoop () {
+    externalStepping = true;
+
+    // Sync the animate button state with current animate state
+    sofa::simulation::Node* sim = getCurrentSimulation();
+    if (sim && sim->getAnimate() != startButton->isOn())
+    {
+        startButton->blockSignals(true);
+        startButton->setOn(sim->getAnimate());
+        startButton->blockSignals(false);
+    }
+
     application->processEvents();
     return application->mainWidget()->isShown();
 }
@@ -2293,16 +2305,20 @@ void RealGUI::playpauseGUI ( bool value )
     startButton->setOn ( value );
     if ( getCurrentSimulation() )
         getCurrentSimulation()->getContext()->setAnimate ( value );
-    if (value)
+
+    if (!externalStepping)
     {
-        stopIdle();
-        timerStep->start();
-        throttle_lastframe = CTime::getRefTime(); // reset throttling
-    }
-    else
-    {
-        timerStep->stop();
-        startIdle();
+        if (value)
+        {
+            stopIdle();
+            timerStep->start();
+            throttle_lastframe = CTime::getRefTime(); // reset throttling
+        }
+        else
+        {
+            timerStep->stop();
+            startIdle();
+        }
     }
 
     this->setFrameDisplay(0);

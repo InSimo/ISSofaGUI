@@ -265,6 +265,9 @@ protected:
     sofa::helper::system::thread::ctime_t throttle_lastframe; // only used if maxFPS > 0
     double idleFrequency = 0.0;
 
+    /// Will be set to true if the simulation is being step externally, i.e. not by the GUI
+    bool externalStepping;
+
 private:
     //currently unused: scale is experimental
     float object_Scale[2];
