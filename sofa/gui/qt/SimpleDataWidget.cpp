@@ -77,16 +77,22 @@ Creator<DataWidgetFactory, SimpleDataWidget< Vec<6,double> > > DWClass_Vec6d("de
 Creator<DataWidgetFactory, SimpleDataWidget< Vec<8,int> > > DWClass_Vec8i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< Vec<8,unsigned int> > > DWClass_Vec8u("default",true);
 
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,1> > > DWClass_fixed_array1b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,1> > > DWClass_fixed_array1i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,1> > > DWClass_fixed_array1u("default",true);
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,2> > > DWClass_fixed_array2b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,2> > > DWClass_fixed_array2i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,2> > > DWClass_fixed_array2u("default",true);
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,3> > > DWClass_fixed_array3b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,3> > > DWClass_fixed_array3i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,3> > > DWClass_fixed_array3u("default",true);
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,4> > > DWClass_fixed_array4b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,4> > > DWClass_fixed_array4i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,4> > > DWClass_fixed_array4u("default",true);
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,6> > > DWClass_fixed_array6b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,6> > > DWClass_fixed_array6i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,6> > > DWClass_fixed_array6u("default",true);
+Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<bool,8> > > DWClass_fixed_array8b("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<int,8> > > DWClass_fixed_array8i("default",true);
 Creator<DataWidgetFactory, SimpleDataWidget< fixed_array<unsigned int,8> > > DWClass_fixed_array8u("default",true);
 
