@@ -526,7 +526,7 @@ void ModifyObject::updateValues()
     {
         bool isNode =( simulation::Node::DynamicCast(node) != 0);
         //If the current element is a node of the graph, we first apply the transformations
-        if (dialogFlags_.REINIT_FLAG && isNode)
+        if (dialogFlags_.REINIT_FLAG && isNode && transformation)
         {
             simulation::Node* current_node = simulation::Node::DynamicCast(node);
             if (!transformation->isDefaultValues())
