@@ -965,10 +965,10 @@ void QtViewer::drawScene(void)
             }
             else
             {
-                smode = STEREO_INTERLACED;
-                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Interlaced" << std::endl;
-                //smode = STEREO_SYDE_BY_SIDE_HALF;
-                //if (smode != prevsmode) std::cout << "AUTO Stereo mode: Side by Side Half" << std::endl;
+                //smode = STEREO_INTERLACED;
+                //if (smode != prevsmode) std::cout << "AUTO Stereo mode: Interlaced" << std::endl;
+                smode = STEREO_SIDE_BY_SIDE;
+                if (smode != prevsmode) std::cout << "AUTO Stereo mode: Side by Side" << std::endl;
             }
             prevsmode = smode;
         }
@@ -1046,6 +1046,17 @@ void QtViewer::drawScene(void)
             glStencilFunc(GL_EQUAL, 0x1, 0x1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         }
+        if (_stereoEyeOffset != 0)
+        {
+            double projMatrix[16];
+            for (int i = 0; i < 16; ++i) projMatrix[i] = lastProjectionMatrix[i];
+            double tx = _stereoEyeOffset;
+            for (int i = 0; i < 4; ++i)  projMatrix[4*i] += projMatrix[3+4*i] * tx;
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadMatrixd(projMatrix);
+            vparams->setProjectionMatrix(projMatrix);
+        }
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
@@ -1064,6 +1075,11 @@ void QtViewer::drawScene(void)
 
     if (stereo)
     {
+        if (_stereoEyeOffset != 0)
+        {
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+        }
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
     }
@@ -1083,11 +1099,30 @@ void QtViewer::drawScene(void)
             glStencilFunc(GL_NOTEQUAL, 0x1, 0x1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         }
+        if (_stereoEyeOffset != 0)
+        {
+            double projMatrix[16];
+            for (int i = 0; i < 16; ++i) projMatrix[i] = lastProjectionMatrix[i];
+            double tx = -_stereoEyeOffset;
+            for (int i = 0; i < 4; ++i)  projMatrix[4*i] += projMatrix[3+4*i] * tx;
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadMatrixd(projMatrix);
+            vparams->setProjectionMatrix(projMatrix);
+            glMatrixMode(GL_MODELVIEW);
+        }
 
         if (_renderingMode == GL_RENDER)
         {
             DisplayOBJs();
         }
+
+        if (_stereoEyeOffset != 0)
+        {
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+        }
+        glMatrixMode(GL_MODELVIEW);
 
         if (viewport)
         {

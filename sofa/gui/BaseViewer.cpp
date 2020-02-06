@@ -49,6 +49,7 @@ BaseViewer::BaseViewer()
     , _stereoEnabled(false)
     , _stereoMode(STEREO_AUTO)
     , _stereoShift(1.0)
+    , _stereoEyeOffset(0.0)
     , _currentGUIMode(1)
 {
     pick = new PickHandler();

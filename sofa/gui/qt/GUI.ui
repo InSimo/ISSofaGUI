@@ -39,6 +39,18 @@
     </rect>
    </property>
    <layout class="QVBoxLayout">
+    <property name="leftMargin">
+      <number>0</number>
+    </property>
+    <property name="topMargin">
+      <number>0</number>
+    </property>
+    <property name="rightMargin">
+      <number>0</number>
+    </property>
+    <property name="bottomMargin">
+      <number>0</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter2">
       <property name="orientation">
@@ -52,6 +64,18 @@
         </size>
        </property>
        <layout class="QVBoxLayout">
+        <property name="leftMargin">
+          <number>4</number>
+        </property>
+        <property name="topMargin">
+          <number>2</number>
+        </property>
+        <property name="rightMargin">
+          <number>0</number>
+        </property>
+        <property name="bottomMargin">
+          <number>2</number>
+        </property>
         <item>
          <layout class="QGridLayout">
           <item row="2" column="1">

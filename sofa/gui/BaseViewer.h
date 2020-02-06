@@ -218,6 +218,7 @@ protected:
     };
     StereoMode _stereoMode;
     double _stereoShift;
+    double _stereoEyeOffset;
     int _currentGUIMode;
 
 };

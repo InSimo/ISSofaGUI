@@ -173,17 +173,48 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
         break;
     }
     case Qt::Key_F2:
-        // --- reduce shift distance
+        // --- reduce shift distance or eye offset (if Shift is pressed)
     {
-        _stereoShift -= 0.1;
-        std::cout << "Stereo separation = " << _stereoShift << std::endl;
+        if (e->state() & Qt::ShiftButton)
+        {
+            _stereoEyeOffset -= 0.01;
+            std::cout << "Stereo eye offset = " << _stereoEyeOffset << std::endl;
+        }
+        else
+        {
+            _stereoShift -= 0.1;
+            std::cout << "Stereo separation = " << _stereoShift << std::endl;
+        }
         break;
     }
     case Qt::Key_F3:
-        // --- increase shift distance
+        // --- increase shift distance or eye offset (if Shift is pressed)
     {
-        _stereoShift += 0.1;
-        std::cout << "Stereo separation = " << _stereoShift << std::endl;
+        if (e->state() & Qt::ShiftButton)
+        {
+            _stereoEyeOffset += 0.01;
+            std::cout << "Stereo eye offset = " << _stereoEyeOffset << std::endl;
+        }
+        else
+        {
+            _stereoShift += 0.1;
+            std::cout << "Stereo separation = " << _stereoShift << std::endl;
+        }
+        break;
+    }
+    case Qt::Key_F4:
+        // --- reset shift distance or eye offset (if Shift is pressed)
+    {
+        if (e->state() & Qt::ShiftButton)
+        {
+            _stereoEyeOffset = 0.0;
+            std::cout << "Stereo eye offset = " << _stereoEyeOffset << std::endl;
+        }
+        else
+        {
+            _stereoShift = 1.0;
+            std::cout << "Stereo separation = " << _stereoShift << std::endl;
+        }
         break;
     }
     case Qt::Key_F5:
