@@ -122,10 +122,10 @@ QGLFormat QtViewer::setupGLFormat()
 // ---------------------------------------------------------
 QtViewer::QtViewer(QWidget* parent, const char* name, void* shareRenderingContext)
     : QGLWidget(setupGLFormat(), parent, name)
+    , m_displayPastView(false)
     , m_recFrame(0)
     , m_viewFrame(0)
     , m_maxBuffer(1)
-    , m_displayPastView(false)
 {
 #if defined(QT_VERSION) && QT_VERSION >= 0x040700
     std::cout << "QtViewer: OpenGL " << format().majorVersion() << "." << format().minorVersion() << " context created. " << shareRenderingContext << std::endl;
@@ -1102,7 +1102,7 @@ void QtViewer::drawScene(void)
         }
     }
 
-    if (m_displayPastView)
+    if (m_displayPastView && m_maxBuffer > 0)
     {
         glDrawPixels(GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[(m_recFrame + m_viewFrame+ m_maxBuffer) % m_maxBuffer]);
     }
@@ -1112,8 +1112,11 @@ void QtViewer::drawScene(void)
 
 void QtViewer::recordFrame()
 {
-    glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
-    m_recFrame = (m_recFrame + 1) % m_maxBuffer;
+    if (m_maxBuffer > 0)
+    {
+        glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
+        m_recFrame = (m_recFrame + 1) % m_maxBuffer;
+    }
 }
 
 
@@ -1395,10 +1398,13 @@ void QtViewer::keyPressEvent(QKeyEvent * e)
         }
         case Qt::Key_0:
         {
-            std::cout << "record" << m_recFrame << std::endl;
-            glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
-            m_recFrame = (m_recFrame + 1) % m_maxBuffer;
-            std::cout << "recorded " << m_recFrame << std::endl;
+            if (m_maxBuffer > 0)
+            {
+                std::cout << "record" << m_recFrame << std::endl;
+                glReadPixels(0, 0, GetWidth(), GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, m_view[m_recFrame % m_maxBuffer]);
+                m_recFrame = (m_recFrame + 1) % m_maxBuffer;
+                std::cout << "recorded " << m_recFrame << std::endl;
+            }
             break;
         }
         case Qt::Key_1:
@@ -1409,14 +1415,20 @@ void QtViewer::keyPressEvent(QKeyEvent * e)
         }
         case Qt::Key_4:
         {
-            std::cout << "play frame fwd " << m_viewFrame << std::endl;
-            m_viewFrame = (m_viewFrame + 1) % m_maxBuffer;
+            if (m_maxBuffer > 0)
+            {
+                std::cout << "play frame fwd " << m_viewFrame << std::endl;
+                m_viewFrame = (m_viewFrame + 1) % m_maxBuffer;
+            }
             break;
         }
         case Qt::Key_6:
         {
-            std::cout << "play frame bwd " << m_viewFrame << std::endl;
-            m_viewFrame = (m_viewFrame + m_maxBuffer - 1) % m_maxBuffer;
+            if (m_maxBuffer > 0)
+            {
+                std::cout << "play frame bwd " << m_viewFrame << std::endl;
+                m_viewFrame = (m_viewFrame + m_maxBuffer - 1) % m_maxBuffer;
+            }
             break;
         }
         default:

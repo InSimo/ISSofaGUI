@@ -617,7 +617,7 @@ void RealGUI::setFrameDisplay(int frame)
 {
     sofa::gui::qt::viewer::qt::QtViewer* qtViewer = dynamic_cast<sofa::gui::qt::viewer::qt::QtViewer*>(mViewer);
 
-    if (frame == 0)
+    if (frame == 0 || qtViewer->m_maxBuffer == 0)
     {
         m_frame = 0;
     }
