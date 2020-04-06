@@ -9,11 +9,18 @@ set(SOFAGUI_INCLUDE_DIR "@PACKAGE_SOFAGUI_INCLUDE_DIR@")
 set(SofaGUI_TARGETS @SOFAGUI_TARGETS@)
 
 # required for transitive dependencies
-find_package(SofaGeneral REQUIRED)
-find_package(SofaMisc REQUIRED)
-find_package(SofaAdvanced REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
+if( NOT TARGET SofaComponentMisc )
+    find_package(SofaMisc REQUIRED)
+endif()
+if( NOT TARGET SofaComponentAdvanced )
+    find_package(SofaAdvanced REQUIRED)
+endif()
 
-set(SOFA_HAVE_QT @SOFA_HAVE_QT@)
+set(SOFA_HAVE_QT @SOFA_HAVE_QT@ CACHE INTERNAL "")
+set(SOFA_HAVE_QWT @SOFA_HAVE_QWT@ CACHE INTERNAL "")
 
 if(SOFA_HAVE_QT)
     set(QT_USE_IMPORTED_TARGETS 1)
@@ -28,5 +35,6 @@ endif()
 check_required_components(${SofaGUI_TARGETS})
 
 # For compatibility only
-set(SofaGui_LIBRARIES SofaGuiCommon)
-set(SofaGui_INCLUDE_DIRS ${SOFAGUI_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} ${SofaMisc_INCLUDE_DIRS} ${SofaAdvanced_INCLUDE_DIRS})
+set(SofaGui_LIBRARIES SofaGuiCommon CACHE INTERNAL "")
+#get_property(SofaGui_INCLUDE_DIRS TARGET SofaGuiCommon PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+set(SofaGui_INCLUDE_DIRS ${SOFAGUI_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} ${SofaMisc_INCLUDE_DIRS} ${SofaAdvanced_INCLUDE_DIRS} CACHE INTERNAL "")

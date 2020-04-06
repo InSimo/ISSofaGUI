@@ -27,8 +27,12 @@ set(SOFAGUI_INSTALL_CMAKE_DIR   ${SOFAGUI_INSTALL_LIB_DIR}/cmake/SofaGui)
 
 ## SofaGui dependencies
 ##
-find_package(SofaGeneral REQUIRED)
-find_package(SofaMisc REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
+if( NOT TARGET SofaComponentMisc )
+    find_package(SofaMisc REQUIRED)
+endif()
 set(SOFAGUI_DEPENDENCY_DIR ${SofaGeneral_INCLUDE_DIRS})
 
 set(QT_USE_IMPORTED_TARGETS 1)
@@ -40,9 +44,9 @@ set(QT_LIBS_LIST ${QT_COMPONENTS_LIST} QtNetwork QtSql)
 
 find_package(Qwt)
 
-set(SOFA_HAVE_QWT ${Qwt_FOUND} )
-set(SOFA_HAVE_QT ${Qt4_FOUND} )
-set(SOFA_QT4 ${Qt4_FOUND} )
+set(SOFA_HAVE_QWT ${Qwt_FOUND} CACHE INTERNAL "")
+set(SOFA_HAVE_QT ${Qt4_FOUND} CACHE INTERNAL "")
+set(SOFA_QT4 ${Qt4_FOUND} CACHE INTERNAL "")
 
 set(SOFAGUI_TARGETS SofaGuiCommon SofaGuiBatch)
 
@@ -145,3 +149,9 @@ install(FILES ${SOFAGUI_BUILD_CMAKE_DIR}/SofaGuiConfigInstall.cmake
 # SofaGuiTargets.cmake (installed)
 install(EXPORT SofaGuiTargets
         DESTINATION ${SOFAGUI_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaGui_LIBRARIES SofaGuiCommon CACHE INTERNAL "")
+set(SOFAGUI_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAGUI_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAGUI_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaGui_INCLUDE_DIRS ${SOFAGUI_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} ${SofaMisc_INCLUDE_DIRS} ${SofaAdvanced_INCLUDE_DIRS} CACHE INTERNAL "")
+#get_property(SofaGui_INCLUDE_DIRS TARGET SofaGuiCommon PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
