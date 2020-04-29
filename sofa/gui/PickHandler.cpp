@@ -397,48 +397,48 @@ component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
     for (std::set< sofa::component::collision::BaseRayContact*>::const_iterator it=contacts.begin(); it != contacts.end(); ++it)
     {
 
-        const sofa::helper::vector<core::collision::DetectionOutput*>& output = (*it)->getDetectionOutputs();
+        const sofa::helper::vector<core::collision::DetectionOutput>& output = (*it)->getDetectionOutputs();
         sofa::core::CollisionModel *modelInCollision;
         for (unsigned int i=0; i<output.size(); ++i)
         {
 
-            if (output[i]->elem.first.getCollisionModel() == mouseCollision)
+            if (output[i].elem.first.getCollisionModel() == mouseCollision)
             {
-                modelInCollision = output[i]->elem.second.getCollisionModel();
+                modelInCollision = output[i].elem.second.getCollisionModel();
                 if (!modelInCollision->isSimulated()) continue;	              
                 if (modelInCollision->hasTag(tag)) continue; 
 
-                const double d = (output[i]->point[1]-origin)*direction;
+                const double d = (output[i].point[1]-origin)*direction;
                 if (d<0.0 || d>maxLength) continue;
                 if (result.body == NULL || d < result.rayLength)
                 {
                     result.body=modelInCollision;
-                    result.indexCollisionElement = output[i]->elem.second.getIndex();
-                    result.point = output[i]->point[1];
+                    result.indexCollisionElement = output[i].elem.second.getIndex();
+                    result.point = output[i].point[1];
 #ifdef DETECTIONOUTPUT_BARYCENTRICINFO
-                    result.baryCoords = output[i]->baryCoords[1];
+                    result.baryCoords = output[i].baryCoords[1];
 #endif
-                    result.dist  = (output[i]->point[1]-output[i]->point[0]).norm();
+                    result.dist  = (output[i].point[1]-output[i].point[0]).norm();
                     result.rayLength  = d;
                 }
             }
-            else if (output[i]->elem.second.getCollisionModel() == mouseCollision)
+            else if (output[i].elem.second.getCollisionModel() == mouseCollision)
             {
-                modelInCollision = output[i]->elem.first.getCollisionModel();
+                modelInCollision = output[i].elem.first.getCollisionModel();
                 if (!modelInCollision->isSimulated()) continue;
                 if (modelInCollision->hasTag(tag)) continue; 
 
-                const double d = (output[i]->point[0]-origin)*direction;
+                const double d = (output[i].point[0]-origin)*direction;
                 if (d<0.0 || d>maxLength) continue;
                 if (result.body == NULL || d < result.rayLength)
                 {
                     result.body=modelInCollision;
-                    result.indexCollisionElement = output[i]->elem.first.getIndex();
-                    result.point = output[i]->point[0];
+                    result.indexCollisionElement = output[i].elem.first.getIndex();
+                    result.point = output[i].point[0];
 #ifdef DETECTIONOUTPUT_BARYCENTRICINFO
-                    result.baryCoords = output[i]->baryCoords[0];
+                    result.baryCoords = output[i].baryCoords[0];
 #endif
-                    result.dist  = (output[i]->point[1]-output[i]->point[0]).norm();
+                    result.dist  = (output[i].point[1]-output[i].point[0]).norm();
                     result.rayLength  = d;
                 }
             }
