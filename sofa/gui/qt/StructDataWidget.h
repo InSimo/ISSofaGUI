@@ -30,7 +30,9 @@
 #include <sofa/defaulttype/LaparoscopicRigidTypes.h>
 #include <SofaDeformable/SpringForceField.h>
 #include <SofaRigid/JointSpringForceField.h>
+#ifdef SOFA_HAVE_OPTIONAL
 #include <SofaMiscForceField/GearSpringForceField.h>
+#endif
 /* #include <../../../projects/vulcain/lib/DiscreteElementModel.h> */
 #include <sofa/helper/io/Mesh.h>
 
@@ -554,6 +556,7 @@ class data_widget_container < CLASS > : public struct_data_widget_container < CL
 /// sofa::component::forcefield::GearSpring support
 ////////////////////////////////////////////////////////////////
 
+#ifdef SOFA_HAVE_OPTIONAL
 #define CLASS typename sofa::component::interactionforcefield::GearSpring< T >
 
 template<class T>
@@ -583,6 +586,7 @@ class data_widget_container < CLASS > : public struct_data_widget_container < CL
 {};
 
 #undef CLASS
+#endif
 
 //
 //////////////////////////////////////////////////////////////////

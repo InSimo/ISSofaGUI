@@ -99,7 +99,11 @@ set(UI_FILES
 	)
 
 set( SOFAGUIQT_COMPILER_FLAGS "-DSOFA_BUILD_SOFAGUIQT")
-set( SOFAGUIQT_LINK_LIBRARIES SofaGuiCommon SofaBaseVisual SofaExporter SofaLoader SofaOpenglVisual SofaMiscForceField)
+set( SOFAGUIQT_LINK_LIBRARIES SofaGuiCommon SofaBaseVisual SofaExporter SofaLoader SofaOpenglVisual)
+
+if(SOFA_OPTIONAL)
+	set( SOFAGUIQT_LINK_LIBRARIES ${SOFAGUIQT_LINK_LIBRARIES} SofaMiscForceField)
+endif()
 
 if(SOFA_DUMP_VISITOR_INFO)
 	list(APPEND MOC_HEADER_FILES
