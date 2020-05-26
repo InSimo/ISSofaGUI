@@ -71,27 +71,45 @@ QDataDescriptionWidget::QDataDescriptionWidget(QWidget* parent, core::objectmode
             new QLabel(QString("Template"), box);
             (new QLabel(QString(object->getTemplateName().c_str()), box))->setMinimumWidth(20);
         }
-        if (!object->getSourceFileName().empty())
+        if (object->getNbSourceFiles()>0)
         {
-            new QLabel(QString("From"), box);
-            std::string path = object->getSourceFileName();
-            std::string filename = sofa::helper::system::SetDirectory::GetFileName(path.c_str());
-            std::string suffix;
-            std::pair<int,int> pos = object->getSourceFilePos();
-            if (pos.first || pos.second)
+            for (std::size_t i = 0; i < object->getNbSourceFiles(); ++i)
             {
-                suffix += ':';
-                suffix += std::to_string(pos.first);
-                if (pos.second)
+                new QLabel(QString("From"), box);
+                std::string path = object->getSourceFileName(i);
+                std::string abspath;
+                std::string currentdir = sofa::helper::system::SetDirectory::GetCurrentDir();
+                if (sofa::helper::system::SetDirectory::IsAbsolute(path))
+                {
+                    abspath = path;
+                    if (path.substr(0,currentdir.length()) == currentdir)
+                    {
+                        path = path.substr(currentdir.length()+1);
+                    }
+                }
+                else
+                {
+                    abspath = sofa::helper::system::SetDirectory::GetRelativeFromDir(path.c_str(), currentdir.c_str());
+                }
+                std::string suffix;
+                std::pair<int,int> pos = object->getSourceFilePos(i);
+                if (pos.first || pos.second)
                 {
                     suffix += ':';
-                    suffix += std::to_string(pos.second);
+                    suffix += std::to_string(pos.first);
+                    if (pos.second)
+                    {
+                        suffix += ':';
+                        suffix += std::to_string(pos.second);
+                    }
                 }
+                QLabel* txtLab = new QLabel(QString(""), box);
+                // Doc on vscode file url with line numbers: https://code.visualstudio.com/docs/editor/command-line#_opening-vs-code-with-urls
+                txtLab->setText("<a href=\"file:///" + QString(abspath.c_str()) + "\"> "+ QString(path.c_str())
+                    + "</a> <a href=\"vscode://file/" + QString(abspath.c_str()) + QString(suffix.c_str()) + "\">"+ "L" + QString(suffix.c_str()) + " (vscode)</a>");
+                txtLab->setOpenExternalLinks(true);
+                txtLab->setMinimumWidth(20);
             }
-            QLabel* txtLab = new QLabel(QString(""), box);
-            txtLab->setText("<a href=\"file:///" + QString(path.c_str()) + "\"> "+ QString(path.c_str()) + "</a> L" + QString(suffix.c_str()));
-            txtLab->setOpenExternalLinks(true);
-            txtLab->setMinimumWidth(20);
         }
 
         tabLayout->addWidget( box );
