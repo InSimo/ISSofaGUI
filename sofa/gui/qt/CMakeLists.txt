@@ -14,6 +14,7 @@ set(MOC_HEADER_FILES
 	DataWidget.h
 	DataFilenameWidget.h
 	DisplayFlagsDataWidget.h
+    EnumFlagsDataWidget.h
 	MaterialDataWidget.h
 	ModifyObject.h
 	SimpleDataWidget.h
@@ -62,6 +63,7 @@ set(SOURCE_FILES
 	DataWidget.cpp 
 	DataFilenameWidget.cpp
 	DisplayFlagsDataWidget.cpp
+    EnumFlagsDataWidget.cpp
 	MaterialDataWidget.cpp
 	ModifyObject.cpp
 	SimpleDataWidget.cpp
