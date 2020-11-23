@@ -66,16 +66,6 @@ class QDragEnterEvent;
 
 namespace sofa
 {
-#ifdef SOFA_PML
-namespace filemanager
-{
-namespace pml
-{
-class PMLReader;
-class LMLReader;
-}
-}
-#endif
 
 namespace gui
 {
@@ -84,15 +74,11 @@ class BaseViewer;
 
 namespace qt
 {
-#ifdef SOFA_PML
-using namespace sofa::filemanager::pml;
-#endif
 
 #ifndef SOFA_GUI_QT_NO_RECORDER
 class QSofaRecorder;
 #endif
 
-//enum TYPE{ NORMAL, PML, LML};
 enum SCRIPT_TYPE { PHP, PERL };
 
 class QSofaListView;
@@ -203,13 +189,6 @@ private:
 
 #ifdef SOFA_GUI_INTERACTION
     bool m_interactionActived;
-#endif
-
-#ifdef SOFA_PML
-    virtual void pmlOpen(const char* filename, bool resetView=true);
-    virtual void lmlOpen(const char* filename);
-    PMLReader *pmlreader;
-    LMLReader *lmlreader;
 #endif
 
 #ifdef SOFA_DUMP_VISITOR_INFO

@@ -25,11 +25,6 @@
 #include "RealGUI.h"
 #include "ImageQt.h"
 
-#ifdef SOFA_PML
-#  include <sofa/filemanager/sofapml/PMLReader.h>
-#  include <sofa/filemanager/sofapml/LMLReader.h>
-#endif
-
 #ifndef SOFA_GUI_QT_NO_RECORDER
 #   include "sofa/gui/qt/QSofaRecorder.h"
 #endif
@@ -37,10 +32,6 @@
 #ifdef SOFA_DUMP_VISITOR_INFO
 #   include "WindowVisitor.h"
 #   include "GraphVisitor.h"
-#endif
-
-#ifdef SOFA_PML
-#   include <sofa/simulation/common/Node.h>
 #endif
 
 #include "QSofaListView.h"
@@ -294,11 +285,6 @@ RealGUI::RealGUI(const sofa::simulation::gui::BaseGUIArgument* a)
     m_interactionActived(false),
 #endif
 
-#ifdef SOFA_PML
-    pmlreader(NULL),
-    lmlreader(NULL),
-#endif
-
 #ifdef SOFA_DUMP_VISITOR_INFO
     windowTraceVisitor(NULL),
     handleTraceVisitor(NULL),
@@ -518,19 +504,6 @@ RealGUI::~RealGUI()
             fs.close();
         }
     }
-
-#ifdef SOFA_PML
-    if ( pmlreader )
-    {
-        delete pmlreader;
-        pmlreader = NULL;
-    }
-    if ( lmlreader )
-    {
-        delete lmlreader;
-        lmlreader = NULL;
-    }
-#endif
 
     if( displayFlag != NULL )
         delete displayFlag;
@@ -785,48 +758,6 @@ bool RealGUI::eventFilter(QObject * /*obj*/, QEvent *e)
 
 //------------------------------------
 
-#ifdef SOFA_PML
-void RealGUI::pmlOpen ( const char* filename, bool /*resetView*/ )
-{
-    std::string scene = "PML/default.scn";
-    if ( !sofa::helper::system::DataRepository.findFile ( scene ) )
-    {
-        std::cerr << "File " << scene << " not found " << std::endl;
-        return;
-    }
-    this->unloadScene();
-    Node *simuNode = Node::DynamicCast(simulation::getSimulation()->load ( scene.c_str() ));
-    getSimulation()->init(simuNode);
-    if ( simuNode )
-    {
-        if ( !pmlreader ) pmlreader = new PMLReader;
-        pmlreader->BuildStructure ( filename, simuNode );
-        setScene ( simuNode, filename );
-        this->setWindowFilePath(filename); //.c_str());
-    }
-}
-
-//------------------------------------
-
-//lmlOpen
-void RealGUI::lmlOpen ( const char* filename )
-{
-    if ( pmlreader )
-    {
-        Node* root;
-        if ( lmlreader != NULL ) delete lmlreader;
-        lmlreader = new LMLReader; std::cout <<"New lml reader\n";
-        lmlreader->BuildStructure ( filename, pmlreader );
-        root = getScene();
-        simulation::getSimulation()->init ( root );
-    }
-    else
-        std::cerr<<"You must load the pml file before the lml file"<<endl;
-}
-#endif
-
-//------------------------------------
-
 
 //======================= OPTIONS DEFINITIONS ========================= }
 
@@ -961,13 +892,8 @@ void RealGUI::fileOpen()
     }
 
 
-#ifdef SOFA_PML
-//            "Scenes (*.scn *.xml);;Simulation (*.simu);;Php Scenes (*.pscn);;Pml Lml (*.pml *.lml);;All (*)",
-    filter += ";;Simulation (*.simu);;Pml Lml (*.pml *.lml);;All (*)";
-#else
 //            "Scenes (*.scn *.xml);;Simulation (*.simu);;Php Scenes (*.pscn);;All (*)",
     filter += ";;Simulation (*.simu);;All (*)";
-#endif
 
     QString selectedFilter = "Scenes (*.xml *.scn)"; 
     QString s = getOpenFileName ( this, filename.empty() ?NULL:filename.c_str(),
@@ -977,13 +903,6 @@ void RealGUI::fileOpen()
 
     if ( s.length() >0 )
     {
-#ifdef SOFA_PML
-        if ( s.endsWith ( ".pml" ) )
-            pmlOpen ( s );
-        else if ( s.endsWith ( ".lml" ) )
-            lmlOpen ( s );
-        else
-#endif
             if (s.endsWith( ".simu") )
                 fileOpenSimu(s.ascii());
             else
@@ -1151,24 +1070,10 @@ void RealGUI::fileReload()
         return;
     }
 
-#ifdef SOFA_PML
-    if ( s.length() >0 )
-    {
-        if ( s.endsWith ( ".pml" ) )
-            pmlOpen ( s );
-        else if ( s.endsWith ( ".lml" ) )
-            lmlOpen ( s );
-        else if (s.endsWith( ".simu") )
-            fileOpenSimu(filename);
-        else
-            fileOpen ( filename, saveReloadFile);
-    }
-#else
     if (s.endsWith( ".simu") )
         fileOpenSimu(s.ascii());
     else
         fileOpen ( s.ascii(),saveReloadFile );
-#endif
 }
 
 //------------------------------------
@@ -2257,20 +2162,9 @@ void RealGUI::fileSaveAs(Node *node)
     if (node == NULL) node = getCurrentSimulation();
     QString s;
     std::string filename(this->windowFilePath().ascii());
-#ifdef SOFA_PML
-    s = getSaveFileName ( this, filename.empty() ?NULL:filename.c_str(), "Scenes (*.scn *.xml *.pml)", "save file dialog",  "Choose where the scene will be saved" );
-    if ( s.length() >0 )
-    {
-        if ( pmlreader && s.endsWith ( ".pml" ) )
-            pmlreader->saveAsPML ( s );
-        else
-            fileSaveAs ( node,s );
-    }
-#else
     s = getSaveFileName ( this, filename.empty() ?NULL:filename.c_str(), "Scenes (*.scn *.xml)", "save file dialog", "Choose where the scene will be saved" );
     if ( s.length() >0 )
         fileSaveAs ( node,s );
-#endif
 }
 
 // ----------------------------------
