@@ -67,7 +67,6 @@ void QTabulationModifyObject::addData(sofa::core::objectmodel::BaseData *data, c
 
     data->setDisplayed(true);
 
-    const std::string name=data->getName();
     QDisplayDataWidget* displaydatawidget = new QDisplayDataWidget(this,data,flags,componentReference,listView);
     this->layout()->add(displaydatawidget);
 
@@ -90,7 +89,6 @@ void QTabulationModifyObject::addLink(sofa::core::objectmodel::BaseLink *link, c
     //if (  (!link->isDisplayed()) && flags.HIDE_FLAG ) return;
 
     //link->setDisplayed(true);
-    const std::string name=link->getName();
     QDisplayLinkWidget* displaylinkwidget = new QDisplayLinkWidget(this,link,flags,componentReference, listView);
     this->layout()->add(displaylinkwidget);
 
