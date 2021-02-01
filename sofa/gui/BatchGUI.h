@@ -64,6 +64,7 @@ public:
     sofa::simulation::Node* getCurrentSimulation() override;
     
     void initialize() override;
+    void setMaxFPS(double fpsMaxRate);
 
 
     /// @}
@@ -95,6 +96,8 @@ protected:
 
     std::chrono::high_resolution_clock::time_point m_lastIdleEventTime;
     static bool m_logStepDuration;
+    double m_maxFPS = 0.0;
+    sofa::helper::system::thread::ctime_t m_throttleLastFrame = sofa::helper::system::thread::ctime_t(0);
 };
 
 } // namespace gui

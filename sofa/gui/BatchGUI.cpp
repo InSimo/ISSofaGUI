@@ -27,6 +27,7 @@
 #include <sofa/simulation/common/UpdateContextVisitor.h>
 #include <sofa/simulation/common/GUIFactory.h>
 #include <sofa/core/objectmodel/IdleEvent.h>
+#include <sofa/helper/system/thread/CTime.h>
 #ifdef SOFA_SMP
 #include <athapascan-1>
 #endif
@@ -124,6 +125,35 @@ int BatchGUI::mainLoop()
 
 bool BatchGUI::step()
 {
+    if (m_maxFPS > 0)
+    {
+        using namespace sofa::helper::system::thread;
+        const ctime_t timeTicks = CTime::getRefTicksPerSec();
+        ctime_t now = CTime::getRefTime();
+        const double interval = timeTicks / m_maxFPS;
+        ctime_t diff = now - m_throttleLastFrame;
+        if (diff >= 2 * interval)
+        {
+            m_throttleLastFrame = now;
+        }
+        else
+        {
+            if (diff < interval)
+            {
+                const double waittime = (interval - diff) / timeTicks;
+                if (waittime > 0.01)
+                {
+                    CTime::sleep(waittime - 0.01);
+                }
+                do
+                {
+                    now = CTime::getRefTime();
+                    diff = now - m_throttleLastFrame;
+                } while (diff < interval);
+            }
+            m_throttleLastFrame += interval;
+        }
+    }
     if (m_groot->getAnimate())
     {
         sofa::simulation::getSimulation()->animate(m_groot.get());
@@ -164,6 +194,15 @@ void BatchGUI::redraw()
 void BatchGUI::initialize()
 {
     initGUI();
+}
+
+void BatchGUI::setMaxFPS(double fpsMaxRate)
+{
+    if (fpsMaxRate != m_maxFPS)
+    {
+        m_throttleLastFrame = sofa::helper::system::thread::CTime::getRefTime();
+    }
+    m_maxFPS = fpsMaxRate;
 }
 
 void BatchGUI::setScene(sofa::simulation::Node::SPtr groot, const char* filename, bool )
