@@ -1068,8 +1068,7 @@ void RealGUI::setScene ( Node::SPtr root, const char* filename, bool temporaryFi
             getQtViewer()->getQWidget()->update();
         }
 
-        //resetScene();
-		simulationGraph->applyFilter();
+        simulationGraph->applyFilter();
 
         if (!root->getContext()->getAnimate())
         {
