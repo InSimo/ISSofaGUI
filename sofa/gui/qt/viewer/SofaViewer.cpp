@@ -337,20 +337,42 @@ void SofaViewer::mousePressEvent ( QMouseEvent * e)
     if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent::State mState;
-    switch(e->button())
+
+    if (e->state() & Qt::ShiftButton)
     {
-    case Qt::LeftButton:
-        mState = sofa::core::objectmodel::MouseEvent::LeftPressed;
-        break;
-    case Qt::RightButton:
-        mState = sofa::core::objectmodel::MouseEvent::RightPressed;
-        break;
-    case Qt::MidButton:
-        mState = sofa::core::objectmodel::MouseEvent::MiddlePressed;
-        break;
-    default:
-        mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed;
-        break;
+        switch (e->button())
+        {
+        case Qt::LeftButton:
+            mState = sofa::core::objectmodel::MouseEvent::LeftPressedAction;
+            break;
+        case Qt::RightButton:
+            mState = sofa::core::objectmodel::MouseEvent::RightPressedAction;
+            break;
+        case Qt::MidButton:
+            mState = sofa::core::objectmodel::MouseEvent::MiddlePressedAction;
+            break;
+        default:
+            mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressedAction;
+            break;
+        }
+    }
+    else
+    {
+        switch (e->button())
+        {
+        case Qt::LeftButton:
+            mState = sofa::core::objectmodel::MouseEvent::LeftPressed;
+            break;
+        case Qt::RightButton:
+            mState = sofa::core::objectmodel::MouseEvent::RightPressed;
+            break;
+        case Qt::MidButton:
+            mState = sofa::core::objectmodel::MouseEvent::MiddlePressed;
+            break;
+        default:
+            mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed;
+            break;
+        }
     }
     sofa::core::objectmodel::MouseEvent* const mEvent = new sofa::core::objectmodel::MouseEvent(mState, e->x(), e->y());
     currentCamera->manageEvent(mEvent);
@@ -367,20 +389,41 @@ void SofaViewer::mouseReleaseEvent ( QMouseEvent * e)
     if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent::State mState;
-    switch(e->button())
+    if (e->state() & Qt::ShiftButton)
     {
-    case Qt::LeftButton:
-        mState = sofa::core::objectmodel::MouseEvent::LeftReleased;
-        break;
-    case Qt::RightButton:
-        mState = sofa::core::objectmodel::MouseEvent::RightReleased;
-        break;
-    case Qt::MidButton:
-        mState = sofa::core::objectmodel::MouseEvent::MiddleReleased;
-        break;
-    default:
-        mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased;
-        break;
+        switch (e->button())
+        {
+        case Qt::LeftButton:
+            mState = sofa::core::objectmodel::MouseEvent::LeftReleasedAction;
+            break;
+        case Qt::RightButton:
+            mState = sofa::core::objectmodel::MouseEvent::RightReleasedAction;
+            break;
+        case Qt::MidButton:
+            mState = sofa::core::objectmodel::MouseEvent::MiddleReleasedAction;
+            break;
+        default:
+            mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleasedAction;
+            break;
+        }
+    }
+    else
+    {
+        switch (e->button())
+        {
+        case Qt::LeftButton:
+            mState = sofa::core::objectmodel::MouseEvent::LeftReleased;
+            break;
+        case Qt::RightButton:
+            mState = sofa::core::objectmodel::MouseEvent::RightReleased;
+            break;
+        case Qt::MidButton:
+            mState = sofa::core::objectmodel::MouseEvent::MiddleReleased;
+            break;
+        default:
+            mState = sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased;
+            break;
+        }
     }
     sofa::core::objectmodel::MouseEvent* const mEvent = new sofa::core::objectmodel::MouseEvent(mState, e->x(), e->y());
     currentCamera->manageEvent(mEvent);
