@@ -170,6 +170,7 @@ void BatchGUI::setScene(sofa::simulation::Node::SPtr groot, const char* filename
 {
     this->m_groot = groot;
     this->m_filename = (filename?filename:"");
+    sofa::simulation::getSimulation()->updateVisual(m_groot.get()); // update visual at init to avoid diff with RealGUI
 }
 
 
