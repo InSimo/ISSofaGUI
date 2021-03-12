@@ -1297,10 +1297,14 @@ void QtViewer::paintGL()
     drawScene();
 
     if(!captureTimer.isActive() && groot)
+    {
         SofaViewer::captureEvent();
+    }
 
     if (_waitForRender)
+    {
         _waitForRender = false;
+    }
 
     emit( redrawn());
 }
